@@ -3,7 +3,7 @@ ggt's generator toolbox
 
 # notes
 
-This repository will welcome the refacting and rationalization of those repos,
+This repository will welcome the refactoring and rationalization of those repos,
 
 - https://github.com/mh-cbon/http-clienter
 - https://github.com/mh-cbon/goriller
@@ -12,5 +12,6 @@ This repository will welcome the refacting and rationalization of those repos,
 - https://github.com/mh-cbon/channeler
 - https://github.com/mh-cbon/mutexer
 - https://github.com/mh-cbon/lister
+- https://github.com/mh-cbon/astutil
 
 Please come back later, watch it if you are interested.
