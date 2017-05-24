@@ -73,9 +73,11 @@ func NewTomates(backend slicegen.TomatesContract) Tomates {
 }
 
 func (t Tomates) GetById(getID string) (jsonResBody model.Tomate, err error) {
+	err = &NotFoundError{errors.New("Tomate not found")}
 	t.backend.Map(func(x model.Tomate) model.Tomate {
 		if x.ID == getID {
 			jsonResBody = x
+			err = nil
 		}
 		return x
 	})
@@ -101,6 +103,10 @@ func (t Tomates) Create(postColor string) (jsonResBody *model.Tomate, err error)
 	return jsonResBody, err
 }
 
+type NotFoundError struct {
+	error
+}
+
 type UserInputError struct {
 	error
 }
@@ -108,6 +114,8 @@ type UserInputError struct {
 func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
 	if _, ok := err.(*UserInputError); ok {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+	} else if _, ok := err.(*NotFoundError); ok {
+		http.Error(w, err.Error(), http.StatusNotFound)
 	} else {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -121,8 +129,10 @@ func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
 2017/05/24 15:43:01 no initial packages were loaded
 2017/05/24 15:43:01 no initial packages were loaded
 2017/05/24 15:43:01 no initial packages were loaded
+
 [mh-cbon@pc4 ademo] $ go run *go &
 [1] 5833
+
 [mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=0
 ...
 < HTTP/1.1 200 OK
@@ -131,6 +141,17 @@ func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
 < Content-Length: 25
 <
 {"ID":"0","Color":"Red"}
+
+[mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=10
+...
+< HTTP/1.1 404 Not Found
+< Content-Type: text/plain; charset=utf-8
+< X-Content-Type-Options: nosniff
+< Date: Wed, 24 May 2017 13:52:26 GMT
+< Content-Length: 17
+<
+Tomate not found
+
 [mh-cbon@pc4 ademo] $ curl -v --data "color=blue" http://localhost:8080/Create
 ...
 < HTTP/1.1 200 OK
@@ -139,6 +160,7 @@ func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
 < Content-Length: ...
 <
 {"ID":"1","Color":"blue"}
+
 [mh-cbon@pc4 ademo] $ curl --data "color=blue" http://localhost:8080/Create
 ...
 < HTTP/1.1 400 Bad Request
@@ -148,6 +170,7 @@ func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
 < Content-Length: 21
 <
 color must be unique
+
 [mh-cbon@pc4 ademo] $ curl --data "color=" http://localhost:8080/Create
 ...
 < HTTP/1.1 400 Bad Request
@@ -157,14 +180,17 @@ color must be unique
 < Content-Length: 24
 <
 color must not be empty
+
 [mh-cbon@pc4 ademo] $ curl --data "color=green" http://localhost:8080/Create
 {"ID":"2","Color":"green"}
+
 [mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=1
 {"ID":"1","Color":"blue"}
+
 [mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=2
 {"ID":"2","Color":"green"}
+
 [mh-cbon@pc4 ademo] $ fg
 go run *go
 ^Csignal: interrupt
-[mh-cbon@pc4 ademo] $
 ```
