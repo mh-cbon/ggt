@@ -40,9 +40,11 @@ func main() {
 		),
 	)
 
-	binder := lib.NewGorillaBinder(controllergen.TomatesControllerMethodSet(controller))
-	binder.Wrap(controller.GetByID, func(in http.HandlerFunc) http.HandlerFunc { return in })
-	binder.Apply(router, controller)
+	desc := controllergen.NewTomatesControllerDescriptor(controller)
+	desc.Create().Wrap(func(in http.HandlerFunc) http.HandlerFunc { return in })
+	desc.Wrap(func(in http.HandlerFunc) http.HandlerFunc { return in })
+
+	lib.Gorilla(desc, router)
 
 	http.ListenAndServe(":8080", router)
 }
