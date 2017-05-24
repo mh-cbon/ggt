@@ -28,14 +28,20 @@ Create a typed slice of a struct, [here](https://github.com/mh-cbon/ggt/tree/mas
 Mutex a type so its access are sync and protected of race conditions.
 
 #### $ {{exec "ggt" "-help" "chaner" | color "sh"}}
+
 [chaner](https://github.com/mh-cbon/ggt/tree/master/chaner)
 
 #### $ {{exec "ggt" "-help" "mutexer" | color "sh"}}
+
 [mutexer](https://github.com/mh-cbon/ggt/tree/master/mutexer)
 
 ## http-provider
 
-Transform a business controller into an http end point, [here](https://github.com/mh-cbon/ggt/tree/master/http-provider).
+Transform a business controller into an http end point.
+
+#### $ {{exec "ggt" "-help" "http-provider" | color "sh"}}
+
+[here](https://github.com/mh-cbon/ggt/tree/master/http-provider).
 
 ## http-clienter
 

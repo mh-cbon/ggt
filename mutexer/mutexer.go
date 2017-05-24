@@ -72,7 +72,27 @@ func wrongInput(format string, a ...interface{}) {
     `, fmt.Sprintf(format, a...))
 }
 func showHelp() {
-	fmt.Printf(``)
+	fmt.Printf(`ggt [options] mutexer ...[FromTypeName:ToTypeName]
+
+generates race protected type
+
+[options]
+
+	-p					Force out package name
+
+...[FromTypeName:ToTypeName]
+
+	A list of types such as src:dst.
+	A type is defined by its package path and its type name,
+	[pkgpath/]name.
+	If the Package path is empty, it is set to the package name being generated.
+	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+
+Example
+
+	ggt -c mutexer MySrcType:gen/*NewGenType
+	ggt -c mutexer myModule/*MySrcType:gen/NewGenType
+`)
 }
 
 func processType(todo utils.TransformArg, fileOut *utils.FileOut) error {

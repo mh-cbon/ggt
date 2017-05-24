@@ -72,9 +72,12 @@ func showHelp() {
 generates typed slice
 
 [options]
-	see ggt -help
+
+	-c					Create a contract of the generated type.
+	-p					Force out package name
 
 ...[FromTypeName:ToTypeName]
+
 	A list of types such as src:dst.
 	A type is defined by its package path and its type name,
 	[pkgpath/]name.
@@ -82,9 +85,9 @@ generates typed slice
 	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
 
 Example
+
 	ggt -c slicer MySrcType:gen/*NewGenType
 	ggt -c slicer myModule/*MySrcType:gen/NewGenType
-
 `)
 }
 
