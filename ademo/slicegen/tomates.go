@@ -6,32 +6,33 @@ package slicegen
 
 import (
 	json "encoding/json"
+
 	model "github.com/mh-cbon/ggt/ademo/model"
 )
 
-// Tomates implements a typed slice of model.Tomate
-type Tomates struct{ items []model.Tomate }
+// Tomates implements a typed slice of *model.Tomate
+type Tomates struct{ items []*model.Tomate }
 
-// NewTomates creates a new typed slice of model.Tomate
+// NewTomates creates a new typed slice of *model.Tomate
 func NewTomates() *Tomates {
-	return &Tomates{items: []model.Tomate{}}
+	return &Tomates{items: []*model.Tomate{}}
 }
 
-// Push appends every model.Tomate
-func (t *Tomates) Push(x ...model.Tomate) *Tomates {
+// Push appends every *model.Tomate
+func (t *Tomates) Push(x ...*model.Tomate) *Tomates {
 	t.items = append(t.items, x...)
 	return t
 }
 
-// Unshift prepends every model.Tomate
-func (t *Tomates) Unshift(x ...model.Tomate) *Tomates {
+// Unshift prepends every *model.Tomate
+func (t *Tomates) Unshift(x ...*model.Tomate) *Tomates {
 	t.items = append(x, t.items...)
 	return t
 }
 
-// Pop removes then returns the last model.Tomate.
-func (t *Tomates) Pop() model.Tomate {
-	var ret model.Tomate
+// Pop removes then returns the last *model.Tomate.
+func (t *Tomates) Pop() *model.Tomate {
+	var ret *model.Tomate
 	if len(t.items) > 0 {
 		ret = t.items[len(t.items)-1]
 		t.items = append(t.items[:0], t.items[len(t.items)-1:]...)
@@ -39,9 +40,9 @@ func (t *Tomates) Pop() model.Tomate {
 	return ret
 }
 
-// Shift removes then returns the first model.Tomate.
-func (t *Tomates) Shift() model.Tomate {
-	var ret model.Tomate
+// Shift removes then returns the first *model.Tomate.
+func (t *Tomates) Shift() *model.Tomate {
+	var ret *model.Tomate
 	if len(t.items) > 0 {
 		ret = t.items[0]
 		t.items = append(t.items[:0], t.items[1:]...)
@@ -49,8 +50,8 @@ func (t *Tomates) Shift() model.Tomate {
 	return ret
 }
 
-// Index of given model.Tomate. It must implements Ider interface.
-func (t *Tomates) Index(s model.Tomate) int {
+// Index of given *model.Tomate. It must implements Ider interface.
+func (t *Tomates) Index(s *model.Tomate) int {
 	ret := -1
 	for i, item := range t.items {
 		if s.GetID() == item.GetID() {
@@ -62,11 +63,11 @@ func (t *Tomates) Index(s model.Tomate) int {
 }
 
 // Contains returns true if s in is t.
-func (t *Tomates) Contains(s model.Tomate) bool {
+func (t *Tomates) Contains(s *model.Tomate) bool {
 	return t.Index(s) > -1
 }
 
-// RemoveAt removes a model.Tomate at index i.
+// RemoveAt removes a *model.Tomate at index i.
 func (t *Tomates) RemoveAt(i int) bool {
 	if i >= 0 && i < len(t.items) {
 		t.items = append(t.items[:i], t.items[i+1:]...)
@@ -75,8 +76,8 @@ func (t *Tomates) RemoveAt(i int) bool {
 	return false
 }
 
-// Remove removes given model.Tomate
-func (t *Tomates) Remove(s model.Tomate) bool {
+// Remove removes given *model.Tomate
+func (t *Tomates) Remove(s *model.Tomate) bool {
 	if i := t.Index(s); i > -1 {
 		t.RemoveAt(i)
 		return true
@@ -84,12 +85,12 @@ func (t *Tomates) Remove(s model.Tomate) bool {
 	return false
 }
 
-// InsertAt adds given model.Tomate at index i
-func (t *Tomates) InsertAt(i int, s model.Tomate) *Tomates {
+// InsertAt adds given *model.Tomate at index i
+func (t *Tomates) InsertAt(i int, s *model.Tomate) *Tomates {
 	if i < 0 || i >= len(t.items) {
 		return t
 	}
-	res := []model.Tomate{}
+	res := []*model.Tomate{}
 	res = append(res, t.items[:0]...)
 	res = append(res, s)
 	res = append(res, t.items[i:]...)
@@ -97,10 +98,10 @@ func (t *Tomates) InsertAt(i int, s model.Tomate) *Tomates {
 	return t
 }
 
-// Splice removes and returns a slice of model.Tomate, starting at start, ending at start+length.
+// Splice removes and returns a slice of *model.Tomate, starting at start, ending at start+length.
 // If any s is provided, they are inserted in place of the removed slice.
-func (t *Tomates) Splice(start int, length int, s ...model.Tomate) []model.Tomate {
-	var ret []model.Tomate
+func (t *Tomates) Splice(start int, length int, s ...*model.Tomate) []*model.Tomate {
+	var ret []*model.Tomate
 	for i := 0; i < len(t.items); i++ {
 		if i >= start && i < start+length {
 			ret = append(ret, t.items[i])
@@ -117,9 +118,9 @@ func (t *Tomates) Splice(start int, length int, s ...model.Tomate) []model.Tomat
 	return ret
 }
 
-// Slice returns a copied slice of model.Tomate, starting at start, ending at start+length.
-func (t *Tomates) Slice(start int, length int) []model.Tomate {
-	var ret []model.Tomate
+// Slice returns a copied slice of *model.Tomate, starting at start, ending at start+length.
+func (t *Tomates) Slice(start int, length int) []*model.Tomate {
+	var ret []*model.Tomate
 	if start >= 0 && start+length <= len(t.items) && start+length >= 0 {
 		ret = t.items[start : start+length]
 	}
@@ -140,23 +141,23 @@ func (t *Tomates) Len() int {
 }
 
 // Set the slice.
-func (t *Tomates) Set(x []model.Tomate) *Tomates {
+func (t *Tomates) Set(x []*model.Tomate) *Tomates {
 	t.items = append(t.items[:0], x...)
 	return t
 }
 
 // Get the slice.
-func (t *Tomates) Get() []model.Tomate {
+func (t *Tomates) Get() []*model.Tomate {
 	return t.items
 }
 
 // At return the item at index i.
-func (t *Tomates) At(i int) model.Tomate {
+func (t *Tomates) At(i int) *model.Tomate {
 	return t.items[i]
 }
 
 // Filter return a new Tomates with all items satisfying f.
-func (t *Tomates) Filter(filters ...func(model.Tomate) bool) *Tomates {
+func (t *Tomates) Filter(filters ...func(*model.Tomate) bool) *Tomates {
 	ret := NewTomates()
 	for _, i := range t.items {
 		ok := true
@@ -174,21 +175,26 @@ func (t *Tomates) Filter(filters ...func(model.Tomate) bool) *Tomates {
 }
 
 // Map return a new Tomates of each items modified by f.
-func (t *Tomates) Map(mappers ...func(model.Tomate) model.Tomate) *Tomates {
+func (t *Tomates) Map(mappers ...func(*model.Tomate) *model.Tomate) *Tomates {
 	ret := NewTomates()
 	for _, i := range t.items {
 		val := i
 		for _, m := range mappers {
 			val = m(val)
+			if val == nil {
+				break
+			}
 		}
-		ret.Push(val)
+		if val != nil {
+			ret.Push(val)
+		}
 	}
 	return ret
 }
 
 // First returns the first value or default.
-func (t *Tomates) First() model.Tomate {
-	var ret model.Tomate
+func (t *Tomates) First() *model.Tomate {
+	var ret *model.Tomate
 	if len(t.items) > 0 {
 		ret = t.items[0]
 	}
@@ -196,8 +202,8 @@ func (t *Tomates) First() model.Tomate {
 }
 
 // Last returns the last value or default.
-func (t *Tomates) Last() model.Tomate {
-	var ret model.Tomate
+func (t *Tomates) Last() *model.Tomate {
+	var ret *model.Tomate
 	if len(t.items) > 0 {
 		ret = t.items[len(t.items)-1]
 	}
@@ -216,7 +222,7 @@ func (t *Tomates) Transact(f func(*Tomates)) {
 
 //UnmarshalJSON JSON unserializes Tomates
 func (t *Tomates) UnmarshalJSON(b []byte) error {
-	var items []model.Tomate
+	var items []*model.Tomate
 	if err := json.Unmarshal(b, &items); err != nil {
 		return err
 	}
@@ -231,25 +237,25 @@ func (t *Tomates) MarshalJSON() ([]byte, error) {
 
 // TomatesContract are the requirements of Tomates
 type TomatesContract interface {
-	Push(x ...model.Tomate) *Tomates
-	Unshift(x ...model.Tomate) *Tomates
-	Pop() model.Tomate
-	Shift() model.Tomate
-	Index(s model.Tomate) int
-	Contains(s model.Tomate) bool
+	Push(x ...*model.Tomate) *Tomates
+	Unshift(x ...*model.Tomate) *Tomates
+	Pop() *model.Tomate
+	Shift() *model.Tomate
+	Index(s *model.Tomate) int
+	Contains(s *model.Tomate) bool
 	RemoveAt(i int) bool
-	Remove(s model.Tomate) bool
-	InsertAt(i int, s model.Tomate) *Tomates
-	Splice(start int, length int, s ...model.Tomate) []model.Tomate
-	Slice(start int, length int) []model.Tomate
+	Remove(s *model.Tomate) bool
+	InsertAt(i int, s *model.Tomate) *Tomates
+	Splice(start int, length int, s ...*model.Tomate) []*model.Tomate
+	Slice(start int, length int) []*model.Tomate
 	Reverse() *Tomates
-	Set(x []model.Tomate) *Tomates
-	Get() []model.Tomate
-	At(i int) model.Tomate
-	Filter(filters ...func(model.Tomate) bool) *Tomates
-	Map(mappers ...func(model.Tomate) model.Tomate) *Tomates
-	First() model.Tomate
-	Last() model.Tomate
+	Set(x []*model.Tomate) *Tomates
+	Get() []*model.Tomate
+	At(i int) *model.Tomate
+	Filter(filters ...func(*model.Tomate) bool) *Tomates
+	Map(mappers ...func(*model.Tomate) *model.Tomate) *Tomates
+	First() *model.Tomate
+	Last() *model.Tomate
 	Transact(func(*Tomates))
 	Len() int
 	Empty() bool
@@ -257,9 +263,9 @@ type TomatesContract interface {
 
 // FilterTomates provides filters for a struct.
 var FilterTomates = struct {
-	ByID    func(string) func(model.Tomate) bool
-	ByColor func(string) func(model.Tomate) bool
+	ByID    func(string) func(*model.Tomate) bool
+	ByColor func(string) func(*model.Tomate) bool
 }{
-	ByID:    func(v string) func(model.Tomate) bool { return func(o model.Tomate) bool { return o.ID == v } },
-	ByColor: func(v string) func(model.Tomate) bool { return func(o model.Tomate) bool { return o.Color == v } },
+	ByID:    func(v string) func(*model.Tomate) bool { return func(o *model.Tomate) bool { return o.ID == v } },
+	ByColor: func(v string) func(*model.Tomate) bool { return func(o *model.Tomate) bool { return o.Color == v } },
 }

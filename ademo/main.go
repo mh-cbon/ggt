@@ -12,7 +12,7 @@ import (
 	"github.com/mh-cbon/ggt/lib"
 )
 
-//go:generate ggt -c slicer model/Tomate:slicegen/Tomates
+//go:generate ggt -c slicer model/*Tomate:slicegen/Tomates
 //go:generate ggt chaner slicegen/Tomates:slicegen/TomatesSync
 
 //go:generate ggt http-provider controller/Tomates:controllergen/TomatesController
@@ -23,7 +23,7 @@ func main() {
 
 	backend := slicegen.NewTomatesSync()
 	backend.Transact(func(b *slicegen.Tomates) {
-		b.Push(model.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: "Red"})
+		b.Push(&model.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: "Red"})
 	})
 
 	controller := controllergen.NewTomatesController(
@@ -33,7 +33,7 @@ func main() {
 	)
 
 	binder := lib.NewGorillaBinder(controllergen.TomatesControllerMethodSet(controller))
-	binder.Wrap(controller.GetById, func(in http.HandlerFunc) http.HandlerFunc { return in })
+	binder.Wrap(controller.GetByID, func(in http.HandlerFunc) http.HandlerFunc { return in })
 	binder.Apply(router, controller)
 
 	http.ListenAndServe(":8080", router)

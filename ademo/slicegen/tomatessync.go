@@ -28,7 +28,7 @@ func NewTomatesSync() *TomatesSync {
 }
 
 // Push is channeled
-func (t *TomatesSync) Push(x ...model.Tomate) *Tomates {
+func (t *TomatesSync) Push(x ...*model.Tomate) *Tomates {
 	var retVar0 *Tomates
 	t.ops <- func() {
 		retVar0 = t.embed.Push(x...)
@@ -38,7 +38,7 @@ func (t *TomatesSync) Push(x ...model.Tomate) *Tomates {
 }
 
 // Unshift is channeled
-func (t *TomatesSync) Unshift(x ...model.Tomate) *Tomates {
+func (t *TomatesSync) Unshift(x ...*model.Tomate) *Tomates {
 	var retVar1 *Tomates
 	t.ops <- func() {
 		retVar1 = t.embed.Unshift(x...)
@@ -48,8 +48,8 @@ func (t *TomatesSync) Unshift(x ...model.Tomate) *Tomates {
 }
 
 // Pop is channeled
-func (t *TomatesSync) Pop() model.Tomate {
-	var retVar2 model.Tomate
+func (t *TomatesSync) Pop() *model.Tomate {
+	var retVar2 *model.Tomate
 	t.ops <- func() {
 		retVar2 = t.embed.Pop()
 	}
@@ -58,8 +58,8 @@ func (t *TomatesSync) Pop() model.Tomate {
 }
 
 // Shift is channeled
-func (t *TomatesSync) Shift() model.Tomate {
-	var retVar3 model.Tomate
+func (t *TomatesSync) Shift() *model.Tomate {
+	var retVar3 *model.Tomate
 	t.ops <- func() {
 		retVar3 = t.embed.Shift()
 	}
@@ -68,7 +68,7 @@ func (t *TomatesSync) Shift() model.Tomate {
 }
 
 // Index is channeled
-func (t *TomatesSync) Index(s model.Tomate) int {
+func (t *TomatesSync) Index(s *model.Tomate) int {
 	var retVar4 int
 	t.ops <- func() {
 		retVar4 = t.embed.Index(s)
@@ -78,7 +78,7 @@ func (t *TomatesSync) Index(s model.Tomate) int {
 }
 
 // Contains is channeled
-func (t *TomatesSync) Contains(s model.Tomate) bool {
+func (t *TomatesSync) Contains(s *model.Tomate) bool {
 	var retVar5 bool
 	t.ops <- func() {
 		retVar5 = t.embed.Contains(s)
@@ -98,7 +98,7 @@ func (t *TomatesSync) RemoveAt(i int) bool {
 }
 
 // Remove is channeled
-func (t *TomatesSync) Remove(s model.Tomate) bool {
+func (t *TomatesSync) Remove(s *model.Tomate) bool {
 	var retVar7 bool
 	t.ops <- func() {
 		retVar7 = t.embed.Remove(s)
@@ -108,7 +108,7 @@ func (t *TomatesSync) Remove(s model.Tomate) bool {
 }
 
 // InsertAt is channeled
-func (t *TomatesSync) InsertAt(i int, s model.Tomate) *Tomates {
+func (t *TomatesSync) InsertAt(i int, s *model.Tomate) *Tomates {
 	var retVar8 *Tomates
 	t.ops <- func() {
 		retVar8 = t.embed.InsertAt(i, s)
@@ -118,8 +118,8 @@ func (t *TomatesSync) InsertAt(i int, s model.Tomate) *Tomates {
 }
 
 // Splice is channeled
-func (t *TomatesSync) Splice(start int, length int, s ...model.Tomate) []model.Tomate {
-	var retVar9 []model.Tomate
+func (t *TomatesSync) Splice(start int, length int, s ...*model.Tomate) []*model.Tomate {
+	var retVar9 []*model.Tomate
 	t.ops <- func() {
 		retVar9 = t.embed.Splice(start, length, s...)
 	}
@@ -128,8 +128,8 @@ func (t *TomatesSync) Splice(start int, length int, s ...model.Tomate) []model.T
 }
 
 // Slice is channeled
-func (t *TomatesSync) Slice(start int, length int) []model.Tomate {
-	var retVar10 []model.Tomate
+func (t *TomatesSync) Slice(start int, length int) []*model.Tomate {
+	var retVar10 []*model.Tomate
 	t.ops <- func() {
 		retVar10 = t.embed.Slice(start, length)
 	}
@@ -158,7 +158,7 @@ func (t *TomatesSync) Len() int {
 }
 
 // Set is channeled
-func (t *TomatesSync) Set(x []model.Tomate) *Tomates {
+func (t *TomatesSync) Set(x []*model.Tomate) *Tomates {
 	var retVar13 *Tomates
 	t.ops <- func() {
 		retVar13 = t.embed.Set(x)
@@ -168,8 +168,8 @@ func (t *TomatesSync) Set(x []model.Tomate) *Tomates {
 }
 
 // Get is channeled
-func (t *TomatesSync) Get() []model.Tomate {
-	var retVar14 []model.Tomate
+func (t *TomatesSync) Get() []*model.Tomate {
+	var retVar14 []*model.Tomate
 	t.ops <- func() {
 		retVar14 = t.embed.Get()
 	}
@@ -178,8 +178,8 @@ func (t *TomatesSync) Get() []model.Tomate {
 }
 
 // At is channeled
-func (t *TomatesSync) At(i int) model.Tomate {
-	var retVar15 model.Tomate
+func (t *TomatesSync) At(i int) *model.Tomate {
+	var retVar15 *model.Tomate
 	t.ops <- func() {
 		retVar15 = t.embed.At(i)
 	}
@@ -188,7 +188,7 @@ func (t *TomatesSync) At(i int) model.Tomate {
 }
 
 // Filter is channeled
-func (t *TomatesSync) Filter(filters ...func(model.Tomate) bool) *Tomates {
+func (t *TomatesSync) Filter(filters ...func(*model.Tomate) bool) *Tomates {
 	var retVar16 *Tomates
 	t.ops <- func() {
 		retVar16 = t.embed.Filter(filters...)
@@ -198,7 +198,7 @@ func (t *TomatesSync) Filter(filters ...func(model.Tomate) bool) *Tomates {
 }
 
 // Map is channeled
-func (t *TomatesSync) Map(mappers ...func(model.Tomate) model.Tomate) *Tomates {
+func (t *TomatesSync) Map(mappers ...func(*model.Tomate) *model.Tomate) *Tomates {
 	var retVar17 *Tomates
 	t.ops <- func() {
 		retVar17 = t.embed.Map(mappers...)
@@ -208,8 +208,8 @@ func (t *TomatesSync) Map(mappers ...func(model.Tomate) model.Tomate) *Tomates {
 }
 
 // First is channeled
-func (t *TomatesSync) First() model.Tomate {
-	var retVar18 model.Tomate
+func (t *TomatesSync) First() *model.Tomate {
+	var retVar18 *model.Tomate
 	t.ops <- func() {
 		retVar18 = t.embed.First()
 	}
@@ -218,8 +218,8 @@ func (t *TomatesSync) First() model.Tomate {
 }
 
 // Last is channeled
-func (t *TomatesSync) Last() model.Tomate {
-	var retVar19 model.Tomate
+func (t *TomatesSync) Last() *model.Tomate {
+	var retVar19 *model.Tomate
 	t.ops <- func() {
 		retVar19 = t.embed.Last()
 	}

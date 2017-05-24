@@ -6,7 +6,9 @@ package controllergen
 
 import (
 	json "encoding/json"
+	"github.com/gorilla/mux"
 	controller "github.com/mh-cbon/ggt/ademo/controller"
+	model "github.com/mh-cbon/ggt/ademo/model"
 	ggt "github.com/mh-cbon/ggt/lib"
 	"io"
 	"net/http"
@@ -18,8 +20,7 @@ var xxIoCopy = io.Copy
 var xxHTTPOk = http.StatusOK
 
 // TomatesController is an httper of Tomates.
-//
-
+// Tomates controller.
 type TomatesController struct {
 	embed controller.Tomates
 }
@@ -32,20 +33,18 @@ func NewTomatesController(embed controller.Tomates) *TomatesController {
 	return ret
 }
 
-// GetById invoke Tomates.GetById using the request body as a json payload.
-//
+// GetByID invoke Tomates.GetByID using the request body as a json payload.
+// GetByID read the Tomate of given ID
+func (t *TomatesController) GetByID(w http.ResponseWriter, r *http.Request) {
 
-func (t *TomatesController) GetById(w http.ResponseWriter, r *http.Request) {
-
-	xxUrlValues := r.URL.Query()
+	xxURLValues := r.URL.Query()
 	var getID string
-
-	if _, ok := xxUrlValues["id"]; ok {
-		xxTmpgetID := xxUrlValues.Get("id")
+	if _, ok := xxURLValues["id"]; ok {
+		xxTmpgetID := xxURLValues.Get("id")
 		getID = xxTmpgetID
 	}
 
-	jsonResBody, err := t.embed.GetById(getID)
+	jsonResBody, err := t.embed.GetByID(getID)
 
 	if err != nil {
 
@@ -71,8 +70,7 @@ func (t *TomatesController) GetById(w http.ResponseWriter, r *http.Request) {
 }
 
 // Create invoke Tomates.Create using the request body as a json payload.
-//
-
+// Create a new Tomate
 func (t *TomatesController) Create(w http.ResponseWriter, r *http.Request) {
 
 	{
@@ -86,11 +84,10 @@ func (t *TomatesController) Create(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	var postColor string
-
+	var postColor *string
 	if _, ok := r.Form["color"]; ok {
 		xxTmppostColor := r.FormValue("color")
-		postColor = xxTmppostColor
+		postColor = &xxTmppostColor
 	}
 
 	jsonResBody, err := t.embed.Create(postColor)
@@ -118,12 +115,67 @@ func (t *TomatesController) Create(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Update invoke Tomates.Update using the request body as a json payload.
+// Update an existing Tomate
+//
+// @route /write/{id:[0-9]+}
+func (t *TomatesController) Update(w http.ResponseWriter, r *http.Request) {
+
+	xxRouteVars := mux.Vars(r)
+	var routeID string
+	if _, ok := xxRouteVars["id"]; ok {
+		xxTmprouteID := xxRouteVars["id"]
+		routeID = xxTmprouteID
+	}
+	var jsonReqBody *model.Tomate
+	{
+		jsonReqBody = &model.Tomate{}
+		decErr := json.NewDecoder(r.Body).Decode(jsonReqBody)
+
+		if decErr != nil {
+
+			t.embed.Finalizer(w, r, decErr)
+
+			return
+		}
+
+		defer r.Body.Close()
+	}
+
+	jsonResBody, err := t.embed.Update(routeID, jsonReqBody)
+
+	if err != nil {
+
+		t.embed.Finalizer(w, r, err)
+
+		return
+	}
+
+	{
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		encErr := json.NewEncoder(w).Encode(jsonResBody)
+
+		if encErr != nil {
+
+			t.embed.Finalizer(w, r, encErr)
+
+			return
+		}
+
+	}
+
+}
+
+// TomatesControllerMethodSet providers the methods set of a *TomatesController
 func TomatesControllerMethodSet(t *TomatesController) ggt.MethodSet {
 	var ret = ggt.NewMethodSet()
 
-	ret = ret.Register(func(x interface{}) http.HandlerFunc { return x.(*TomatesController).GetById }, "GetById", "GetById", []string{})
+	ret = ret.Register(func(x interface{}) http.HandlerFunc { return x.(*TomatesController).GetByID }, "GetByID", "GetByID", []string{})
 
 	ret = ret.Register(func(x interface{}) http.HandlerFunc { return x.(*TomatesController).Create }, "Create", "Create", []string{})
+
+	ret = ret.Register(func(x interface{}) http.HandlerFunc { return x.(*TomatesController).Update }, "Update", "/write/{id:[0-9]+}", []string{})
 
 	return ret
 }

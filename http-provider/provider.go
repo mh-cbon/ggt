@@ -141,8 +141,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 // %v is an httper of %v.
 %v
 		`, destName, srcName, structComment)
-	fmt.Fprintf(dest, `
-type %v struct{
+	fmt.Fprintf(dest, `type %v struct{
 	embed %v
 }
 		`, destName, srcNameFq)
@@ -159,6 +158,7 @@ type %v struct{
 }
 `, destName, srcNameFq, destName, destName)
 
+	// wrap each method
 	for _, m := range foundMethods[srcConcrete] {
 		methodName := astutil.MethodName(m)
 
@@ -224,7 +224,7 @@ type %v struct{
 		}
 		if hasGetParam(lParamNames) {
 			bodyFunc += fmt.Sprintf(`
-				xxUrlValues := r.URL.Query()
+				xxURLValues := r.URL.Query()
 			`)
 		}
 
@@ -233,17 +233,17 @@ type %v struct{
 
 			if strings.HasPrefix(paramName, "get") {
 				k := strings.ToLower(paramName[3:])
-				bodyFunc += fmt.Sprintf("var %v %v\n", paramName, paramType)
+				bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
 				bodyFunc += fmt.Sprintf(`
-					if _, ok := xxUrlValues[%q]; ok {
-						xxTmp%v := xxUrlValues.Get(%q)
+					if _, ok := xxURLValues[%q]; ok {
+						xxTmp%v := xxURLValues.Get(%q)
 						%v
 					}
 				`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler))
 
 			} else if strings.HasPrefix(paramName, "post") {
 				k := strings.ToLower(paramName[4:])
-				bodyFunc += fmt.Sprintf("var %v %v\n", paramName, paramType)
+				bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
 				bodyFunc += fmt.Sprintf(`
 					if _, ok := r.Form[%q]; ok {
 						xxTmp%v := r.FormValue(%q)
@@ -253,7 +253,7 @@ type %v struct{
 
 			} else if strings.HasPrefix(paramName, "route") {
 				k := strings.ToLower(paramName[5:])
-				bodyFunc += fmt.Sprintf("var %v %v\n", paramName, paramType)
+				bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
 				bodyFunc += fmt.Sprintf(`
 					if _, ok := xxRouteVars[%q]; ok {
 						xxTmp%v := xxRouteVars[%q]
@@ -263,7 +263,7 @@ type %v struct{
 
 			} else if strings.HasPrefix(paramName, "url") {
 				k := strings.ToLower(paramName[3:])
-				bodyFunc += fmt.Sprintf("var %v %v\n", paramName, paramType)
+				bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
 				bodyFunc += fmt.Sprintf(`
 				if _, ok := xxRouteVars[%q]; ok {
 					xxTmp%v := xxRouteVars[%q]
@@ -271,14 +271,14 @@ type %v struct{
 				}`,
 					k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
 
-				bodyFunc += fmt.Sprintf(`else if _, ok := xxUrlValues[%q]; ok {
-				xxTmp%v := xxUrlValues(%q)
+				bodyFunc += fmt.Sprintf(`else if _, ok := xxURLValues[%q]; ok {
+				xxTmp%v := xxURLValues(%q)
 					%v
 				}`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
 
 			} else if strings.HasPrefix(paramName, "req") {
 				k := strings.ToLower(paramName[3:])
-				bodyFunc += fmt.Sprintf("var %v %v\n", paramName, paramType)
+				bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
 				bodyFunc += fmt.Sprintf(`
 				if _, ok := xxRouteVars[%q]; ok {
 					xxTmp%v := xxRouteVars[%q]
@@ -286,8 +286,8 @@ type %v struct{
 				}`,
 					k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
 
-				bodyFunc += fmt.Sprintf(`else if _, ok := xxUrlValues[%q]; ok {
-				xxTmp%v := xxUrlValues(%q)
+				bodyFunc += fmt.Sprintf(`else if _, ok := xxURLValues[%q]; ok {
+				xxTmp%v := xxURLValues(%q)
 					%v
 				}`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
 
@@ -297,15 +297,22 @@ type %v struct{
 					}
 				`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
 
-			} else if paramName == "jsonBody" {
-				bodyFunc += fmt.Sprintf("var %v %v\n", paramName, paramType)
+			} else if paramName == "jsonReqBody" {
+
+				paramPkgID := astutil.GetPkgID(paramType)
+				if paramPkgID != "" {
+					fileOut.AddImport(astutil.GetImportPath(pkg, paramPkgID), paramPkgID)
+				}
+
+				bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
 				bodyFunc += fmt.Sprintf(`
 					{
-						decErr := json.NewDecoder(r.Body).Decode(jsonBody)
+						jsonReqBody = %v
+						decErr := json.NewDecoder(r.Body).Decode(jsonReqBody)
 						%v
 				    defer r.Body.Close()
 					}
-				`, errHandler("decErr"))
+				`, astutil.GetTypeToStructInit(paramType), errHandler("decErr"))
 
 			} else if paramName == "postValues" {
 				// might to something more handy here to handle differrent type than
@@ -407,8 +414,7 @@ type %v struct{
 			%v
 		`, methodName, srcName, methodName, comment)
 
-		fmt.Fprintf(dest, `
-		func (t %v) %v(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(dest, `func (t %v) %v(w http.ResponseWriter, r *http.Request) {
 		  %v
 		}
 
@@ -419,8 +425,10 @@ type %v struct{
 	fileOut.AddImport("github.com/mh-cbon/ggt/lib", "ggt")
 	fileOut.AddImport("net/http", "")
 
-	fmt.Fprintf(dest, `
-		func %vMethodSet(t %v) ggt.MethodSet {
+	fmt.Fprintf(dest, `// %vMethodSet providers the methods set of a %v
+			`, destName, dstStar)
+
+	fmt.Fprintf(dest, `func %vMethodSet(t %v) ggt.MethodSet {
 			var ret = ggt.NewMethodSet()
 			`, destName, dstStar)
 
@@ -527,9 +535,17 @@ func makeCommentLines(s string) string {
 }
 
 func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(string) string) string {
-	if toType == "string" {
+	if astutil.GetUnpointedType(toType) == "string" {
+		if astutil.IsAPointedType(toType) {
+			return fmt.Sprintf("%v = &%v", toVarName, fromStrVarName)
+		}
 		return fmt.Sprintf("%v = %v", toVarName, fromStrVarName)
-	} else if toType == "int" {
+	} else if astutil.GetUnpointedType(toType) == "int" {
+		if astutil.IsAPointedType(toType) {
+			return fmt.Sprintf(`%v, err := strconv.Atoi(*%v)
+		%v
+	`, toVarName, fromStrVarName, errHandler("err"))
+		}
 		return fmt.Sprintf(`%v, err := strconv.Atoi(%v)
 		%v
 	`, toVarName, fromStrVarName, errHandler("err"))
