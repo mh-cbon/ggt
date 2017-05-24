@@ -203,9 +203,9 @@ Please come back later for complete port, watch it if you are interested.
 ```sh
 go install && go generate ./ademo/*go
 go run ademo/*go &
-curl http://localhost:8080/GetById?id=2
-curl http://localhost:8080/GetById?id=0
+curl http://localhost:8080/GetByID?id=2
+curl http://localhost:8080/GetByID?id=0
 curl --data "color=blue" http://localhost:8080/Create
 curl -H "Content-Type: application/json" -X POST -d '{"color":""}' http://localhost:8080/Create
-curl -H "Content-Type: application/json" -X POST -d '{"color":"blue"}' http://localhost:8080/Create
+curl -H "Content-Type: application/json" -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
 ```
