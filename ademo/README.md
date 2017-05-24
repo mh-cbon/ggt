@@ -10,7 +10,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -34,7 +33,6 @@ func main() {
 	backend.Transact(func(b *slicegen.Tomates) {
 		b.Push(model.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: "Red"})
 	})
-	log.Println("backend", backend)
 
 	controller := controllergen.NewTomatesController(
 		controller.NewTomates(
@@ -125,8 +123,7 @@ func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
 2017/05/24 15:43:01 no initial packages were loaded
 [mh-cbon@pc4 ademo] $ go run *go &
 [1] 5833
-[mh-cbon@pc4 ademo] $ 2017/05/24 15:43:06 backend &{ {[{0 Red}] } 0xc4200781e0 0xc4200782a0 0xc420078240}
-curl http://localhost:8080/GetById?id=0
+[mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=0
 {"ID":"0","Color":"Red"}
 [mh-cbon@pc4 ademo] $ curl --data "color=blue" http://localhost:8080/Create
 {"ID":"1","Color":"blue"}

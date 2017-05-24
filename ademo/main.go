@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -26,7 +25,6 @@ func main() {
 	backend.Transact(func(b *slicegen.Tomates) {
 		b.Push(model.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: "Red"})
 	})
-	log.Println("backend", backend)
 
 	controller := controllergen.NewTomatesController(
 		controller.NewTomates(
