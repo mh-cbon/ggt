@@ -71,6 +71,6 @@ go run ademo/*go &
 curl http://localhost:8080/GetByID?id=2
 curl http://localhost:8080/GetByID?id=0
 curl --data "color=blue" http://localhost:8080/Create
-curl -H "Content-Type: application/json" -X POST -d '{"color":""}' http://localhost:8080/Create
+curl --data "color=" http://localhost:8080/Create
 curl -H "Content-Type: application/json" -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
 ```

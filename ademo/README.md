@@ -50,7 +50,7 @@ func main() {
 		Filter(slicegen.FilterTomates.ByID("0")).
 		Map(slicegen.SetterTomates.SetColor("Red"))
 
-		// make a complete controller (transport+business+storage)
+	// make a complete controller (transport+business+storage)
 	controller := controllergen.NewTomatesController(
 		controller.NewTomates(
 			backend,
@@ -108,14 +108,14 @@ func NewTomates(backend slicegen.TomatesContract) Tomates {
 
 // GetByID read the Tomate of given ID
 func (t Tomates) GetByID(getID string) (jsonResBody *model.Tomate, err error) {
-	err = &NotFoundError{errors.New("Tomate not found")}
-	t.backend.Map(func(x *model.Tomate) *model.Tomate {
-		if x.ID == getID {
-			jsonResBody = x
-			err = nil
-		}
-		return x
+	t.backend.Transact(func(backend *slicegen.Tomates) {
+		jsonResBody = backend.
+			Filter(slicegen.FilterTomates.ByID(getID)).
+			First()
 	})
+	if jsonResBody == nil {
+		err = &NotFoundError{errors.New("Tomate not found")}
+	}
 	return jsonResBody, err
 }
 
@@ -159,14 +159,14 @@ func (t Tomates) Update(routeID string, jsonReqBody *model.Tomate) (jsonResBody 
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
-		backend.Map(func(x *model.Tomate) *model.Tomate {
-			if x.ID == routeID {
-				x.Color = jsonReqBody.Color
-			}
-			return x
-		})
+		jsonResBody = backend.
+			Filter(slicegen.FilterTomates.ByID(routeID)).
+			Map(slicegen.SetterTomates.SetColor(jsonReqBody.Color)).
+			First()
 	})
-	jsonResBody = t.backend.Filter(slicegen.FilterTomates.ByID(routeID)).First()
+	if jsonResBody == nil {
+		err = &NotFoundError{errors.New("Tomate not found")}
+	}
 	return jsonResBody, err
 }
 

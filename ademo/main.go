@@ -36,7 +36,7 @@ func main() {
 		Filter(slicegen.FilterTomates.ByID("0")).
 		Map(slicegen.SetterTomates.SetColor("Red"))
 
-		// make a complete controller (transport+business+storage)
+	// make a complete controller (transport+business+storage)
 	controller := controllergen.NewTomatesController(
 		controller.NewTomates(
 			backend,
