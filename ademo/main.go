@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -33,10 +34,19 @@ func main() {
 	)
 
 	desc := controllergen.NewTomatesControllerDescriptor(controller)
-	desc.Create().Wrap(func(in http.HandlerFunc) http.HandlerFunc { return in })
-	desc.Wrap(func(in http.HandlerFunc) http.HandlerFunc { return in })
+	// desc.Create().WrapMethod(logReq)
+	desc.WrapMethod(logReq)
 
 	lib.Gorilla(desc, router)
 
 	http.ListenAndServe(":8080", router)
+}
+
+func logReq(m *lib.MethodDescriptor) lib.Wrapper {
+	return func(in http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			log.Println("handling ", m.Name, m.Route)
+			in(w, r)
+		}
+	}
 }

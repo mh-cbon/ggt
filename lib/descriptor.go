@@ -19,6 +19,13 @@ func (t *TypeDescriptor) Wrap(w ...Wrapper) {
 	}
 }
 
+// WrapMethod every methods with w...
+func (t *TypeDescriptor) WrapMethod(w ...MethodWrapper) {
+	for _, m := range t.Items {
+		m.WrapMethod(w...)
+	}
+}
+
 // Register a new method on the descriptor
 func (t *TypeDescriptor) Register(m *MethodDescriptor) {
 	t.Items = append(t.Items, m)
@@ -32,10 +39,13 @@ func (t *TypeDescriptor) Methods() []*MethodDescriptor {
 // Wrapper wraps a controller method.
 type Wrapper func(http.HandlerFunc) http.HandlerFunc
 
+// MethodWrapper wraps a controller method.
+type MethodWrapper func(*MethodDescriptor) Wrapper
+
 // MethodDescriptor describe a method and its property
 type MethodDescriptor struct {
 	Name     string
-	Wrappers []Wrapper
+	Wrappers []interface{}
 	Handler  http.HandlerFunc
 	Route    string
 	Methods  []string
@@ -43,14 +53,28 @@ type MethodDescriptor struct {
 
 // Wrap the method handler with w...
 func (m *MethodDescriptor) Wrap(w ...Wrapper) {
-	m.Wrappers = append(m.Wrappers, w...)
+	for _, e := range w {
+		m.Wrappers = append(m.Wrappers, e)
+	}
+}
+
+// WrapMethod the method handler with w...
+func (m *MethodDescriptor) WrapMethod(w ...MethodWrapper) {
+	for _, e := range w {
+		m.Wrappers = append(m.Wrappers, e)
+	}
 }
 
 // Wrapped return the final handler.
 func (m *MethodDescriptor) Wrapped() http.HandlerFunc {
 	ret := m.Handler
 	for _, w := range m.Wrappers {
-		ret = w(ret)
+		if x, ok := w.(Wrapper); ok {
+			ret = x(ret)
+
+		} else if y, ok := w.(MethodWrapper); ok {
+			ret = y(m)(ret)
+		}
 	}
 	return ret
 }
