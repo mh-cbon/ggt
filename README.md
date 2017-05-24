@@ -1,6 +1,8 @@
 # ggt
 ggt's generator toolbox
 
+Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
+
 # notes
 
 This repository will welcome the refactoring and rationalization of those repos,
