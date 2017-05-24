@@ -19,9 +19,11 @@ func NewTomates(backend slicegen.TomatesContract) Tomates {
 }
 
 func (t Tomates) GetById(getID string) (jsonResBody model.Tomate, err error) {
+	err = &NotFoundError{errors.New("Tomate not found")}
 	t.backend.Map(func(x model.Tomate) model.Tomate {
 		if x.ID == getID {
 			jsonResBody = x
+			err = nil
 		}
 		return x
 	})
@@ -47,6 +49,10 @@ func (t Tomates) Create(postColor string) (jsonResBody *model.Tomate, err error)
 	return jsonResBody, err
 }
 
+type NotFoundError struct {
+	error
+}
+
 type UserInputError struct {
 	error
 }
@@ -54,6 +60,8 @@ type UserInputError struct {
 func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
 	if _, ok := err.(*UserInputError); ok {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+	} else if _, ok := err.(*NotFoundError); ok {
+		http.Error(w, err.Error(), http.StatusNotFound)
 	} else {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

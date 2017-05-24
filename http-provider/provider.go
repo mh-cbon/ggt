@@ -171,13 +171,13 @@ type %v struct{
 			} else {
 				ret = fmt.Sprintf(`
 					http.Error(w, %v.Error(), http.StatusInternalServerError)
-					return
 				`, errName)
 			}
 			if ret != "" {
 				ret = fmt.Sprintf(`
 				if %v != nil {
 					%v
+					return
 				}
 				`, errName, ret)
 			}

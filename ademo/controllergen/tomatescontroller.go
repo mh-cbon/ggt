@@ -51,6 +51,7 @@ func (t *TomatesController) GetById(w http.ResponseWriter, r *http.Request) {
 
 		t.embed.Finalizer(w, r, err)
 
+		return
 	}
 
 	{
@@ -62,6 +63,7 @@ func (t *TomatesController) GetById(w http.ResponseWriter, r *http.Request) {
 
 			t.embed.Finalizer(w, r, encErr)
 
+			return
 		}
 
 	}
@@ -80,6 +82,7 @@ func (t *TomatesController) Create(w http.ResponseWriter, r *http.Request) {
 
 			t.embed.Finalizer(w, r, err)
 
+			return
 		}
 
 	}
@@ -96,6 +99,7 @@ func (t *TomatesController) Create(w http.ResponseWriter, r *http.Request) {
 
 		t.embed.Finalizer(w, r, err)
 
+		return
 	}
 
 	{
@@ -107,6 +111,7 @@ func (t *TomatesController) Create(w http.ResponseWriter, r *http.Request) {
 
 			t.embed.Finalizer(w, r, encErr)
 
+			return
 		}
 
 	}
