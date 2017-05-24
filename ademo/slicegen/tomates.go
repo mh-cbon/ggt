@@ -268,3 +268,22 @@ var FilterTomates = struct {
 	ByID:    func(v string) func(*model.Tomate) bool { return func(o *model.Tomate) bool { return o.ID == v } },
 	ByColor: func(v string) func(*model.Tomate) bool { return func(o *model.Tomate) bool { return o.Color == v } },
 }
+
+// SetterTomates provides sets properties.
+var SetterTomates = struct {
+	SetID    func(string) func(*model.Tomate) *model.Tomate
+	SetColor func(string) func(*model.Tomate) *model.Tomate
+}{
+	SetID: func(v string) func(*model.Tomate) *model.Tomate {
+		return func(o *model.Tomate) *model.Tomate {
+			o.ID = v
+			return o
+		}
+	},
+	SetColor: func(v string) func(*model.Tomate) *model.Tomate {
+		return func(o *model.Tomate) *model.Tomate {
+			o.Color = v
+			return o
+		}
+	},
+}

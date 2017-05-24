@@ -35,25 +35,38 @@ import (
 
 func main() {
 
+	// create the routes handler
 	router := mux.NewRouter()
 
+	// create a storage backend, in memory for current example.
 	backend := slicegen.NewTomatesSync()
+	// populate the backend for testing
 	backend.Transact(func(b *slicegen.Tomates) {
-		b.Push(&model.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: "Red"})
+		b.Push(&model.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: ""})
 	})
 
+	// for the fun, demonstrates generator capabilities :D
+	backend.
+		Filter(slicegen.FilterTomates.ByID("0")).
+		Map(slicegen.SetterTomates.SetColor("Red"))
+
+		// make a complete controller (transport+business+storage)
 	controller := controllergen.NewTomatesController(
 		controller.NewTomates(
 			backend,
 		),
 	)
 
+	// create a descriptor of the controller exposed methods
 	desc := controllergen.NewTomatesControllerDescriptor(controller)
+	// manipulates the handlers to wrap them
 	// desc.Create().WrapMethod(logReq)
 	desc.WrapMethod(logReq)
 
+	// bind the route handlers to the routes handler
 	lib.Gorilla(desc, router)
 
+	// beer time!
 	http.ListenAndServe(":8080", router)
 }
 

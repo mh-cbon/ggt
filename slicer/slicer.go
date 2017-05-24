@@ -525,7 +525,12 @@ func (t %v) MarshalJSON() ([]byte, error) {
 	}
 
 	if astutil.IsBasic(todo.FromTypeName) == false {
-		return processFilter(todo, fileOut)
+		if err := processFilter(todo, fileOut); err != nil {
+			return err
+		}
+		if err := processSetter(todo, fileOut); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -584,6 +589,72 @@ func processFilter(todo utils.TransformArg, fileOut *utils.FileOut) error {
 				fmt.Fprintf(dest, `By%v: func(v %v) func(%v) bool {`, propName, propType, srcNameFq)
 				fmt.Fprintf(dest, `	return func(o %v) bool {`, srcNameFq)
 				fmt.Fprintf(dest, `	return o.%v==v`, propName)
+				fmt.Fprintf(dest, `	}`)
+				fmt.Fprintf(dest, `},`)
+				fmt.Fprintln(dest, "")
+			}
+		}
+		fmt.Fprintln(dest)
+		fmt.Fprintln(dest, "}")
+	}
+
+	return nil
+}
+
+func processSetter(todo utils.TransformArg, fileOut *utils.FileOut) error {
+
+	dest := &fileOut.Body
+	srcName := todo.FromTypeName
+	destName := todo.ToTypeName
+	srcIsPointer := astutil.IsAPointedType(srcName)
+	srcConcrete := astutil.GetUnpointedType(srcName)
+	destConcrete := astutil.GetUnpointedType(destName)
+
+	prog := astutil.GetProgramFast(todo.FromPkgPath)
+	pkg := prog.Package(todo.FromPkgPath)
+
+	foundStruct := astutil.GetStruct(pkg, astutil.GetUnpointedType(srcName))
+	if foundStruct == nil {
+		log.Println("Can not locate the type " + srcName)
+		return nil
+	}
+
+	srcNameFq := srcName
+	if todo.FromPkgPath != todo.ToPkgPath && !astutil.IsBasic(todo.FromTypeName) {
+		srcNameFq = fmt.Sprintf("%v.%v", filepath.Base(todo.FromPkgPath), srcConcrete)
+		if srcIsPointer {
+			srcNameFq = "*" + srcNameFq
+		}
+	}
+
+	props := astutil.StructProps(foundStruct)
+
+	newStructProps := ""
+	for _, prop := range props {
+		//todo: find a way to detect if the type implements Eq or something like this.
+		propType := prop["type"]
+		if !astutil.IsArrayType(propType) {
+			propName := prop["name"]
+			newStructProps += fmt.Sprintf("Set%v func(%v) func (%v) %v", propName, propType, srcNameFq, srcNameFq)
+			newStructProps += "\n"
+		}
+	}
+
+	if newStructProps != "" {
+		fmt.Fprintf(dest, "// Setter%v provides sets properties.\n", destConcrete)
+		fmt.Fprintf(dest, `var Setter%v = struct {`, destConcrete)
+		fmt.Fprintln(dest)
+		fmt.Fprintln(dest, newStructProps+"\n")
+		fmt.Fprintln(dest, "}{")
+		for _, prop := range props {
+			//todo: find a way to detect if the type implements Eq or something like this.
+			propType := prop["type"]
+			if !astutil.IsArrayType(propType) {
+				propName := prop["name"]
+				fmt.Fprintf(dest, `Set%v: func(v %v) func(%v) %v {`, propName, propType, srcNameFq, srcNameFq)
+				fmt.Fprintf(dest, `	return func(o %v) %v {`, srcNameFq, srcNameFq)
+				fmt.Fprintf(dest, `	 o.%v = v
+														 return o`, propName)
 				fmt.Fprintf(dest, `	}`)
 				fmt.Fprintf(dest, `},`)
 				fmt.Fprintln(dest, "")
