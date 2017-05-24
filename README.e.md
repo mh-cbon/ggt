@@ -1,11 +1,50 @@
-# ggt
-ggt's generator toolbox
+# {{.Name}}
+
+{{pkgdoc}}
 
 Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
 
+# {{toc 5}}
+
+# Install
+
+#### go
+{{template "go/install" .}}
+
+# Usage
+
+#### $ {{exec "ggt" "-help" | color "sh"}}
+
+# Toolbox
+
+## slicer
+
+Create a typed slice of a struct, [here](https://github.com/mh-cbon/ggt/tree/master/slicer).
+
+#### $ {{exec "ggt" "-help" "slicer" | color "sh"}}
+
+## chaner / mutexer
+
+Mutex a type so its access are sync and protected of race conditions.
+
+#### $ {{exec "ggt" "-help" "chaner" | color "sh"}}
+[chaner](https://github.com/mh-cbon/ggt/tree/master/chaner)
+
+#### $ {{exec "ggt" "-help" "mutexer" | color "sh"}}
+[mutexer](https://github.com/mh-cbon/ggt/tree/master/mutexer)
+
+## http-provider
+
+Transform a business controller into an http end point, [here](https://github.com/mh-cbon/ggt/tree/master/http-provider).
+
+## http-clienter
+
+Transform a business controller into an http client, tbd.
+
+
 # notes
 
-This repository will welcome the refactoring and rationalization of those repos,
+This repository is the refactoring and rationalization of those repos,
 
 - https://github.com/mh-cbon/http-clienter
 - https://github.com/mh-cbon/goriller
@@ -16,7 +55,9 @@ This repository will welcome the refactoring and rationalization of those repos,
 - https://github.com/mh-cbon/lister
 - https://github.com/mh-cbon/astutil
 
-Please come back later, watch it if you are interested.
+Please come back later for complete port, watch it if you are interested.
+
+# dev
 
 ```sh
 go install && go generate ./ademo/*go

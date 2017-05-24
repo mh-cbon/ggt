@@ -1,3 +1,4 @@
+// ggt's generator toolbox
 package main
 
 import (
