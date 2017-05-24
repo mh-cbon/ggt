@@ -1,6 +1,8 @@
 # A demo
 
-A demo of ggt capabilities to create a service to read/create `tomatoes`.
+{{pkgdoc}}
+
+# {{toc 5}}
 
 # The main
 

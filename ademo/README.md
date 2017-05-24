@@ -1,11 +1,18 @@
 # A demo
 
-A demo of ggt capabilities to create a service to read/create `tomatoes`.
+A demo of ggt capabilities to create a service to create/read/update/delete `tomatoes`.
+
+
+# TOC
+- [The main](#the-main)
+- [The controller](#the-controller)
+- [The test](#the-test)
 
 # The main
 
 main.go
 ```go
+// A demo of ggt capabilities to create a service to create/read/update/delete `tomatoes`.
 package main
 
 import (

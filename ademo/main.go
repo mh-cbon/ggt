@@ -1,3 +1,4 @@
+// A demo of ggt capabilities to create a service to create/read/update/delete `tomatoes`.
 package main
 
 import (
