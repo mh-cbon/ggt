@@ -6,7 +6,6 @@ package slicegen
 
 import (
 	json "encoding/json"
-
 	model "github.com/mh-cbon/ggt/ademo/model"
 )
 

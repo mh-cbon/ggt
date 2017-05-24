@@ -425,13 +425,40 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	fileOut.AddImport("github.com/mh-cbon/ggt/lib", "ggt")
 	fileOut.AddImport("net/http", "")
 
-	fmt.Fprintf(dest, `// %vMethodSet providers the methods set of a %v
+	// declare the descriptor type
+	fmt.Fprintf(dest, `// %vDescriptor describe a %v
+			`, destName, dstStar)
+	fmt.Fprintf(dest, `type %vDescriptor struct {
+		ggt.TypeDescriptor
+		about %v
 			`, destName, dstStar)
 
-	fmt.Fprintf(dest, `func %vMethodSet(t %v) ggt.MethodSet {
-			var ret = ggt.NewMethodSet()
-			`, destName, dstStar)
+	// write type properties
+	for _, m := range foundMethods[srcConcrete] {
+		methodName := astutil.MethodName(m)
 
+		// ensure it is desired to facade this method.
+		if astutil.IsExported(methodName) == false {
+			continue
+		}
+		if strings.HasPrefix(methodName, "Finalize") {
+			continue
+		}
+		fmt.Fprintf(dest, `method%v *ggt.MethodDescriptor
+				`, methodName)
+	}
+
+	fmt.Fprint(dest, `}
+		`)
+
+	// write the constructor
+	fmt.Fprintf(dest, `// New%vDescriptor describe a %v
+			`, destName, dstStar)
+	fmt.Fprintf(dest, `func New%vDescriptor (about %v) %vDescriptor {
+		ret := &%vDescriptor{about: about}
+			`, destName, dstStar, dstStar, destName)
+
+	// write the setters
 	for _, m := range foundMethods[srcConcrete] {
 		methodName := astutil.MethodName(m)
 
@@ -455,16 +482,37 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		if m, ok := annotations["methods"]; ok {
 			methods = stringifyList(m)
 		}
-		fmt.Fprintf(dest, `
-				ret = ret.Register(func(x interface{}) http.HandlerFunc {return x.(%v).%v}, %q, %q, %v)
-				`, dstStar, methodName, methodName, route, methods)
-
-		fileOut.AddImport("net/http", "")
+		fmt.Fprintf(dest, `ret.method%v = &ggt.MethodDescriptor{
+				Name     : %q,
+				Handler  : about.%v,
+				Route    : %q,
+				Methods  : %v,
+		}
+				`, methodName, methodName, methodName, route, methods)
+		fmt.Fprintf(dest, `ret.TypeDescriptor.Register(ret.method%v)
+				`, methodName)
 	}
-	fmt.Fprintf(dest, `
-		return ret
-	}
+	fmt.Fprint(dest, `return ret
+		}
 	`)
+
+	// write the getters
+	for _, m := range foundMethods[srcConcrete] {
+		methodName := astutil.MethodName(m)
+
+		// ensure it is desired to facade this method.
+		if astutil.IsExported(methodName) == false {
+			continue
+		}
+		if strings.HasPrefix(methodName, "Finalize") {
+			continue
+		}
+
+		fmt.Fprintf(dest, `// %v returns a MethodDescriptor
+				`, methodName)
+		fmt.Fprintf(dest, `func (t %vDescriptor) %v() *ggt.MethodDescriptor { return t.method%v }
+				`, dstStar, methodName, methodName)
+	}
 
 	return nil
 }

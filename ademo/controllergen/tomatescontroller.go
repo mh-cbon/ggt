@@ -167,15 +167,47 @@ func (t *TomatesController) Update(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// TomatesControllerMethodSet providers the methods set of a *TomatesController
-func TomatesControllerMethodSet(t *TomatesController) ggt.MethodSet {
-	var ret = ggt.NewMethodSet()
+// TomatesControllerDescriptor describe a *TomatesController
+type TomatesControllerDescriptor struct {
+	ggt.TypeDescriptor
+	about         *TomatesController
+	methodGetByID *ggt.MethodDescriptor
+	methodCreate  *ggt.MethodDescriptor
+	methodUpdate  *ggt.MethodDescriptor
+}
 
-	ret = ret.Register(func(x interface{}) http.HandlerFunc { return x.(*TomatesController).GetByID }, "GetByID", "GetByID", []string{})
-
-	ret = ret.Register(func(x interface{}) http.HandlerFunc { return x.(*TomatesController).Create }, "Create", "Create", []string{})
-
-	ret = ret.Register(func(x interface{}) http.HandlerFunc { return x.(*TomatesController).Update }, "Update", "/write/{id:[0-9]+}", []string{})
-
+// NewTomatesControllerDescriptor describe a *TomatesController
+func NewTomatesControllerDescriptor(about *TomatesController) *TomatesControllerDescriptor {
+	ret := &TomatesControllerDescriptor{about: about}
+	ret.methodGetByID = &ggt.MethodDescriptor{
+		Name:    "GetByID",
+		Handler: about.GetByID,
+		Route:   "GetByID",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetByID)
+	ret.methodCreate = &ggt.MethodDescriptor{
+		Name:    "Create",
+		Handler: about.Create,
+		Route:   "Create",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodCreate)
+	ret.methodUpdate = &ggt.MethodDescriptor{
+		Name:    "Update",
+		Handler: about.Update,
+		Route:   "/write/{id:[0-9]+}",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodUpdate)
 	return ret
 }
+
+// GetByID returns a MethodDescriptor
+func (t *TomatesControllerDescriptor) GetByID() *ggt.MethodDescriptor { return t.methodGetByID }
+
+// Create returns a MethodDescriptor
+func (t *TomatesControllerDescriptor) Create() *ggt.MethodDescriptor { return t.methodCreate }
+
+// Update returns a MethodDescriptor
+func (t *TomatesControllerDescriptor) Update() *ggt.MethodDescriptor { return t.methodUpdate }
