@@ -59,7 +59,6 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -108,25 +107,45 @@ type UserInputError struct {
 	error
 }
 
-func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) bool {
-	if inputErr, ok := err.(*UserInputError); ok {
-		log.Println(inputErr)
-		return true
+func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
+	if _, ok := err.(*UserInputError); ok {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	} else {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	return false
 }
 ```
 
 # The test
 
 ```sh
-go generate *go
-go run *go &
+[mh-cbon@pc4 ademo] $ go generate *go
+2017/05/24 15:43:01 no initial packages were loaded
+2017/05/24 15:43:01 no initial packages were loaded
+2017/05/24 15:43:01 no initial packages were loaded
+[mh-cbon@pc4 ademo] $ go run *go &
+[1] 5833
+[mh-cbon@pc4 ademo] $ 2017/05/24 15:43:06 backend &{ {[{0 Red}] } 0xc4200781e0 0xc4200782a0 0xc420078240}
 curl http://localhost:8080/GetById?id=0
-curl --data "color=blue" http://localhost:8080/Create
-curl --data "color=blue" http://localhost:8080/Create
-curl --data "color=" http://localhost:8080/Create
-curl --data "color=green" http://localhost:8080/Create
-curl http://localhost:8080/GetById?id=1
-curl http://localhost:8080/GetById?id=2
+{"ID":"0","Color":"Red"}
+[mh-cbon@pc4 ademo] $ curl --data "color=blue" http://localhost:8080/Create
+{"ID":"1","Color":"blue"}
+[mh-cbon@pc4 ademo] $ curl --data "color=blue" http://localhost:8080/Create
+2017/05/24 15:43:14 http: multiple response.WriteHeader calls
+color must be unique
+null
+[mh-cbon@pc4 ademo] $ curl --data "color=" http://localhost:8080/Create
+2017/05/24 15:43:17 http: multiple response.WriteHeader calls
+color must not be empty
+null
+[mh-cbon@pc4 ademo] $ curl --data "color=green" http://localhost:8080/Create
+{"ID":"2","Color":"green"}
+[mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=1
+{"ID":"1","Color":"blue"}
+[mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=2
+{"ID":"2","Color":"green"}
+[mh-cbon@pc4 ademo] $ fg
+go run *go
+^Csignal: interrupt
+[mh-cbon@pc4 ademo] $
 ```

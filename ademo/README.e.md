@@ -19,7 +19,7 @@ A demo of ggt capabilities to create a service to read/create `tomatoes`.
 2017/05/24 15:43:01 no initial packages were loaded
 [mh-cbon@pc4 ademo] $ go run *go &
 [1] 5833
-[mh-cbon@pc4 ademo] $ 2017/05/24 15:43:06 backend &{{[{0 Red}]} 0xc4200781e0 0xc4200782a0 0xc420078240}
+[mh-cbon@pc4 ademo] $ 2017/05/24 15:43:06 backend &{ {[{0 Red}] } 0xc4200781e0 0xc4200782a0 0xc420078240}
 curl http://localhost:8080/GetById?id=0
 {"ID":"0","Color":"Red"}
 [mh-cbon@pc4 ademo] $ curl --data "color=blue" http://localhost:8080/Create
@@ -41,5 +41,5 @@ null
 [mh-cbon@pc4 ademo] $ fg
 go run *go
 ^Csignal: interrupt
-[mh-cbon@pc4 ademo] $ 
+[mh-cbon@pc4 ademo] $
 ```
