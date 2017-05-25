@@ -20,7 +20,6 @@ Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
     - [$ ggt -help http-provider](#-ggt--help-http-provider)
   - [http-clienter](#http-clienter)
 - [notes](#notes)
-- [dev](#dev)
 
 # Install
 
@@ -39,25 +38,26 @@ ggt - 0.0.0
 ggt's generator toolbox
 
 [options]
-	-help				Show help
-	-version		Show version
-	-vv					More verbose
-	-mode				tbd.
+    -help        Show help
+    -version     Show version
+    -vv          More verbose
+    -mode        tbd.
 
 [generator]
 
-One of slicer, chaner, mutexer, http-provider.
+    One of slicer, chaner, mutexer, http-provider.
 
- [...types]
- 	A list of types such as src:dst.
- 	A type is defined by its package path and its type name,
- 	[pkgpath/]name.
- 	If the Package path is empty, it is set to the package name being generated.
- 	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+[...types]
+    A list of types such as src:dst.
+    A type is defined by its package path and its type name,
+    [pkgpath/]name.
+    If the Package path is empty, it is set to the package name being generated.
+    Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
 
 Example
- 	ggt -c slicer MySrcType:gen/*NewGenType
- 	ggt -c slicer myModule/*MySrcType:gen/NewGenType
+
+    ggt -c slicer MySrcType:gen/*NewGenType
+    ggt -c slicer myModule/*MySrcType:gen/NewGenType
 ```
 
 # Toolbox
@@ -74,21 +74,21 @@ generates typed slice
 
 [options]
 
-	-c					Create a contract of the generated type.
-	-p					Force out package name
+    -c        Create a contract of the generated type.
+    -p        Force out package name
 
 ...[FromTypeName:ToTypeName]
 
-	A list of types such as src:dst.
-	A type is defined by its package path and its type name,
-	[pkgpath/]name.
-	If the Package path is empty, it is set to the package name being generated.
-	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+    A list of types such as src:dst.
+    A type is defined by its package path and its type name,
+    [pkgpath/]name.
+    If the Package path is empty, it is set to the package name being generated.
+    Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
 
 Example
 
-	ggt -c slicer MySrcType:gen/*NewGenType
-	ggt -c slicer myModule/*MySrcType:gen/NewGenType
+    ggt -c slicer MySrcType:gen/*NewGenType
+    ggt -c slicer myModule/*MySrcType:gen/NewGenType
 ```
 
 ## chaner / mutexer
@@ -103,20 +103,20 @@ generates race protected type
 
 [options]
 
-	-p					Force out package name
+    -p        Force out package name
 
 ...[FromTypeName:ToTypeName]
 
-	A list of types such as src:dst.
-	A type is defined by its package path and its type name,
-	[pkgpath/]name.
-	If the Package path is empty, it is set to the package name being generated.
-	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+    A list of types such as src:dst.
+    A type is defined by its package path and its type name,
+    [pkgpath/]name.
+    If the Package path is empty, it is set to the package name being generated.
+    Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
 
 Example
 
-	ggt -c chaner MySrcType:gen/*NewGenType
-	ggt -c chaner myModule/*MySrcType:gen/NewGenType
+    ggt -c chaner MySrcType:gen/*NewGenType
+    ggt -c chaner myModule/*MySrcType:gen/NewGenType
 ```
 
 [chaner](https://github.com/mh-cbon/ggt/tree/master/chaner)
@@ -129,20 +129,20 @@ generates race protected type
 
 [options]
 
-	-p					Force out package name
+    -p        Force out package name
 
 ...[FromTypeName:ToTypeName]
 
-	A list of types such as src:dst.
-	A type is defined by its package path and its type name,
-	[pkgpath/]name.
-	If the Package path is empty, it is set to the package name being generated.
-	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+    A list of types such as src:dst.
+    A type is defined by its package path and its type name,
+    [pkgpath/]name.
+    If the Package path is empty, it is set to the package name being generated.
+    Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
 
 Example
 
-	ggt -c mutexer MySrcType:gen/*NewGenType
-	ggt -c mutexer myModule/*MySrcType:gen/NewGenType
+    ggt -c mutexer MySrcType:gen/*NewGenType
+    ggt -c mutexer myModule/*MySrcType:gen/NewGenType
 ```
 
 [mutexer](https://github.com/mh-cbon/ggt/tree/master/mutexer)
@@ -159,21 +159,21 @@ generates http oriented implementation of given type.
 
 [options]
 
-	-p					Force out package name
-	-mode				TBD.
+    -p        Force out package name
+    -mode     TBD.
 
 ...[FromTypeName:ToTypeName]
 
-	A list of types such as src:dst.
-	A type is defined by its package path and its type name,
-	[pkgpath/]name.
-	If the Package path is empty, it is set to the package name being generated.
-	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+    A list of types such as src:dst.
+    A type is defined by its package path and its type name,
+    [pkgpath/]name.
+    If the Package path is empty, it is set to the package name being generated.
+    Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
 
 Example
 
-	ggt -c http-provider MySrcType:gen/*NewGenType
-	ggt -c http-provider myModule/*MySrcType:gen/NewGenType
+    ggt -c http-provider MySrcType:gen/*NewGenType
+    ggt -c http-provider myModule/*MySrcType:gen/NewGenType
 ```
 
 [here](https://github.com/mh-cbon/ggt/tree/master/http-provider).
@@ -195,17 +195,3 @@ This repository is the refactoring and rationalization of those repos,
 - https://github.com/mh-cbon/mutexer
 - https://github.com/mh-cbon/lister
 - https://github.com/mh-cbon/astutil
-
-Please come back later for complete port, watch it if you are interested.
-
-# dev
-
-```sh
-go install && go generate ./ademo/*go
-go run ademo/*go &
-curl http://localhost:8080/GetByID?id=2
-curl http://localhost:8080/GetByID?id=0
-curl --data "color=blue" http://localhost:8080/Create
-curl --data "color=" http://localhost:8080/Create
-curl -H "Content-Type: application/json" -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
-```

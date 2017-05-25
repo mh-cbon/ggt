@@ -73,21 +73,21 @@ generates typed slice
 
 [options]
 
-	-c					Create a contract of the generated type.
-	-p					Force out package name
+    -c        Create a contract of the generated type.
+    -p        Force out package name
 
 ...[FromTypeName:ToTypeName]
 
-	A list of types such as src:dst.
-	A type is defined by its package path and its type name,
-	[pkgpath/]name.
-	If the Package path is empty, it is set to the package name being generated.
-	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+    A list of types such as src:dst.
+    A type is defined by its package path and its type name,
+    [pkgpath/]name.
+    If the Package path is empty, it is set to the package name being generated.
+    Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
 
 Example
 
-	ggt -c slicer MySrcType:gen/*NewGenType
-	ggt -c slicer myModule/*MySrcType:gen/NewGenType
+    ggt -c slicer MySrcType:gen/*NewGenType
+    ggt -c slicer myModule/*MySrcType:gen/NewGenType
 `)
 }
 

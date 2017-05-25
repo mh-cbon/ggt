@@ -77,25 +77,26 @@ func showHelp() {
 ggt's generator toolbox
 
 [options]
-	-help				Show help
-	-version		Show version
-	-vv					More verbose
-	-mode				tbd.
+    -help        Show help
+    -version     Show version
+    -vv          More verbose
+    -mode        tbd.
 
 [generator]
 
-One of slicer, chaner, mutexer, http-provider.
+    One of slicer, chaner, mutexer, http-provider.
 
- [...types]
- 	A list of types such as src:dst.
- 	A type is defined by its package path and its type name,
- 	[pkgpath/]name.
- 	If the Package path is empty, it is set to the package name being generated.
- 	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+[...types]
+    A list of types such as src:dst.
+    A type is defined by its package path and its type name,
+    [pkgpath/]name.
+    If the Package path is empty, it is set to the package name being generated.
+    Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
 
 Example
- 	ggt -c slicer MySrcType:gen/*NewGenType
- 	ggt -c slicer myModule/*MySrcType:gen/NewGenType
+
+    ggt -c slicer MySrcType:gen/*NewGenType
+    ggt -c slicer myModule/*MySrcType:gen/NewGenType
 `)
 }
 func showVersion() {

@@ -78,21 +78,21 @@ generates http oriented implementation of given type.
 
 [options]
 
-	-p					Force out package name
-	-mode				TBD.
+    -p        Force out package name
+    -mode     TBD.
 
 ...[FromTypeName:ToTypeName]
 
-	A list of types such as src:dst.
-	A type is defined by its package path and its type name,
-	[pkgpath/]name.
-	If the Package path is empty, it is set to the package name being generated.
-	Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+    A list of types such as src:dst.
+    A type is defined by its package path and its type name,
+    [pkgpath/]name.
+    If the Package path is empty, it is set to the package name being generated.
+    Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
 
 Example
 
-	ggt -c http-provider MySrcType:gen/*NewGenType
-	ggt -c http-provider myModule/*MySrcType:gen/NewGenType
+    ggt -c http-provider MySrcType:gen/*NewGenType
+    ggt -c http-provider myModule/*MySrcType:gen/NewGenType
 `)
 }
 
