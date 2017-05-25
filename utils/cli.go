@@ -168,7 +168,7 @@ type TransformArgs struct {
 // NewTransformsArgs ...
 func NewTransformsArgs(outPkg string) TransformArgs {
 	if outPkg == "" {
-		outPkg = os.Getenv("GOPACKAGE")
+		outPkg = GetPkgToLoad()
 	}
 	if outPkg == "main" {
 		outPkg = GetPkgToLoad()
@@ -237,6 +237,7 @@ func (t TransformArgs) Parse(args []string) (TransformArgs, error) {
 		c.ToPath = strings.Replace(c.ToPath, "[", "", -1)
 		c.ToPath = strings.Replace(c.ToPath, "]", "", -1)
 		c.ToPath = strings.ToLower(c.ToPath)
+		c.ToPath = filepath.Join(filepath.Dir(c.ToPath), "zz_"+filepath.Base(c.ToPath))
 		t.Args = append(t.Args, c)
 	}
 	return t, nil

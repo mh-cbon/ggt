@@ -545,8 +545,13 @@ func processFilter(todo utils.TransformArg, fileOut *utils.FileOut) error {
 	srcConcrete := astutil.GetUnpointedType(srcName)
 	destConcrete := astutil.GetUnpointedType(destName)
 
-	prog := astutil.GetProgramFast(todo.FromPkgPath)
-	pkg := prog.Package(todo.FromPkgPath)
+	pkgToLoad := todo.FromPkgPath
+	if pkgToLoad == "" {
+		pkgToLoad = utils.GetPkgToLoad()
+	}
+
+	prog := astutil.GetProgramFast(pkgToLoad)
+	pkg := prog.Package(pkgToLoad)
 
 	foundStruct := astutil.GetStruct(pkg, astutil.GetUnpointedType(srcName))
 	if foundStruct == nil {

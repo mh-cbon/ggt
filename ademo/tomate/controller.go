@@ -1,30 +1,27 @@
-package controller
+package tomate
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/mh-cbon/ggt/ademo/model"
-	"github.com/mh-cbon/ggt/ademo/slicegen"
 )
 
-// Tomates controller.
-type Tomates struct {
-	backend slicegen.TomatesContract
+// Controller of tomatoes.
+type Controller struct {
+	backend TomatesContract
 }
 
-// NewTomates creates a new tomates controller
-func NewTomates(backend slicegen.TomatesContract) Tomates {
-	return Tomates{backend}
+// NewController creates a new tomates controller
+func NewController(backend TomatesContract) Controller {
+	return Controller{backend}
 }
 
 // GetByID read the Tomate of given ID
-func (t Tomates) GetByID(getID string) (jsonResBody *model.Tomate, err error) {
-	t.backend.Transact(func(backend *slicegen.Tomates) {
+func (t Controller) GetByID(getID string) (jsonResBody *Tomate, err error) {
+	t.backend.Transact(func(backend *Tomates) {
 		jsonResBody = backend.
-			Filter(slicegen.FilterTomates.ByID(getID)).
+			Filter(FilterTomates.ByID(getID)).
 			First()
 	})
 	if jsonResBody == nil {
@@ -34,7 +31,7 @@ func (t Tomates) GetByID(getID string) (jsonResBody *model.Tomate, err error) {
 }
 
 // Create a new Tomate
-func (t Tomates) Create(postColor *string) (jsonResBody *model.Tomate, err error) {
+func (t Controller) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	if postColor == nil {
 		return nil, &UserInputError{errors.New("Missing color parameter")}
 	}
@@ -42,13 +39,13 @@ func (t Tomates) Create(postColor *string) (jsonResBody *model.Tomate, err error
 	if color == "" {
 		return nil, &UserInputError{errors.New("color must not be empty")}
 	}
-	t.backend.Transact(func(backend *slicegen.Tomates) {
-		exist := backend.Filter(slicegen.FilterTomates.ByColor(color)).Len()
+	t.backend.Transact(func(backend *Tomates) {
+		exist := backend.Filter(FilterTomates.ByColor(color)).Len()
 		if exist > 0 {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
-		jsonResBody = &model.Tomate{ID: fmt.Sprintf("%v", backend.Len()), Color: color}
+		jsonResBody = &Tomate{ID: fmt.Sprintf("%v", backend.Len()), Color: color}
 		backend.Push(jsonResBody)
 	})
 	return jsonResBody, err
@@ -57,25 +54,25 @@ func (t Tomates) Create(postColor *string) (jsonResBody *model.Tomate, err error
 // Update an existing Tomate
 //
 // @route /write/{id:[0-9]+}
-func (t Tomates) Update(routeID string, jsonReqBody *model.Tomate) (jsonResBody *model.Tomate, err error) {
+func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *Tomate, err error) {
 	jsonReqBody.Color = strings.TrimSpace(jsonReqBody.Color)
 	if jsonReqBody.Color == "" {
 		return nil, &UserInputError{errors.New("color must not be empty")}
 	}
-	t.backend.Transact(func(backend *slicegen.Tomates) {
-		byID := backend.Filter(slicegen.FilterTomates.ByID(routeID))
+	t.backend.Transact(func(backend *Tomates) {
+		byID := backend.Filter(FilterTomates.ByID(routeID))
 		if byID.Len() == 0 {
 			err = &NotFoundError{errors.New("ID does not exists")}
 			return
 		}
-		byColor := backend.Filter(slicegen.FilterTomates.ByColor(jsonReqBody.Color))
+		byColor := backend.Filter(FilterTomates.ByColor(jsonReqBody.Color))
 		if byColor.Len() > 0 && byID.First().ID != byColor.First().ID {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
 		jsonResBody = backend.
-			Filter(slicegen.FilterTomates.ByID(routeID)).
-			Map(slicegen.SetterTomates.SetColor(jsonReqBody.Color)).
+			Filter(FilterTomates.ByID(routeID)).
+			Map(SetterTomates.SetColor(jsonReqBody.Color)).
 			First()
 	})
 	if jsonResBody == nil {
@@ -95,7 +92,7 @@ type UserInputError struct {
 }
 
 // Finalizer behave appropriately by error types
-func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
+func (t Controller) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
 	if _, ok := err.(*UserInputError); ok {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else if _, ok := err.(*NotFoundError); ok {

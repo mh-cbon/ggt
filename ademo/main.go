@@ -7,17 +7,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/mh-cbon/ggt/ademo/controller"
-	"github.com/mh-cbon/ggt/ademo/controllergen"
-	"github.com/mh-cbon/ggt/ademo/model"
-	"github.com/mh-cbon/ggt/ademo/slicegen"
+	"github.com/mh-cbon/ggt/ademo/tomate"
 	"github.com/mh-cbon/ggt/lib"
 )
-
-//go:generate ggt -c slicer model/*Tomate:slicegen/Tomates
-//go:generate ggt chaner slicegen/Tomates:slicegen/TomatesSync
-
-//go:generate ggt http-provider controller/Tomates:controllergen/TomatesController
 
 func main() {
 
@@ -25,26 +17,26 @@ func main() {
 	router := mux.NewRouter()
 
 	// create a storage backend, in memory for current example.
-	backend := slicegen.NewTomatesSync()
+	backend := tomate.NewTomatesSync()
 	// populate the backend for testing
-	backend.Transact(func(b *slicegen.Tomates) {
-		b.Push(&model.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: ""})
+	backend.Transact(func(b *tomate.Tomates) {
+		b.Push(&tomate.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: ""})
 	})
 
 	// for the fun, demonstrates generator capabilities :D
 	backend.
-		Filter(slicegen.FilterTomates.ByID("0")).
-		Map(slicegen.SetterTomates.SetColor("Red"))
+		Filter(tomate.FilterTomates.ByID("0")).
+		Map(tomate.SetterTomates.SetColor("Red"))
 
 	// make a complete controller (transport+business+storage)
-	controller := controllergen.NewTomatesController(
-		controller.NewTomates(
+	controller := tomate.NewRestController(
+		tomate.NewController(
 			backend,
 		),
 	)
 
 	// create a descriptor of the controller exposed methods
-	desc := controllergen.NewTomatesControllerDescriptor(controller)
+	desc := tomate.NewRestControllerDescriptor(controller)
 	// manipulates the handlers to wrap them
 	// desc.Create().WrapMethod(logReq)
 	desc.WrapMethod(logReq)
