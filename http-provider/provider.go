@@ -125,10 +125,23 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		fileOut.AddImport(todo.FromPkgPath, todo.FromPkgID)
 	}
 
+	addlog := func(receiver, errName string, subjects ...string) string {
+		s := fmt.Sprintf("%q, ", "")
+		if len(subjects) > 0 {
+			subjects = append(subjects, destName)
+			s = ""
+			for _, sub := range subjects {
+				s += fmt.Sprintf(`%q, `, sub)
+			}
+			s = s[:len(s)-2]
+		}
+		return fmt.Sprintf(`%v.Log.Handle(nil, nil, %v, %v)`, receiver, errName, s)
+	}
+
 	fileOut.AddImport("io", "")
 	fileOut.AddImport("net/http", "")
 	fileOut.AddImport("strconv", "")
-	// fileOut.AddImport("github.com/mh-cbon/httper/lib", "httper")
+	fileOut.AddImport("github.com/mh-cbon/ggt/lib", "ggt")
 
 	// cheat.
 	fmt.Fprintf(dest, `var xxStrconvAtoi = strconv.Atoi
@@ -143,6 +156,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		`, destName, srcName, structComment)
 	fmt.Fprintf(dest, `type %v struct{
 	embed %v
+	Log ggt.HTTPLogger
 }
 		`, destName, srcNameFq)
 
@@ -153,10 +167,12 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	fmt.Fprintf(dest, `func New%v(embed %v) *%v {
 	ret := &%v{
 		embed: embed,
+		Log: &ggt.VoidLog{},
 	}
+	%v
   return ret
 }
-`, destName, srcNameFq, destName, destName)
+`, destName, srcNameFq, destName, destName, addlog("ret", "nil", "constructor"))
 
 	// wrap each method
 	for _, m := range foundMethods[srcConcrete] {
@@ -179,20 +195,37 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		annotations := astutil.GetAnnotations(comment, "@")
 		annotations = mergeAnnotations(structAnnotations, annotations)
 
-		errHandler := func(errName string) string {
+		addlog = func(receiver, errName string, subjects ...string) string {
+			s := fmt.Sprintf("%q, ", "")
+			if len(subjects) > 0 {
+				subjects = append(subjects, destName, methodName)
+				s = ""
+				for _, sub := range subjects {
+					s += fmt.Sprintf(`%q, `, sub)
+				}
+				s = s[:len(s)-2]
+			}
+			return fmt.Sprintf(`%v.Log.Handle(w, r, %v, %v)`, receiver, errName, s)
+		}
+
+		errHandler := func(errName string, subjects ...string) string {
+			subjects = append(subjects, "error")
 			var ret string
 			if astutil.HasMethod(pkg, srcConcrete, methodName+"Finalizer") {
 				ret = fmt.Sprintf(`
+					%v
 					t.embed.%vFinalizer(w, r, %v)
-				`, methodName, errName)
+				`, addlog("t", errName, subjects...), methodName, errName)
 			} else if astutil.HasMethod(pkg, srcConcrete, "Finalizer") {
 				ret = fmt.Sprintf(`
+					%v
 					t.embed.Finalizer(w, r, %v)
-				`, errName)
+				`, addlog("t", errName, subjects...), errName)
 			} else {
 				ret = fmt.Sprintf(`
+					%v
 					http.Error(w, %v.Error(), http.StatusInternalServerError)
-				`, errName)
+				`, addlog("t", errName, subjects...), errName)
 			}
 			if ret != "" {
 				ret = fmt.Sprintf(`
@@ -213,7 +246,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				err := r.ParseForm()
 				%v
 			}
-			`, errHandler("err"))
+			`, errHandler("err", "parseform"))
 		}
 
 		if hasRouteParam(lParamNames) {
@@ -239,7 +272,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						xxTmp%v := xxURLValues.Get(%q)
 						%v
 					}
-				`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler))
+				`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, destName, methodName, "get"))
 
 			} else if strings.HasPrefix(paramName, "post") {
 				k := strings.ToLower(paramName[4:])
@@ -249,7 +282,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						xxTmp%v := r.FormValue(%q)
 						%v
 					}
-				`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler))
+				`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "post"))
 
 			} else if strings.HasPrefix(paramName, "route") {
 				k := strings.ToLower(paramName[5:])
@@ -259,7 +292,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						xxTmp%v := xxRouteVars[%q]
 						%v
 					}
-				`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler))
+				`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "route"))
 
 			} else if strings.HasPrefix(paramName, "url") {
 				k := strings.ToLower(paramName[3:])
@@ -269,12 +302,12 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					xxTmp%v := xxRouteVars[%q]
 					%v
 				}`,
-					k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
+					k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "url", "route"))
 
 				bodyFunc += fmt.Sprintf(`else if _, ok := xxURLValues[%q]; ok {
 				xxTmp%v := xxURLValues(%q)
 					%v
-				}`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
+				}`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "url", "get"))
 
 			} else if strings.HasPrefix(paramName, "req") {
 				k := strings.ToLower(paramName[3:])
@@ -284,18 +317,18 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					xxTmp%v := xxRouteVars[%q]
 					%v
 				}`,
-					k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
+					k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "route"))
 
 				bodyFunc += fmt.Sprintf(`else if _, ok := xxURLValues[%q]; ok {
 				xxTmp%v := xxURLValues(%q)
 					%v
-				}`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
+				}`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "get"))
 
 				bodyFunc += fmt.Sprintf(`else if _, ok := r.Form[%q]; ok {
 						xxTmp%v := r.FormValue(%q)
 						%v
 					}
-				`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler))
+				`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "form"))
 
 			} else if paramName == "jsonReqBody" {
 
@@ -312,7 +345,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						%v
 				    defer r.Body.Close()
 					}
-				`, astutil.GetTypeToStructInit(paramType), errHandler("decErr"))
+				`, astutil.GetTypeToStructInit(paramType), errHandler("decErr", "req", "json", "decode"))
 
 			} else if paramName == "postValues" {
 				// might to something more handy here to handle differrent type than
@@ -357,7 +390,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 
 			for i, retVar := range retVars {
 				if retTypes[i] == "error" {
-					bodyFunc += errHandler(retVar)
+					bodyFunc += errHandler(retVar, "business")
 				}
 			}
 
@@ -373,7 +406,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						encErr := json.NewEncoder(w).Encode(jsonResBody)
 						%v
 					}
-						`, errHandler("encErr"))
+						`, errHandler("encErr", "res", "json", "encode"))
 
 				} else if strings.HasPrefix(retVar, "header") {
 					k := strings.ToLower(retVar[5:])
@@ -402,7 +435,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						})
 						%v
 					}
-						`, mapParamsToStruct(retTypes, false), mapParamsToStructValues(retVars), errHandler("encErr"))
+						`, mapParamsToStruct(retTypes, false), mapParamsToStructValues(retVars), errHandler("encErr", "res", "json", "encode"))
 
 				} else {
 					panic("unhandled out annotation: " + out)
@@ -415,14 +448,15 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		`, methodName, srcName, methodName, comment)
 
 		fmt.Fprintf(dest, `func (t %v) %v(w http.ResponseWriter, r *http.Request) {
+			%v
 		  %v
+			%v
 		}
 
-		`, dstStar, methodName, bodyFunc)
+		`, dstStar, methodName, addlog("t", "nil", "begin"), bodyFunc, addlog("t", "nil", "end"))
 	}
 
 	// write the method set for the binder
-	fileOut.AddImport("github.com/mh-cbon/ggt/lib", "ggt")
 	fileOut.AddImport("net/http", "")
 
 	// declare the descriptor type
@@ -582,7 +616,7 @@ func makeCommentLines(s string) string {
 	return comment
 }
 
-func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(string) string) string {
+func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(string, ...string) string, subjects ...string) string {
 	if astutil.GetUnpointedType(toType) == "string" {
 		if astutil.IsAPointedType(toType) {
 			return fmt.Sprintf("%v = &%v", toVarName, fromStrVarName)
@@ -592,11 +626,11 @@ func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(stri
 		if astutil.IsAPointedType(toType) {
 			return fmt.Sprintf(`%v, err := strconv.Atoi(*%v)
 		%v
-	`, toVarName, fromStrVarName, errHandler("err"))
+	`, toVarName, fromStrVarName, errHandler("err", subjects...))
 		}
 		return fmt.Sprintf(`%v, err := strconv.Atoi(%v)
 		%v
-	`, toVarName, fromStrVarName, errHandler("err"))
+	`, toVarName, fromStrVarName, errHandler("err", subjects...))
 	}
 	return ""
 }

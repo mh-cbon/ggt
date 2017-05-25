@@ -11,6 +11,7 @@ A demo of ggt capabilities to create a service to create/read/update/delete `tom
 - [The main](#the-main)
   - [$ main.go](#-maingo)
 - [The test](#the-test)
+  - [$ sh test.sh](#-sh-testsh)
 
 # The model
 
@@ -150,6 +151,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/mh-cbon/ggt/ademo/tomate"
@@ -163,6 +165,7 @@ func main() {
 
 	// create a storage backend, in memory for current example.
 	backend := tomate.NewTomatesSync()
+
 	// populate the backend for testing
 	backend.Transact(func(b *tomate.Tomates) {
 		b.Push(&tomate.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: ""})
@@ -179,9 +182,11 @@ func main() {
 			backend,
 		),
 	)
+	controller.Log = &lib.WriteLog{Sink: os.Stderr}
 
 	// create a descriptor of the controller exposed methods
 	desc := tomate.NewRestControllerDescriptor(controller)
+
 	// manipulates the handlers to wrap them
 	// desc.Create().WrapMethod(logReq)
 	desc.WrapMethod(logReq)
@@ -205,73 +210,158 @@ func logReq(m *lib.MethodDescriptor) lib.Wrapper {
 
 # The test
 
+#### $ sh test.sh
 ```sh
-[mh-cbon@pc4 ademo] $ go generate *go
-2017/05/24 15:43:01 no initial packages were loaded
-2017/05/24 15:43:01 no initial packages were loaded
-2017/05/24 15:43:01 no initial packages were loaded
++ go generate tomate/gen.go
++ CURL='curl -s -D -'
++ go run main.go
++ sleep 1
++ echo GetByID
+GetByID
++ echo ''
 
-[mh-cbon@pc4 ademo] $ go run *go &
-[1] 5833
++ curl -s -D - 'http://localhost:8080/GetByID?id=0'
+2017/05/25 15:16:24 handling  GetByID GetByID
+2017-05-25 15:16:24.621694642 +0200 CEST [begin RestController GetByID] <nil>
+2017-05-25 15:16:24.621791906 +0200 CEST [end RestController GetByID] <nil>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 25
 
-[mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=0
-...
-< HTTP/1.1 200 OK
-< Content-Type: application/json
-< Date: Wed, 24 May 2017 13:50:28 GMT
-< Content-Length: 25
-<
 {"ID":"0","Color":"Red"}
++ echo ''
 
-[mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=10
-...
-< HTTP/1.1 404 Not Found
-< Content-Type: text/plain; charset=utf-8
-< X-Content-Type-Options: nosniff
-< Date: Wed, 24 May 2017 13:52:26 GMT
-< Content-Length: 17
-<
++ curl -s -D - 'http://localhost:8080/GetByID?id=10'
+2017/05/25 15:16:24 handling  GetByID GetByID
+2017-05-25 15:16:24.637498767 +0200 CEST [begin RestController GetByID] <nil>
+2017-05-25 15:16:24.637609006 +0200 CEST [business error RestController GetByID] Tomate not found
+HTTP/1.1 404 Not Found
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 17
+
 Tomate not found
++ echo ''
 
-[mh-cbon@pc4 ademo] $ curl -v --data "color=blue" http://localhost:8080/Create
-...
-< HTTP/1.1 200 OK
-< Content-Type: application/json
-< Date: Wed, 24 May 2017 13:49:58 GMT
-< Content-Length: ...
-<
++ echo Create
+Create
++ echo ''
+
++ curl -s -D - --data color=blue http://localhost:8080/Create
+2017/05/25 15:16:24 handling  Create Create
+2017-05-25 15:16:24.6483185 +0200 CEST [begin RestController Create] <nil>
+2017-05-25 15:16:24.648442585 +0200 CEST [end RestController Create] <nil>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 26
+
 {"ID":"1","Color":"blue"}
++ echo ''
 
-[mh-cbon@pc4 ademo] $ curl --data "color=blue" http://localhost:8080/Create
-...
-< HTTP/1.1 400 Bad Request
-< Content-Type: text/plain; charset=utf-8
-< X-Content-Type-Options: nosniff
-< Date: Wed, 24 May 2017 13:49:15 GMT
-< Content-Length: 21
-<
++ curl -s -D - --data color=blue http://localhost:8080/Create
+2017/05/25 15:16:24 handling  Create Create
+2017-05-25 15:16:24.660106026 +0200 CEST [begin RestController Create] <nil>
+2017-05-25 15:16:24.660284257 +0200 CEST [business error RestController Create] color must be unique
+HTTP/1.1 400 Bad Request
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 21
+
 color must be unique
++ echo ''
 
-[mh-cbon@pc4 ademo] $ curl --data "color=" http://localhost:8080/Create
-...
-< HTTP/1.1 400 Bad Request
-< Content-Type: text/plain; charset=utf-8
-< X-Content-Type-Options: nosniff
-< Date: Wed, 24 May 2017 13:48:46 GMT
-< Content-Length: 24
-<
++ curl -s -D - --data color= http://localhost:8080/Create
+2017/05/25 15:16:24 handling  Create Create
+2017-05-25 15:16:24.675217194 +0200 CEST [begin RestController Create] <nil>
+2017-05-25 15:16:24.675351907 +0200 CEST [business error RestController Create] color must not be empty
+HTTP/1.1 400 Bad Request
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 24
+
 color must not be empty
++ echo ''
 
-[mh-cbon@pc4 ademo] $ curl --data "color=green" http://localhost:8080/Create
++ curl -s -D - --data color=green http://localhost:8080/Create
+2017/05/25 15:16:24 handling  Create Create
+2017-05-25 15:16:24.685132523 +0200 CEST [begin RestController Create] <nil>
+2017-05-25 15:16:24.685278543 +0200 CEST [end RestController Create] <nil>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 27
+
 {"ID":"2","Color":"green"}
++ echo ''
 
-[mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=1
-{"ID":"1","Color":"blue"}
++ echo Update
+Update
++ echo ''
 
-[mh-cbon@pc4 ademo] $ curl http://localhost:8080/GetById?id=2
-{"ID":"2","Color":"green"}
++ curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
+2017/05/25 15:16:24 handling  Update /write/{id:[0-9]+}
+2017-05-25 15:16:24.699588712 +0200 CEST [begin RestController Update] <nil>
+2017-05-25 15:16:24.699660586 +0200 CEST [end RestController Update] <nil>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 28
 
-[mh-cbon@pc4 ademo] $ fg
-go run *go
-^Csignal: interrupt
+{"ID":"1","Color":"yellow"}
++ echo ''
+
++ curl -s -D - 'http://localhost:8080/GetByID?id=1'
+2017/05/25 15:16:24 handling  GetByID GetByID
+2017-05-25 15:16:24.715751131 +0200 CEST [begin RestController GetByID] <nil>
+2017-05-25 15:16:24.715920337 +0200 CEST [end RestController GetByID] <nil>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 28
+
+{"ID":"1","Color":"yellow"}
++ echo ''
+
++ curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/0
+2017/05/25 15:16:24 handling  Update /write/{id:[0-9]+}
+2017-05-25 15:16:24.726719287 +0200 CEST [begin RestController Update] <nil>
+2017-05-25 15:16:24.726893031 +0200 CEST [business error RestController Update] Tomate not found
+HTTP/1.1 404 Not Found
+Content-Type: text/plain; charset=utf-8
+X-Content-Type-Options: nosniff
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 17
+
+Tomate not found
++ echo ''
+
++ curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
+2017/05/25 15:16:24 handling  Update /write/{id:[0-9]+}
+2017-05-25 15:16:24.738101244 +0200 CEST [begin RestController Update] <nil>
+2017-05-25 15:16:24.738232351 +0200 CEST [end RestController Update] <nil>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 28
+
+{"ID":"1","Color":"yellow"}
++ echo ''
+
++ curl -s -D - 'http://localhost:8080/GetByID?id=0'
+2017/05/25 15:16:24 handling  GetByID GetByID
+2017-05-25 15:16:24.753308051 +0200 CEST [begin RestController GetByID] <nil>
+2017-05-25 15:16:24.753440775 +0200 CEST [end RestController GetByID] <nil>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Thu, 25 May 2017 13:16:24 GMT
+Content-Length: 25
+
+{"ID":"0","Color":"Red"}
++ killall main
+signal: terminated
 ```

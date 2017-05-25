@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/mh-cbon/ggt/ademo/tomate"
@@ -18,6 +19,7 @@ func main() {
 
 	// create a storage backend, in memory for current example.
 	backend := tomate.NewTomatesSync()
+
 	// populate the backend for testing
 	backend.Transact(func(b *tomate.Tomates) {
 		b.Push(&tomate.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: ""})
@@ -34,9 +36,11 @@ func main() {
 			backend,
 		),
 	)
+	controller.Log = &lib.WriteLog{Sink: os.Stderr}
 
 	// create a descriptor of the controller exposed methods
 	desc := tomate.NewRestControllerDescriptor(controller)
+
 	// manipulates the handlers to wrap them
 	// desc.Create().WrapMethod(logReq)
 	desc.WrapMethod(logReq)

@@ -21,19 +21,23 @@ var xxHTTPOk = http.StatusOK
 // Controller of tomatoes.
 type RestController struct {
 	embed Controller
+	Log   ggt.HTTPLogger
 }
 
 // NewRestController constructs an httper of Controller
 func NewRestController(embed Controller) *RestController {
 	ret := &RestController{
 		embed: embed,
+		Log:   &ggt.VoidLog{},
 	}
+	ret.Log.Handle(nil, nil, nil, "constructor", "RestController")
 	return ret
 }
 
 // GetByID invoke Controller.GetByID using the request body as a json payload.
 // GetByID read the Tomate of given ID
 func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestController", "GetByID")
 
 	xxURLValues := r.URL.Query()
 	var getID string
@@ -46,6 +50,7 @@ func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
+		t.Log.Handle(w, r, err, "business", "error", "RestController", "GetByID")
 		t.embed.Finalizer(w, r, err)
 
 		return
@@ -58,6 +63,7 @@ func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 		if encErr != nil {
 
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RestController", "GetByID")
 			t.embed.Finalizer(w, r, encErr)
 
 			return
@@ -65,17 +71,20 @@ func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	t.Log.Handle(w, r, nil, "end", "RestController", "GetByID")
 }
 
 // Create invoke Controller.Create using the request body as a json payload.
 // Create a new Tomate
 func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestController", "Create")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
+			t.Log.Handle(w, r, err, "parseform", "error", "RestController", "Create")
 			t.embed.Finalizer(w, r, err)
 
 			return
@@ -92,6 +101,7 @@ func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
+		t.Log.Handle(w, r, err, "business", "error", "RestController", "Create")
 		t.embed.Finalizer(w, r, err)
 
 		return
@@ -104,6 +114,7 @@ func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 
 		if encErr != nil {
 
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RestController", "Create")
 			t.embed.Finalizer(w, r, encErr)
 
 			return
@@ -111,6 +122,7 @@ func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	t.Log.Handle(w, r, nil, "end", "RestController", "Create")
 }
 
 // Update invoke Controller.Update using the request body as a json payload.
@@ -118,6 +130,7 @@ func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 //
 // @route /write/{id:[0-9]+}
 func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestController", "Update")
 
 	xxRouteVars := mux.Vars(r)
 	var routeID string
@@ -132,6 +145,7 @@ func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
 
 		if decErr != nil {
 
+			t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RestController", "Update")
 			t.embed.Finalizer(w, r, decErr)
 
 			return
@@ -144,6 +158,7 @@ func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
+		t.Log.Handle(w, r, err, "business", "error", "RestController", "Update")
 		t.embed.Finalizer(w, r, err)
 
 		return
@@ -156,6 +171,7 @@ func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
 
 		if encErr != nil {
 
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RestController", "Update")
 			t.embed.Finalizer(w, r, encErr)
 
 			return
@@ -163,6 +179,7 @@ func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	t.Log.Handle(w, r, nil, "end", "RestController", "Update")
 }
 
 // RestControllerDescriptor describe a *RestController
