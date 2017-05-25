@@ -30,3 +30,8 @@ func (g GetTest) RefParam(getParam *string) {
 		g.T.Errorf("want=%q got=%q", *wanted, *getParam)
 	}
 }
+
+//MultipleParam ...
+func (g GetTest) MultipleParam(getParam *string, getID string) {
+
+}
