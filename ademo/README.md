@@ -5,13 +5,16 @@ A demo of ggt capabilities to create a service to create/read/update/delete `tom
 
 # TOC
 - [The model](#the-model)
+  - [$ tomate/model.go](#-tomatemodelgo)
 - [The controller](#the-controller)
+  - [$ tomate/controller.go](#-tomatecontrollergo)
 - [The main](#the-main)
+  - [$ main.go](#-maingo)
 - [The test](#the-test)
 
 # The model
 
-$ tomate/model.go
+#### $ tomate/model.go
 ```go
 package tomate
 
@@ -29,7 +32,7 @@ func (t Tomate) GetID() string {
 
 # The controller
 
-$ tomate/controller.go
+#### $ tomate/controller.go
 ```go
 package tomate
 
@@ -138,7 +141,7 @@ func (t Controller) Finalizer(w http.ResponseWriter, r *http.Request, err error)
 
 # The main
 
-$ main.go
+#### $ main.go
 ```go
 // A demo of ggt capabilities to create a service to create/read/update/delete `tomatoes`.
 package main
