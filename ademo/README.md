@@ -4,113 +4,57 @@ A demo of ggt capabilities to create a service to create/read/update/delete `tom
 
 
 # TOC
-- [The main](#the-main)
+- [The model](#the-model)
 - [The controller](#the-controller)
+- [The main](#the-main)
 - [The test](#the-test)
 
-# The main
+# The model
 
-main.go
+$ tomate/model.go
 ```go
-// A demo of ggt capabilities to create a service to create/read/update/delete `tomatoes`.
-package main
+package tomate
 
-import (
-	"fmt"
-	"log"
-	"net/http"
-
-	"github.com/gorilla/mux"
-	"github.com/mh-cbon/ggt/ademo/controller"
-	"github.com/mh-cbon/ggt/ademo/controllergen"
-	"github.com/mh-cbon/ggt/ademo/model"
-	"github.com/mh-cbon/ggt/ademo/slicegen"
-	"github.com/mh-cbon/ggt/lib"
-)
-
-//go:generate ggt -c slicer model/*Tomate:slicegen/Tomates
-//go:generate ggt chaner slicegen/Tomates:slicegen/TomatesSync
-
-//go:generate ggt http-provider controller/Tomates:controllergen/TomatesController
-
-func main() {
-
-	// create the routes handler
-	router := mux.NewRouter()
-
-	// create a storage backend, in memory for current example.
-	backend := slicegen.NewTomatesSync()
-	// populate the backend for testing
-	backend.Transact(func(b *slicegen.Tomates) {
-		b.Push(&model.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: ""})
-	})
-
-	// for the fun, demonstrates generator capabilities :D
-	backend.
-		Filter(slicegen.FilterTomates.ByID("0")).
-		Map(slicegen.SetterTomates.SetColor("Red"))
-
-	// make a complete controller (transport+business+storage)
-	controller := controllergen.NewTomatesController(
-		controller.NewTomates(
-			backend,
-		),
-	)
-
-	// create a descriptor of the controller exposed methods
-	desc := controllergen.NewTomatesControllerDescriptor(controller)
-	// manipulates the handlers to wrap them
-	// desc.Create().WrapMethod(logReq)
-	desc.WrapMethod(logReq)
-
-	// bind the route handlers to the routes handler
-	lib.Gorilla(desc, router)
-
-	// beer time!
-	http.ListenAndServe(":8080", router)
+// Tomate is a model of tomatoes
+type Tomate struct {
+	ID    string
+	Color string
 }
 
-func logReq(m *lib.MethodDescriptor) lib.Wrapper {
-	return func(in http.HandlerFunc) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
-			log.Println("handling ", m.Name, m.Route)
-			in(w, r)
-		}
-	}
+// GetID is useful for identity check.
+func (t Tomate) GetID() string {
+	return t.ID
 }
 ```
 
 # The controller
 
-controller/tomate.go
+$ tomate/controller.go
 ```go
-package controller
+package tomate
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/mh-cbon/ggt/ademo/model"
-	"github.com/mh-cbon/ggt/ademo/slicegen"
 )
 
-// Tomates controller.
-type Tomates struct {
-	backend slicegen.TomatesContract
+// Controller of tomatoes.
+type Controller struct {
+	backend TomatesContract
 }
 
-// NewTomates creates a new tomates controller
-func NewTomates(backend slicegen.TomatesContract) Tomates {
-	return Tomates{backend}
+// NewController creates a new tomates controller
+func NewController(backend TomatesContract) Controller {
+	return Controller{backend}
 }
 
 // GetByID read the Tomate of given ID
-func (t Tomates) GetByID(getID string) (jsonResBody *model.Tomate, err error) {
-	t.backend.Transact(func(backend *slicegen.Tomates) {
+func (t Controller) GetByID(getID string) (jsonResBody *Tomate, err error) {
+	t.backend.Transact(func(backend *Tomates) {
 		jsonResBody = backend.
-			Filter(slicegen.FilterTomates.ByID(getID)).
+			Filter(FilterTomates.ByID(getID)).
 			First()
 	})
 	if jsonResBody == nil {
@@ -120,7 +64,7 @@ func (t Tomates) GetByID(getID string) (jsonResBody *model.Tomate, err error) {
 }
 
 // Create a new Tomate
-func (t Tomates) Create(postColor *string) (jsonResBody *model.Tomate, err error) {
+func (t Controller) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	if postColor == nil {
 		return nil, &UserInputError{errors.New("Missing color parameter")}
 	}
@@ -128,13 +72,13 @@ func (t Tomates) Create(postColor *string) (jsonResBody *model.Tomate, err error
 	if color == "" {
 		return nil, &UserInputError{errors.New("color must not be empty")}
 	}
-	t.backend.Transact(func(backend *slicegen.Tomates) {
-		exist := backend.Filter(slicegen.FilterTomates.ByColor(color)).Len()
+	t.backend.Transact(func(backend *Tomates) {
+		exist := backend.Filter(FilterTomates.ByColor(color)).Len()
 		if exist > 0 {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
-		jsonResBody = &model.Tomate{ID: fmt.Sprintf("%v", backend.Len()), Color: color}
+		jsonResBody = &Tomate{ID: fmt.Sprintf("%v", backend.Len()), Color: color}
 		backend.Push(jsonResBody)
 	})
 	return jsonResBody, err
@@ -143,25 +87,25 @@ func (t Tomates) Create(postColor *string) (jsonResBody *model.Tomate, err error
 // Update an existing Tomate
 //
 // @route /write/{id:[0-9]+}
-func (t Tomates) Update(routeID string, jsonReqBody *model.Tomate) (jsonResBody *model.Tomate, err error) {
+func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *Tomate, err error) {
 	jsonReqBody.Color = strings.TrimSpace(jsonReqBody.Color)
 	if jsonReqBody.Color == "" {
 		return nil, &UserInputError{errors.New("color must not be empty")}
 	}
-	t.backend.Transact(func(backend *slicegen.Tomates) {
-		byID := backend.Filter(slicegen.FilterTomates.ByID(routeID))
+	t.backend.Transact(func(backend *Tomates) {
+		byID := backend.Filter(FilterTomates.ByID(routeID))
 		if byID.Len() == 0 {
 			err = &NotFoundError{errors.New("ID does not exists")}
 			return
 		}
-		byColor := backend.Filter(slicegen.FilterTomates.ByColor(jsonReqBody.Color))
+		byColor := backend.Filter(FilterTomates.ByColor(jsonReqBody.Color))
 		if byColor.Len() > 0 && byID.First().ID != byColor.First().ID {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
 		jsonResBody = backend.
-			Filter(slicegen.FilterTomates.ByID(routeID)).
-			Map(slicegen.SetterTomates.SetColor(jsonReqBody.Color)).
+			Filter(FilterTomates.ByID(routeID)).
+			Map(SetterTomates.SetColor(jsonReqBody.Color)).
 			First()
 	})
 	if jsonResBody == nil {
@@ -181,13 +125,77 @@ type UserInputError struct {
 }
 
 // Finalizer behave appropriately by error types
-func (t Tomates) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
+func (t Controller) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
 	if _, ok := err.(*UserInputError); ok {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	} else if _, ok := err.(*NotFoundError); ok {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	} else {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+```
+
+# The main
+
+$ main.go
+```go
+// A demo of ggt capabilities to create a service to create/read/update/delete `tomatoes`.
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/mh-cbon/ggt/ademo/tomate"
+	"github.com/mh-cbon/ggt/lib"
+)
+
+func main() {
+
+	// create the routes handler
+	router := mux.NewRouter()
+
+	// create a storage backend, in memory for current example.
+	backend := tomate.NewTomatesSync()
+	// populate the backend for testing
+	backend.Transact(func(b *tomate.Tomates) {
+		b.Push(&tomate.Tomate{ID: fmt.Sprintf("%v", b.Len()), Color: ""})
+	})
+
+	// for the fun, demonstrates generator capabilities :D
+	backend.
+		Filter(tomate.FilterTomates.ByID("0")).
+		Map(tomate.SetterTomates.SetColor("Red"))
+
+	// make a complete controller (transport+business+storage)
+	controller := tomate.NewRestController(
+		tomate.NewController(
+			backend,
+		),
+	)
+
+	// create a descriptor of the controller exposed methods
+	desc := tomate.NewRestControllerDescriptor(controller)
+	// manipulates the handlers to wrap them
+	// desc.Create().WrapMethod(logReq)
+	desc.WrapMethod(logReq)
+
+	// bind the route handlers to the routes handler
+	lib.Gorilla(desc, router)
+
+	// beer time!
+	http.ListenAndServe(":8080", router)
+}
+
+func logReq(m *lib.MethodDescriptor) lib.Wrapper {
+	return func(in http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			log.Println("handling ", m.Name, m.Route)
+			in(w, r)
+		}
 	}
 }
 ```
