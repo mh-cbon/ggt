@@ -75,7 +75,7 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 			Map(SetterTomates.SetColor(jsonReqBody.Color)).
 			First()
 	})
-	if jsonResBody == nil {
+	if jsonResBody == nil && err == nil {
 		err = &NotFoundError{errors.New("Tomate not found")}
 	}
 	return jsonResBody, err
