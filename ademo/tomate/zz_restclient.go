@@ -8,28 +8,30 @@ import (
 	"bytes"
 	"context"
 	json "encoding/json"
+	"errors"
 	"fmt"
+	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/gorilla/mux"
 )
 
 // RestClient is an http-clienter of Controller.
 // Controller of tomatoes.
 type RestClient struct {
 	router *mux.Router
-	Base   string
-	Client *http.Client
+	client *http.Client
 }
 
 // NewRestClient constructs an http-clienter of Controller
-func NewRestClient(router *mux.Router) *RestClient {
+func NewRestClient(router *mux.Router, client *http.Client) *RestClient {
+	if client == nil {
+		client = http.DefaultClient
+	}
 	ret := &RestClient{
 		router: router,
-		Client: http.DefaultClient,
+		client: client,
 	}
 	return ret
 }
@@ -40,25 +42,24 @@ func (t RestClient) GetByID(routeID string) (jsonResBody *Tomate, err error) {
 	sReqURL = strings.Replace(sReqURL, "{id:[0-9]+}", fmt.Sprintf("%v", routeID), 1)
 	reqURL, URLerr := url.ParseRequestURI(sReqURL)
 	if URLerr != nil {
-		return jsonResBody, err
+		return nil, errors.New("todo")
 	}
 	finalURL := reqURL.String()
-	finalURL = fmt.Sprintf("%v%v", t.Base, finalURL)
 
 	req, reqErr := http.NewRequest("GET", finalURL, nil)
 	if reqErr != nil {
-		return jsonResBody, err
+		return nil, errors.New("todo")
 	}
 
 	{
-		res, resErr := t.Client.Do(req)
+		res, resErr := t.client.Do(req)
 		if resErr != nil {
-			return jsonResBody, err
+			return nil, errors.New("todo")
 		}
 
 		decErr := json.NewDecoder(res.Body).Decode(jsonResBody)
 		if decErr != nil {
-			return jsonResBody, err
+			return nil, errors.New("todo")
 		}
 
 	}
@@ -71,27 +72,26 @@ func (t RestClient) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	sReqURL := "/create"
 	reqURL, URLerr := url.ParseRequestURI(sReqURL)
 	if URLerr != nil {
-		return jsonResBody, err
+		return nil, errors.New("todo")
 	}
 	form := url.Values{}
 	form.Add("color", *postColor)
 	finalURL := reqURL.String()
-	finalURL = fmt.Sprintf("%v%v", t.Base, finalURL)
 
 	req, reqErr := http.NewRequest("GET", finalURL, strings.NewReader(form.Encode()))
 	if reqErr != nil {
-		return jsonResBody, err
+		return nil, errors.New("todo")
 	}
 
 	{
-		res, resErr := t.Client.Do(req)
+		res, resErr := t.client.Do(req)
 		if resErr != nil {
-			return jsonResBody, err
+			return nil, errors.New("todo")
 		}
 
 		decErr := json.NewDecoder(res.Body).Decode(jsonResBody)
 		if decErr != nil {
-			return jsonResBody, err
+			return nil, errors.New("todo")
 		}
 
 	}
@@ -108,7 +108,7 @@ func (t RestClient) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 		body = &b
 		encErr := json.NewEncoder(body).Encode(jsonReqBody)
 		if encErr != nil {
-			return jsonResBody, err
+			return nil, errors.New("todo")
 		}
 
 	}
@@ -116,25 +116,24 @@ func (t RestClient) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 	sReqURL = strings.Replace(sReqURL, "{id:[0-9]+}", fmt.Sprintf("%v", routeID), 1)
 	reqURL, URLerr := url.ParseRequestURI(sReqURL)
 	if URLerr != nil {
-		return jsonResBody, err
+		return nil, errors.New("todo")
 	}
 	finalURL := reqURL.String()
-	finalURL = fmt.Sprintf("%v%v", t.Base, finalURL)
 
 	req, reqErr := http.NewRequest("GET", finalURL, body)
 	if reqErr != nil {
-		return jsonResBody, err
+		return nil, errors.New("todo")
 	}
 
 	{
-		res, resErr := t.Client.Do(req)
+		res, resErr := t.client.Do(req)
 		if resErr != nil {
-			return jsonResBody, err
+			return nil, errors.New("todo")
 		}
 
 		decErr := json.NewDecoder(res.Body).Decode(jsonResBody)
 		if decErr != nil {
-			return jsonResBody, err
+			return nil, errors.New("todo")
 		}
 
 	}
@@ -148,26 +147,24 @@ func (t RestClient) Remove(ctx context.Context, routeID string) (jsonResBody boo
 	sReqURL = strings.Replace(sReqURL, "{id:[0-9]+}", fmt.Sprintf("%v", routeID), 1)
 	reqURL, URLerr := url.ParseRequestURI(sReqURL)
 	if URLerr != nil {
-		return jsonResBody, err
+		return false, errors.New("todo")
 	}
 	finalURL := reqURL.String()
-	finalURL = fmt.Sprintf("%v%v", t.Base, finalURL)
 
 	req, reqErr := http.NewRequest("GET", finalURL, nil)
-	req = req.WithContext(ctx)
 	if reqErr != nil {
-		return jsonResBody, err
+		return false, errors.New("todo")
 	}
 
 	{
-		res, resErr := t.Client.Do(req)
+		res, resErr := t.client.Do(req)
 		if resErr != nil {
-			return jsonResBody, err
+			return false, errors.New("todo")
 		}
 
 		decErr := json.NewDecoder(res.Body).Decode(jsonResBody)
 		if decErr != nil {
-			return jsonResBody, err
+			return false, errors.New("todo")
 		}
 
 	}

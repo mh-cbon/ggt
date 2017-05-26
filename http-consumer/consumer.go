@@ -4,7 +4,6 @@ package consumer
 import (
 	"fmt"
 	"log"
-	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -119,11 +118,11 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	dstConcrete := astutil.GetUnpointedType(destName)
 
 	srcIsPointer := astutil.IsAPointedType(srcName)
-	srcNameFq := srcName
+	// srcNameFq := srcName
 	if todo.FromPkgPath != todo.ToPkgPath && !astutil.IsBasic(todo.FromTypeName) {
-		srcNameFq = fmt.Sprintf("%v.%v", filepath.Base(todo.FromPkgPath), srcConcrete)
+		// srcNameFq = fmt.Sprintf("%v.%v", filepath.Base(todo.FromPkgPath), srcConcrete)
 		if srcIsPointer {
-			srcNameFq = "*" + srcNameFq
+			// srcNameFq = "*" + srcNameFq
 		}
 		fileOut.AddImport(todo.FromPkgPath, todo.FromPkgID)
 	}
@@ -138,16 +137,14 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		fmt.Fprintf(dest, `
 	type %v struct{
 		router *mux.Router
-	  Base string
-		Client *http.Client
+		client *http.Client
 	}
 			`, dstConcrete)
 
 	} else {
 		fmt.Fprintf(dest, `
 	type %v struct{
-	  Base string
-		Client *http.Client
+		client *http.Client
 	}
 			`, dstConcrete)
 	}
@@ -158,19 +155,25 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 `, dstConcrete, srcName)
 
 	if mode == routeMode {
-		fmt.Fprintf(dest, `func New%v(router *mux.Router) *%v {
+		fmt.Fprintf(dest, `func New%v(router *mux.Router, client *http.Client) *%v {
+	if client == nil {
+		client = http.DefaultClient
+	}
 	ret := &%v{
 		router: router,
-		Client: http.DefaultClient,
+		client: client,
 	}
   return ret
 }
 `, dstConcrete, dstConcrete, dstConcrete)
 
 	} else {
-		fmt.Fprintf(dest, `func New%v() *%v {
+		fmt.Fprintf(dest, `func New%v(client *http.Client) *%v {
+	if client == nil {
+		client = http.DefaultClient
+	}
 	ret := &%v{
-		Client: http.DefaultClient,
+		client: client,
 	}
   return ret
 }
@@ -204,20 +207,27 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		annotations := astutil.GetAnnotations(comment, "@")
 		annotations = mergeAnnotations(structAnnotations, annotations)
 		params := astutil.MethodParams(m)
-		lParams := commaArgsToSlice(params)
-		paramNames := astutil.MethodParamNames(m)
-		lParamNames := commaArgsToSlice(paramNames)
+		lParams := astutil.MethodInputs(m)
+		// paramNames := astutil.MethodParamNames(m)
+		lParamNames := astutil.MethodInputNames(m)
 		paramTypes := astutil.MethodInputTypes(m)
 
 		retTypes := astutil.MethodReturnTypes(m)
 		retVars := astutil.MethodReturnNamesNormalized(m)
 		sRetVarNames := strings.TrimSpace(strings.Join(retVars, ", "))
 
-		handleErr := func(errVarName string) string {
+		defVal := astutil.TypesToDefVal(retTypes)
+		if i := astutil.TypesIndex(retTypes, "error"); i > -1 {
+			defVal[i] = fmt.Sprintf(`errors.New(%q)`, "todo")
+			fileOut.AddImport("errors", "")
+		}
+		defValRet := strings.Join(defVal, ", ")
+
+		handleErr := func(errVarName string, subjects ...string) string {
 			return fmt.Sprintf(`if %v!= nil {
 		return %v
 		}
-		`, errVarName, sRetVarNames)
+		`, errVarName, defValRet)
 		}
 
 		importIDs := astutil.GetSignatureImportIdentifiers(m)
@@ -228,23 +238,80 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		if mode == "rpc" {
 
 			fileOut.AddImport("errors", "")
+			fileOut.AddImport("bytes", "")
 
 			fmt.Fprintf(dest, `// %v constructs a request to %v
 		`, methodName, methodName)
 
-			defVal := astutil.TypesToDefVal(retTypes)
-			if i := astutil.TypesIndex(retTypes, "error"); i > -1 {
-				defVal[i] = fmt.Sprintf(`errors.New(%q)`, "todo")
+			body := `var reqBody bytes.Buffer
+		`
+			if len(paramTypes) > 0 {
+				fileOut.AddImport("encoding/json", "json")
+
+				body += fmt.Sprintf(`
+				{
+					input := struct{
+						%v
+					}{
+						%v
+					}
+					encErr := json.NewEncoder(&reqBody).Encode(&input)
+					%v
+				}
+					`, mapParamsToStruct(paramTypes, false),
+					mapParamsToStructValues(lParamNames),
+					handleErr("encErr", "req", "json", "encode"))
 			}
-			sRet := strings.Join(defVal, ", ")
+
+			// - create the request object
+			// preferedMethod := getPreferredMethod(annotations)
+			body += fmt.Sprintf(`finalURL := %q
+			req, reqErr := http.NewRequest(%q, finalURL, &reqBody)
+			%v
+			`, "/"+methodName, "POST", handleErr("reqErr"))
+
+			if len(retVars) == 0 {
+				body += fmt.Sprintf(`_, resErr := t.client.Do(req)
+			%v
+			return
+			`, handleErr("resErr"))
+
+			} else {
+
+				outputHandling := fmt.Sprintf(`
+				output := struct{
+					%v
+				}{}
+				{
+					decErr := json.NewDecoder(res.Body).Decode(&output)
+					%v
+				}
+					`, mapParamsToStruct(retTypes, false),
+					handleErr("decErr", "res", "json", "decode"))
+
+				retValues := ""
+				for _, r := range mapParamsToStructValueNames(retVars, "output") {
+					retValues += r + ", "
+				}
+				if retValues != "" {
+					retValues = retValues[:len(retValues)-2]
+				}
+
+				body += fmt.Sprintf(`res, resErr := t.client.Do(req)
+				%v
+				%v
+				return %v
+				`, handleErr("resErr"), outputHandling, retValues)
+
+			}
 
 			sRetTypes := strings.TrimSpace(strings.Join(retTypes, ", "))
 			fmt.Fprintf(dest, `func(t %v) %v(%v) (%v) {
-			return %v
+			%v
 		}
-		`, destName, methodName, params, sRetTypes, sRet)
+		`, destName, methodName, params, sRetTypes, body)
 
-		} else if route, ok := annotations["route"]; ok {
+		} else if route, ok := annotations["route"]; ok && mode == routeMode {
 
 			getParams := ""
 			postParams := ""
@@ -344,7 +411,6 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			if base, ok := annotations["base"]; ok {
 				urlHandling += fmt.Sprintf("finalURL = fmt.Sprint(%q, %q, finalURL)\n", "%v%v", base)
 			}
-			urlHandling += fmt.Sprintf("finalURL = fmt.Sprintf(%q, t.Base, finalURL)\n", "%v%v")
 
 			// modify method params to transform a reqBody ? to reqBody io.Reader
 			methodParams := changeParamType(lParams, "reqBody", "io.Reader")
@@ -376,7 +442,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			body += handleErr("reqErr")
 
 			if !hasResBody(retVars) {
-				body += fmt.Sprintf("_, resErr := t.Client.Do(req)\n")
+				body += fmt.Sprintf("_, resErr := t.client.Do(req)\n")
 				body += handleErr("resErr")
 
 			} else {
@@ -385,7 +451,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 
 				body += fmt.Sprintf(`
 				{
-					res, resErr := t.Client.Do(req)
+					res, resErr := t.client.Do(req)
 					%v
 					decErr := json.NewDecoder(res.Body).Decode(jsonResBody)
 					%v
@@ -441,13 +507,49 @@ func getMethodParamForRouteParam(mode string,
 	return ""
 }
 
-//
-// func handleErr(errVarName string) string {
-// 	return fmt.Sprintf(`if %v!= nil {
-// return nil, %v
-// }
-// `, errVarName, errVarName)
-// }
+func mapParamsToStruct(params []string, hasEllipse bool) string {
+	ret := ""
+	if len(params) > 0 {
+		for i, p := range params {
+			p = strings.TrimSpace(p)
+			y := strings.Split(p, " ")
+			t := strings.Replace(y[0], "...", "", -1)
+			if len(y) > 1 {
+				t = strings.Replace(y[1], "...", "", -1)
+			}
+			if i == len(params)-1 && hasEllipse {
+				ret += fmt.Sprintf("Arg%v []%v\n", i, t)
+			} else {
+				ret += fmt.Sprintf("Arg%v %v\n", i, t)
+			}
+		}
+	}
+	return ret
+}
+
+func mapParamsToStructValues(params []string) string {
+	ret := ""
+	if len(params) > 0 {
+		for i, p := range params {
+			p = strings.TrimSpace(p)
+			y := strings.Split(p, " ")
+			ret += fmt.Sprintf("Arg%v: %v,\n", i, y[0])
+		}
+	}
+	return ret
+}
+
+func mapParamsToStructValueNames(params []string, fromvarname string) []string {
+	var ret []string
+	for i := range params {
+		x := fmt.Sprintf("Arg%v", i)
+		if fromvarname != "" {
+			x = fmt.Sprintf("%v.%v", fromvarname, x)
+		}
+		ret = append(ret, x)
+	}
+	return ret
+}
 
 func hasReqBody(paramNames []string) bool {
 	for _, p := range paramNames {

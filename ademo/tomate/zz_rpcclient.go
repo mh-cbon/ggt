@@ -5,7 +5,9 @@ package tomate
 // do not edit
 
 import (
+	"bytes"
 	"context"
+	json "encoding/json"
 	"errors"
 	"net/http"
 )
@@ -13,34 +15,192 @@ import (
 // RPCClient is an http-clienter of Controller.
 // Controller of tomatoes.
 type RPCClient struct {
-	Base   string
-	Client *http.Client
+	client *http.Client
 }
 
 // NewRPCClient constructs an http-clienter of Controller
-func NewRPCClient() *RPCClient {
+func NewRPCClient(client *http.Client) *RPCClient {
+	if client == nil {
+		client = http.DefaultClient
+	}
 	ret := &RPCClient{
-		Client: http.DefaultClient,
+		client: client,
 	}
 	return ret
 }
 
 // GetByID constructs a request to GetByID
 func (t RPCClient) GetByID(routeID string) (*Tomate, error) {
-	return nil, errors.New("todo")
+	var reqBody bytes.Buffer
+
+	{
+		input := struct {
+			Arg0 string
+		}{
+			Arg0: routeID,
+		}
+		encErr := json.NewEncoder(&reqBody).Encode(&input)
+		if encErr != nil {
+			return nil, errors.New("todo")
+		}
+
+	}
+	finalURL := "/GetByID"
+	req, reqErr := http.NewRequest("POST", finalURL, &reqBody)
+	if reqErr != nil {
+		return nil, errors.New("todo")
+	}
+
+	res, resErr := t.client.Do(req)
+	if resErr != nil {
+		return nil, errors.New("todo")
+	}
+
+	output := struct {
+		Arg0 *Tomate
+		Arg1 error
+	}{}
+	{
+		decErr := json.NewDecoder(res.Body).Decode(&output)
+		if decErr != nil {
+			return nil, errors.New("todo")
+		}
+
+	}
+
+	return output.Arg0, output.Arg1
+
 }
 
 // Create constructs a request to Create
 func (t RPCClient) Create(postColor *string) (*Tomate, error) {
-	return nil, errors.New("todo")
+	var reqBody bytes.Buffer
+
+	{
+		input := struct {
+			Arg0 *string
+		}{
+			Arg0: postColor,
+		}
+		encErr := json.NewEncoder(&reqBody).Encode(&input)
+		if encErr != nil {
+			return nil, errors.New("todo")
+		}
+
+	}
+	finalURL := "/Create"
+	req, reqErr := http.NewRequest("POST", finalURL, &reqBody)
+	if reqErr != nil {
+		return nil, errors.New("todo")
+	}
+
+	res, resErr := t.client.Do(req)
+	if resErr != nil {
+		return nil, errors.New("todo")
+	}
+
+	output := struct {
+		Arg0 *Tomate
+		Arg1 error
+	}{}
+	{
+		decErr := json.NewDecoder(res.Body).Decode(&output)
+		if decErr != nil {
+			return nil, errors.New("todo")
+		}
+
+	}
+
+	return output.Arg0, output.Arg1
+
 }
 
 // Update constructs a request to Update
 func (t RPCClient) Update(routeID string, jsonReqBody *Tomate) (*Tomate, error) {
-	return nil, errors.New("todo")
+	var reqBody bytes.Buffer
+
+	{
+		input := struct {
+			Arg0 string
+			Arg1 *Tomate
+		}{
+			Arg0: routeID,
+			Arg1: jsonReqBody,
+		}
+		encErr := json.NewEncoder(&reqBody).Encode(&input)
+		if encErr != nil {
+			return nil, errors.New("todo")
+		}
+
+	}
+	finalURL := "/Update"
+	req, reqErr := http.NewRequest("POST", finalURL, &reqBody)
+	if reqErr != nil {
+		return nil, errors.New("todo")
+	}
+
+	res, resErr := t.client.Do(req)
+	if resErr != nil {
+		return nil, errors.New("todo")
+	}
+
+	output := struct {
+		Arg0 *Tomate
+		Arg1 error
+	}{}
+	{
+		decErr := json.NewDecoder(res.Body).Decode(&output)
+		if decErr != nil {
+			return nil, errors.New("todo")
+		}
+
+	}
+
+	return output.Arg0, output.Arg1
+
 }
 
 // Remove constructs a request to Remove
 func (t RPCClient) Remove(ctx context.Context, routeID string) (bool, error) {
-	return false, errors.New("todo")
+	var reqBody bytes.Buffer
+
+	{
+		input := struct {
+			Arg0 context.Context
+			Arg1 string
+		}{
+			Arg0: ctx,
+			Arg1: routeID,
+		}
+		encErr := json.NewEncoder(&reqBody).Encode(&input)
+		if encErr != nil {
+			return false, errors.New("todo")
+		}
+
+	}
+	finalURL := "/Remove"
+	req, reqErr := http.NewRequest("POST", finalURL, &reqBody)
+	if reqErr != nil {
+		return false, errors.New("todo")
+	}
+
+	res, resErr := t.client.Do(req)
+	if resErr != nil {
+		return false, errors.New("todo")
+	}
+
+	output := struct {
+		Arg0 bool
+		Arg1 error
+	}{}
+	{
+		decErr := json.NewDecoder(res.Body).Decode(&output)
+		if decErr != nil {
+			return false, errors.New("todo")
+		}
+
+	}
+
+	return output.Arg0, output.Arg1
+
 }
