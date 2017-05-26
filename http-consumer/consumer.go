@@ -74,7 +74,7 @@ func wrongInput(format string, a ...interface{}) {
 func showHelp() {
 	fmt.Printf(`ggt [options] http-consumer ...[FromTypeName:ToTypeName]
 
-generates typed slice
+generates http client implementation of given type.
 
 [options]
 
