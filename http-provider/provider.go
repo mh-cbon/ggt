@@ -96,6 +96,8 @@ Example
 `)
 }
 
+var httpCookieType = "http.Cookie"
+
 func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) error {
 
 	dest := &fileOut.Body
@@ -402,7 +404,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				} else if paramName == "headers" {
 					bodyFunc += fmt.Sprintf("%v := r.Header\n", paramName)
 
-				} else if paramType == "*http.Cookie" {
+				} else if paramType == "*"+httpCookieType {
 					bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "r")
 
 					bodyFunc += fmt.Sprintf("")
@@ -416,7 +418,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						`, paramName, paramType,
 						paramName, errHandler("cookieErr", "req", "cookie", "error"), paramName)
 
-				} else if paramType == "http.Cookie" {
+				} else if paramType == httpCookieType {
 					bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "r")
 
 					bodyFunc += fmt.Sprintf("")
@@ -470,7 +472,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			fileOut.AddImport("encoding/json", "json")
 
 			for i, retVar := range retVars {
-				if retTypes[i] == "*http.Cookie" {
+				if retTypes[i] == "*"+httpCookieType {
 					fileOut.AddImport("time", "")
 					bodyFunc += fmt.Sprintf(`
 						if output.%v == nil {
@@ -483,7 +485,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						}
 							`, mappedParamNames[i], retVar, mappedParamNames[i])
 
-				} else if retTypes[i] == "http.Cookie" {
+				} else if retTypes[i] == httpCookieType {
 					bodyFunc += fmt.Sprintf(`http.SetCookie(w, &%v)
 											`, mappedParamNames[i])
 
@@ -532,7 +534,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							}
 								`, errHandler("encErr", "res", "json", "encode"))
 
-					} else if retTypes[i] == "*http.Cookie" {
+					} else if retTypes[i] == "*"+httpCookieType {
 						fileOut.AddImport("time", "")
 						bodyFunc += fmt.Sprintf(`
 							if %v == nil {
@@ -545,7 +547,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							}
 								`, retVar, retVar, retVar)
 
-					} else if retTypes[i] == "http.Cookie" {
+					} else if retTypes[i] == httpCookieType {
 						bodyFunc += fmt.Sprintf(`http.SetCookie(w, &%v)
 								`, retVar)
 
@@ -634,7 +636,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		annotations := astutil.GetAnnotations(comment, "@")
 		annotations = mergeAnnotations(structAnnotations, annotations)
 
-		methods := "[]string{}"
+		methods := fmt.Sprintf("[]string{%q}", "GET")
 		route := methodName
 		if r, ok := annotations["route"]; ok {
 			route = r

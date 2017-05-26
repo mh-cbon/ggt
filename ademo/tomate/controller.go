@@ -36,6 +36,7 @@ func (t Controller) GetByID(routeID string) (jsonResBody *Tomate, err error) {
 // Create a new Tomate
 //
 // @route /create
+// @methods POST
 func (t Controller) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	if postColor == nil {
 		return nil, &UserInputError{errors.New("Missing color parameter")}
@@ -58,6 +59,7 @@ func (t Controller) Create(postColor *string) (jsonResBody *Tomate, err error) {
 // Update an existing Tomate
 //
 // @route /write/{id:[0-9]+}
+// @methods POST
 func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *Tomate, err error) {
 	jsonReqBody.Color = strings.TrimSpace(jsonReqBody.Color)
 	if jsonReqBody.Color == "" {
@@ -88,6 +90,7 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 // Remove an existing Tomate
 //
 // @route /remove/{id:[0-9]+}
+// @methods POST
 func (t Controller) Remove(ctx context.Context, routeID string) (jsonResBody bool, err error) {
 	t.backend.Transact(func(backend *Tomates) {
 		byID := backend.Filter(FilterTomates.ByID(routeID))

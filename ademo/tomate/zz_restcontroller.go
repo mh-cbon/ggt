@@ -80,6 +80,7 @@ func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
 // Create a new Tomate
 //
 // @route /create
+// @methods POST
 func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestController", "Create")
 
@@ -133,6 +134,7 @@ func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 // Update an existing Tomate
 //
 // @route /write/{id:[0-9]+}
+// @methods POST
 func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestController", "Update")
 
@@ -190,6 +192,7 @@ func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
 // Remove an existing Tomate
 //
 // @route /remove/{id:[0-9]+}
+// @methods POST
 func (t *RestController) Remove(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestController", "Remove")
 
@@ -246,28 +249,28 @@ func NewRestControllerDescriptor(about *RestController) *RestControllerDescripto
 		Name:    "GetByID",
 		Handler: about.GetByID,
 		Route:   "/read/{id:[0-9]+}",
-		Methods: []string{},
+		Methods: []string{"GET"},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetByID)
 	ret.methodCreate = &ggt.MethodDescriptor{
 		Name:    "Create",
 		Handler: about.Create,
 		Route:   "/create",
-		Methods: []string{},
+		Methods: []string{"POST"},
 	}
 	ret.TypeDescriptor.Register(ret.methodCreate)
 	ret.methodUpdate = &ggt.MethodDescriptor{
 		Name:    "Update",
 		Handler: about.Update,
 		Route:   "/write/{id:[0-9]+}",
-		Methods: []string{},
+		Methods: []string{"POST"},
 	}
 	ret.TypeDescriptor.Register(ret.methodUpdate)
 	ret.methodRemove = &ggt.MethodDescriptor{
 		Name:    "Remove",
 		Handler: about.Remove,
 		Route:   "/remove/{id:[0-9]+}",
-		Methods: []string{},
+		Methods: []string{"POST"},
 	}
 	ret.TypeDescriptor.Register(ret.methodRemove)
 	return ret
