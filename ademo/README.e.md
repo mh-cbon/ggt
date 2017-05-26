@@ -24,18 +24,18 @@
 
 ## a backend in-memory
 
- - {{link "tomate/zz_tomatessync.go"}}
- - {{link "tomate/zz_tomates.go"}}
+- {{link "tomate/zz_tomatessync.go" "tomate/zz_tomatessync.go"}}
+- {{link "tomate/zz_tomates.go" "tomate/zz_tomates.go"}}
 
 ## an http rpc implementation
 
- - {{link "tomate/zz_rpccontroller.go" | color "go"}}
- - {{link "tomate/zz_rpcclient.go" | color "go"}}
+- {{link "tomate/zz_rpccontroller.go" "tomate/zz_rpccontroller.go"}}
+- {{link "tomate/zz_rpcclient.go" "tomate/zz_rpcclient.go"}}
 
 ## an http rest implementation
 
- - {{link "tomate/zz_restcontroller.go" | color "go"}}
- - {{link "tomate/zz_restclient.go" | color "go"}}
+- {{link "tomate/zz_restclient.go" "tomate/zz_restclient.go"}}
+- {{link "tomate/zz_restcontroller.go" "tomate/zz_restcontroller.go"}}
 
 # The test
 

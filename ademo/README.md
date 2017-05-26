@@ -253,26 +253,18 @@ package tomate
 
 ## a backend in-memory
 
- - tomate/zz_tomatessync.go
- - tomate/zz_tomates.go
+- [tomate/zz_tomatessync.go](tomate/zz_tomatessync.go)
+- [tomate/zz_tomates.go](tomate/zz_tomates.go)
 
 ## an http rpc implementation
 
- - ```go
-tomate/zz_rpccontroller.go
-```
- - ```go
-tomate/zz_rpcclient.go
-```
+- [tomate/zz_rpccontroller.go](tomate/zz_rpccontroller.go)
+- [tomate/zz_rpcclient.go](tomate/zz_rpcclient.go)
 
 ## an http rest implementation
 
- - ```go
-tomate/zz_restcontroller.go
-```
- - ```go
-tomate/zz_restclient.go
-```
+- [tomate/zz_restclient.go](tomate/zz_restclient.go)
+- [tomate/zz_restcontroller.go](tomate/zz_restcontroller.go)
 
 # The test
 
@@ -286,7 +278,7 @@ tomate/zz_restclient.go
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 404 page not found
@@ -294,7 +286,7 @@ Content-Length: 19
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 404 page not found
@@ -302,7 +294,7 @@ Content-Length: 19
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 404 page not found
@@ -310,7 +302,7 @@ Content-Length: 19
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 404 page not found
@@ -318,7 +310,7 @@ Content-Length: 19
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 404 page not found
@@ -326,18 +318,18 @@ Content-Length: 19
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 404 page not found
 + curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
-2017/05/26 17:02:30 handling  Update /write/{id:[0-9]+}
-2017-05-26 17:02:30.376409046 +0200 CEST [begin RestController Update] <nil>
-2017-05-26 17:02:30.376523391 +0200 CEST [business error RestController Update] ID does not exists
+2017/05/26 17:04:16 handling  Update /write/{id:[0-9]+}
+2017-05-26 17:04:16.539892313 +0200 CEST [begin RestController Update] <nil>
+2017-05-26 17:04:16.540012947 +0200 CEST [business error RestController Update] ID does not exists
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 ID does not exists
@@ -345,28 +337,28 @@ ID does not exists
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 404 page not found
 + curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/0
-2017/05/26 17:02:30 handling  Update /write/{id:[0-9]+}
-2017-05-26 17:02:30.401189552 +0200 CEST [begin RestController Update] <nil>
-2017-05-26 17:02:30.401468184 +0200 CEST [end RestController Update] <nil>
+2017/05/26 17:04:16 handling  Update /write/{id:[0-9]+}
+2017-05-26 17:04:16.566554957 +0200 CEST [begin RestController Update] <nil>
+2017-05-26 17:04:16.566790873 +0200 CEST [end RestController Update] <nil>
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 28
 
 {"ID":"0","Color":"yellow"}
 + curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
-2017/05/26 17:02:30 handling  Update /write/{id:[0-9]+}
-2017-05-26 17:02:30.416736532 +0200 CEST [begin RestController Update] <nil>
-2017-05-26 17:02:30.416894859 +0200 CEST [business error RestController Update] ID does not exists
+2017/05/26 17:04:16 handling  Update /write/{id:[0-9]+}
+2017-05-26 17:04:16.581503347 +0200 CEST [begin RestController Update] <nil>
+2017-05-26 17:04:16.581611888 +0200 CEST [business error RestController Update] ID does not exists
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 ID does not exists
@@ -374,7 +366,7 @@ ID does not exists
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 15:02:30 GMT
+Date: Fri, 26 May 2017 15:04:16 GMT
 Content-Length: 19
 
 404 page not found
