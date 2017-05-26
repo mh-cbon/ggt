@@ -7,6 +7,7 @@ import (
 	"github.com/posener/flag"
 
 	"github.com/mh-cbon/ggt/chaner"
+	httpConsumer "github.com/mh-cbon/ggt/http-consumer"
 	httpProvider "github.com/mh-cbon/ggt/http-provider"
 	"github.com/mh-cbon/ggt/mutexer"
 	"github.com/mh-cbon/ggt/opts"
@@ -15,10 +16,6 @@ import (
 
 var name = "ggt"
 var version = "0.0.0"
-
-var subcmds = []string{
-	"slicer",
-}
 
 func main() {
 
@@ -61,6 +58,9 @@ func main() {
 	} else if cmd == "http-provider" {
 		(httpProvider.Cmd{}).Run(options)
 
+	} else if cmd == "http-consumer" {
+		(httpConsumer.Cmd{}).Run(options)
+
 	}
 
 }
@@ -80,7 +80,7 @@ ggt's generator toolbox
     -help        Show help
     -version     Show version
     -vv          More verbose
-    -mode        tbd.
+    -mode        Generator mode when suitable (rpc|route).
 
 [generator]
 

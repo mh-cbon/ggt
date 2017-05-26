@@ -40,8 +40,7 @@ func (t Controller) Create(postColor *string) (jsonResBody *Tomate, err error) {
 		return nil, &UserInputError{errors.New("color must not be empty")}
 	}
 	t.backend.Transact(func(backend *Tomates) {
-		exist := backend.Filter(FilterTomates.ByColor(color)).Len()
-		if exist > 0 {
+		if !backend.Filter(FilterTomates.ByColor(color)).Empty() {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}

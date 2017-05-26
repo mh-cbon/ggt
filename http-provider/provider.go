@@ -79,7 +79,7 @@ generates http oriented implementation of given type.
 [options]
 
     -p        Force out package name
-    -mode     TBD.
+    -mode     Generation mode (rpc|route).
 
 ...[FromTypeName:ToTypeName]
 

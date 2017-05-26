@@ -6,6 +6,10 @@ Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
 
 # {{toc 5}}
 
+# 3R
+
+Remove Redundant Repetition
+
 # Install
 
 #### go
