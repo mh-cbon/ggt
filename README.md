@@ -19,8 +19,8 @@ Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
     - [$ ggt -help mutexer](#-ggt--help-mutexer)
   - [http-provider](#http-provider)
     - [$ ggt -help http-provider](#-ggt--help-http-provider)
-  - [http-clienter](#http-clienter)
-    - [$ ggt -help http-clienter](#-ggt--help-http-clienter)
+  - [http-consumer](#http-consumer)
+    - [$ ggt -help http-consumer](#-ggt--help-http-consumer)
 - [notes](#notes)
 
 # 3R
@@ -184,13 +184,35 @@ Example
 
 [here](https://github.com/mh-cbon/ggt/tree/master/http-provider).
 
-## http-clienter
+## http-consumer
 
 Transform a business controller into an http client.
 
-#### $ ggt -help http-clienter
+#### $ ggt -help http-consumer
 ```sh
-sh
+ggt [options] http-consumer ...[FromTypeName:ToTypeName]
+
+generates typed slice
+
+[options]
+
+    -p        Force out package name
+    -mode     Thep referred generation mode (rpc|route)
+
+...[FromTypeName:ToTypeName]
+
+    A list of types such as src:dst.
+    A type is defined by its package path and its type name,
+    [pkgpath/]name.
+    If the Package path is empty, it is set to the package name being generated.
+    Name can be a valid type identifier such as TypeName, *TypeName, []TypeName
+
+Example
+
+    ggt http-consumer MySrcType:gen/*NewGenType
+    ggt http-consumer myModule/*MySrcType:gen/NewGenType
+    ggt -mode rpc http-consumer myModule/*MySrcType:gen/NewGenType
+    ggt -mode route http-consumer myModule/*MySrcType:gen/NewGenType
 ```
 
 
