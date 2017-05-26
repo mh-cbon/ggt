@@ -5,7 +5,7 @@ package tomate
 // do not edit
 
 import (
-	"context"
+	context "context"
 	json "encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
 	"io"
@@ -54,15 +54,15 @@ func (t *RPCController) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonResBody, err := t.embed.GetByID(input.Arg0)
+	output := struct {
+		Arg0 *Tomate
+		Arg1 error
+	}{
+		Arg0: jsonResBody,
+		Arg1: err,
+	}
 
 	{
-		output := struct {
-			Arg0 *Tomate
-			Arg1 error
-		}{
-			Arg0: jsonResBody,
-			Arg1: err,
-		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
 		encErr := json.NewEncoder(w).Encode(output)
@@ -113,15 +113,15 @@ func (t *RPCController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonResBody, err := t.embed.Create(input.Arg0)
+	output := struct {
+		Arg0 *Tomate
+		Arg1 error
+	}{
+		Arg0: jsonResBody,
+		Arg1: err,
+	}
 
 	{
-		output := struct {
-			Arg0 *Tomate
-			Arg1 error
-		}{
-			Arg0: jsonResBody,
-			Arg1: err,
-		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
 		encErr := json.NewEncoder(w).Encode(output)
@@ -160,15 +160,15 @@ func (t *RPCController) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonResBody, err := t.embed.Update(input.Arg0, input.Arg1)
+	output := struct {
+		Arg0 *Tomate
+		Arg1 error
+	}{
+		Arg0: jsonResBody,
+		Arg1: err,
+	}
 
 	{
-		output := struct {
-			Arg0 *Tomate
-			Arg1 error
-		}{
-			Arg0: jsonResBody,
-			Arg1: err,
-		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
 		encErr := json.NewEncoder(w).Encode(output)
@@ -207,15 +207,15 @@ func (t *RPCController) Remove(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonResBody, err := t.embed.Remove(input.Arg0, input.Arg1)
+	output := struct {
+		Arg0 bool
+		Arg1 error
+	}{
+		Arg0: jsonResBody,
+		Arg1: err,
+	}
 
 	{
-		output := struct {
-			Arg0 bool
-			Arg1 error
-		}{
-			Arg0: jsonResBody,
-			Arg1: err,
-		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
 		encErr := json.NewEncoder(w).Encode(output)

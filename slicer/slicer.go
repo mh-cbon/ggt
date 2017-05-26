@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"github.com/mh-cbon/astutil"
 	"github.com/mh-cbon/ggt/opts"
@@ -567,7 +568,7 @@ func processFilter(todo utils.TransformArg, fileOut *utils.FileOut) error {
 		}
 	}
 
-	props := astutil.StructProps(foundStruct)
+	props := astutil.StructPropsDeep(pkg, foundStruct)
 
 	newStructProps := ""
 	for _, prop := range props {
@@ -577,6 +578,15 @@ func processFilter(todo utils.TransformArg, fileOut *utils.FileOut) error {
 			propName := prop["name"]
 			newStructProps += fmt.Sprintf("By%v func(%v) func (%v) bool", propName, propType, srcNameFq)
 			newStructProps += "\n"
+			if strings.Index(prop["type"], ".") > 0 {
+				pType := strings.Split(prop["type"], ".")[0]
+				path := astutil.GetImportPath(pkg, pType)
+				if path == "" {
+					log.Printf("package path not found. id:%q path:%q\n", pType, path)
+				} else {
+					fileOut.AddImport(path, pType)
+				}
+			}
 		}
 	}
 
@@ -632,7 +642,7 @@ func processSetter(todo utils.TransformArg, fileOut *utils.FileOut) error {
 		}
 	}
 
-	props := astutil.StructProps(foundStruct)
+	props := astutil.StructPropsDeep(pkg, foundStruct)
 
 	newStructProps := ""
 	for _, prop := range props {

@@ -190,7 +190,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		lParamNames := astutil.MethodInputNames(m)
 		paramNames := astutil.MethodParamNames(m)
 		paramTypes := astutil.MethodParamTypes(m)
-		lParamTypes := split(paramTypes, ",")
+		lParamTypes := astutil.MethodInputTypes(m)
 		comment := astutil.GetComment(prog, m.Pos())
 		comment = makeCommentLines(comment)
 		// annotations := astutil.GetAnnotations(comment, "@")
@@ -244,7 +244,12 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		if mode == rpcMode {
 			importIDs := astutil.GetSignatureImportIdentifiers(m)
 			for _, i := range importIDs {
-				fileOut.AddImport(i, astutil.GetImportPath(pkg, i))
+				path := astutil.GetImportPath(pkg, i)
+				if path == "" {
+					log.Printf("package path not found. id:%q path:%q\n", i, path)
+				} else {
+					fileOut.AddImport(path, i)
+				}
 			}
 		}
 
@@ -355,6 +360,18 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							}
 						`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "form"))
 
+				} else if strings.HasPrefix(paramName, "cookie") {
+					k := strings.ToLower(paramName[6:])
+					bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
+					bodyFunc += fmt.Sprintf(`
+						{
+							c, cookieErr := r.Cookie(%q)
+							%v
+							%v
+						}
+						`,
+						k, errHandler("cookieErr", "req", "cookie", "error"), convertStrTo("c.Value", paramName, paramType, errHandler, "route"))
+
 				} else if paramName == "jsonReqBody" {
 
 					paramPkgID := astutil.GetPkgID(paramType)
@@ -385,6 +402,34 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				} else if paramName == "headers" {
 					bodyFunc += fmt.Sprintf("%v := r.Header\n", paramName)
 
+				} else if paramType == "*http.Cookie" {
+					bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "r")
+
+					bodyFunc += fmt.Sprintf("")
+					bodyFunc += fmt.Sprintf(`
+						var %v %v
+						{
+							c, cookieErr := r.Cookie(%q)
+							%v
+							%v = c
+						}
+						`, paramName, paramType,
+						paramName, errHandler("cookieErr", "req", "cookie", "error"), paramName)
+
+				} else if paramType == "http.Cookie" {
+					bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "r")
+
+					bodyFunc += fmt.Sprintf("")
+					bodyFunc += fmt.Sprintf(`
+						var %v %v
+						{
+							c, cookieErr := r.Cookie(%q)
+							%v
+							%v = *c
+						}
+						`, paramName, paramType,
+						paramName, errHandler("cookieErr", "req", "cookie", "error"), paramName)
+
 				} else if paramType == "*http.Request" && paramName != "r" {
 					bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "r")
 
@@ -412,23 +457,47 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					%v := t.embed.%v(%v)
 					`, sRetVars, methodName, mapParamNamesToStructProps(lParamNames, hasEllipse))
 
+			mappedParams := mapParamsToStruct(retTypes, false)
+			mappedParamNames := mapParamsToStructNames(retTypes)
+			mappedParamValues := mapParamsToStructValues(retVars)
+			bodyFunc += fmt.Sprintf(`output := struct{
+			%v
+		}{
+			%v
+		}
+		`, mappedParams, mappedParamValues)
+
 			fileOut.AddImport("encoding/json", "json")
 
+			for i, retVar := range retVars {
+				if retTypes[i] == "*http.Cookie" {
+					fileOut.AddImport("time", "")
+					bodyFunc += fmt.Sprintf(`
+						if output.%v == nil {
+							http.SetCookie(w, &http.Cookie{
+								Name: %q,
+								Expires: time.Now().Add(-time.Hour * 24 * 100),
+							})
+						} else {
+							http.SetCookie(w, output.%v)
+						}
+							`, mappedParamNames[i], retVar, mappedParamNames[i])
+
+				} else if retTypes[i] == "http.Cookie" {
+					bodyFunc += fmt.Sprintf(`http.SetCookie(w, &%v)
+											`, mappedParamNames[i])
+
+				}
+			}
+
 			bodyFunc += fmt.Sprintf(`
-								{
-									output := struct{
-										%v
-									}{
-										%v
-									}
-									w.Header().Set("Content-Type", "application/json")
-									w.WriteHeader(200)
-									encErr := json.NewEncoder(w).Encode(output)
-									%v
-								}
-									`, mapParamsToStruct(retTypes, false),
-				mapParamsToStructValues(retVars),
-				errHandler("encErr", "res", "json", "encode"))
+			{
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(200)
+				encErr := json.NewEncoder(w).Encode(output)
+				%v
+			}
+				`, errHandler("encErr", "res", "json", "encode"))
 
 		} else {
 
@@ -449,7 +518,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					}
 				}
 
-				for _, retVar := range retVars {
+				for i, retVar := range retVars {
 					if retVar == "jsonResBody" {
 
 						fileOut.AddImport("encoding/json", "json")
@@ -462,6 +531,24 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 								%v
 							}
 								`, errHandler("encErr", "res", "json", "encode"))
+
+					} else if retTypes[i] == "*http.Cookie" {
+						fileOut.AddImport("time", "")
+						bodyFunc += fmt.Sprintf(`
+							if %v == nil {
+								http.SetCookie(w, &http.Cookie{
+									Name: %q,
+									Expires: time.Now().Add(-time.Hour * 24 * 100),
+								})
+							} else {
+								http.SetCookie(w, %v)
+							}
+								`, retVar, retVar, retVar)
+
+					} else if retTypes[i] == "http.Cookie" {
+						bodyFunc += fmt.Sprintf(`http.SetCookie(w, &%v)
+								`, retVar)
+
 					}
 				}
 			}
@@ -553,7 +640,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			route = r
 		}
 		if m, ok := annotations["methods"]; ok {
-			methods = stringifyList(m)
+			methods = fmt.Sprintf("[]string{%v}", stringifyList(m))
 		}
 		fmt.Fprintf(dest, `ret.method%v = &ggt.MethodDescriptor{
 				Name     : %q,
@@ -736,6 +823,16 @@ func mapParamsToStructValues(params []string) string {
 			p = strings.TrimSpace(p)
 			y := strings.Split(p, " ")
 			ret += fmt.Sprintf("Arg%v: %v,\n", i, y[0])
+		}
+	}
+	return ret
+}
+
+func mapParamsToStructNames(params []string) []string {
+	var ret []string
+	if len(params) > 0 {
+		for i := range params {
+			ret = append(ret, fmt.Sprintf(`Arg%v`, i))
 		}
 	}
 	return ret

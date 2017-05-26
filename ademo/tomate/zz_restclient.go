@@ -36,6 +36,15 @@ func NewRestClient(router *mux.Router, client *http.Client) *RestClient {
 	return ret
 }
 
+var xx90888eb014329c49645575e5fa5cbc0be199c6f1 = bytes.MinRead
+var xx9355ce1a0b0f81ae6deae2ab6f9e81a1fe9f4a36 = fmt.Println
+var xx5a2d364980b169ee03e43a56248e5ffe2c777949 = url.PathEscape
+var xx65c5042050d01179c8bf5c2d68ff7b666e89b28b = strings.ToUpper
+var xx63b054611e3968c9e01a9e074f041b578c37e698 = context.Canceled
+var xx27d6e81bcee44cbebc51244be3f5738c0a0f0a78 = mux.Vars
+var xx047eb6cc5ec02dd6ceaffbf24d3c6b91faa9e161 = io.Copy
+var xx28670589f45cfaa5c61622d22ad70c9d7994ab8f = http.StatusOK
+
 // GetByID constructs a request to /read/{id:[0-9]+}
 func (t RestClient) GetByID(routeID string) (jsonResBody *Tomate, err error) {
 	sReqURL := "/read/{id:[0-9]+}"
@@ -76,6 +85,7 @@ func (t RestClient) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	}
 	form := url.Values{}
 	form.Add("color", *postColor)
+
 	finalURL := reqURL.String()
 
 	req, reqErr := http.NewRequest("GET", finalURL, strings.NewReader(form.Encode()))

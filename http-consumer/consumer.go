@@ -189,8 +189,29 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		fileOut.AddImport("strings", "")
 		fileOut.AddImport("context", "")
 		fileOut.AddImport("github.com/gorilla/mux", "")
+
+		// cheat.
+		for _, x := range []string{
+			"bytes.MinRead",
+			"fmt.Println",
+			"url.PathEscape",
+			"strings.ToUpper",
+			"context.Canceled",
+			"mux.Vars",
+			"io.Copy",
+			"http.StatusOK",
+		} {
+			fmt.Fprintf(dest, `var xx%v = %v
+				`, utils.Hash(fileOut.Path+x), x)
+		}
 	} else {
 		fileOut.AddImport("net/http", "")
+
+		// cheat.
+		for _, x := range []string{"http.StatusOK"} {
+			fmt.Fprintf(dest, `var xx%v = %v
+				`, utils.Hash(fileOut.Path+x), x)
+		}
 	}
 
 	for _, m := range foundMethods[srcConcrete] {
@@ -232,7 +253,12 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 
 		importIDs := astutil.GetSignatureImportIdentifiers(m)
 		for _, i := range importIDs {
-			fileOut.AddImport(i, astutil.GetImportPath(pkg, i))
+			path := astutil.GetImportPath(pkg, i)
+			if path == "" {
+				log.Printf("package path not found. id:%q path:%q\n", i, path)
+			} else {
+				fileOut.AddImport(path, i)
+			}
 		}
 
 		if mode == "rpc" {
@@ -353,9 +379,11 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					} else if strings.HasPrefix(paramName, "post") {
 						k := strings.ToLower(paramName[4:])
 						if astutil.IsAPointedType(paramTypes[paramIndex]) {
-							postParams += fmt.Sprintf("form.Add(%q, *%v)", k, paramName)
+							postParams += fmt.Sprintf(`form.Add(%q, *%v)
+							`, k, paramName)
 						} else {
-							postParams += fmt.Sprintf("form.Add(%q, %v)", k, paramName)
+							postParams += fmt.Sprintf(`form.Add(%q, %v)
+							`, k, paramName)
 						}
 						managedParamNames.Push(paramName)
 					}
