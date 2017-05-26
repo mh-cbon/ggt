@@ -23,16 +23,19 @@
 # The code for free
 
 ## a backend in-memory
-#### $ {{cat "tomate/zz_tomatessync.go" | color "go"}}
-#### $ {{cat "tomate/zz_tomates.go" | color "go"}}
+
+ - {{link "tomate/zz_tomatessync.go"}}
+ - {{link "tomate/zz_tomates.go"}}
 
 ## an http rpc implementation
-#### $ {{cat "tomate/zz_rpccontroller.go" | color "go"}}
-#### $ {{cat "tomate/zz_rpcclient.go" | color "go"}}
+
+ - {{link "tomate/zz_rpccontroller.go" | color "go"}}
+ - {{link "tomate/zz_rpcclient.go" | color "go"}}
 
 ## an http rest implementation
-#### $ {{cat "tomate/zz_restcontroller.go" | color "go"}}
-#### $ {{cat "tomate/zz_restclient.go" | color "go"}}
+
+ - {{link "tomate/zz_restcontroller.go" | color "go"}}
+ - {{link "tomate/zz_restclient.go" | color "go"}}
 
 # The test
 
