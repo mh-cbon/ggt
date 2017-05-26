@@ -144,10 +144,10 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	fileOut.AddImport("github.com/mh-cbon/ggt/lib", "ggt")
 
 	// cheat.
-	fmt.Fprintf(dest, `var xxStrconvAtoi = strconv.Atoi
-	var xxIoCopy = io.Copy
-	var xxHTTPOk = http.StatusOK
-	`)
+	for _, x := range []string{"strconv.Atoi", "io.Copy", "http.StatusOK"} {
+		fmt.Fprintf(dest, `var xx%v = %v
+			`, utils.Hash(fileOut.Path+x), x)
+	}
 
 	// Declare the new type
 	fmt.Fprintf(dest, `

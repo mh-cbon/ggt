@@ -13,9 +13,9 @@ import (
 	"strconv"
 )
 
-var xxStrconvAtoi = strconv.Atoi
-var xxIoCopy = io.Copy
-var xxHTTPOk = http.StatusOK
+var xxc52d52149b9b88887c5b162b670197217023167c = strconv.Atoi
+var xxdddd5c3cff35fd51b960096f826c90c635b524c8 = io.Copy
+var xx50b52bbd0311cf9ec8e406218f58ce92f00e2679 = http.StatusOK
 
 // RestController is an httper of Controller.
 // Controller of tomatoes.
@@ -36,17 +36,19 @@ func NewRestController(embed Controller) *RestController {
 
 // GetByID invoke Controller.GetByID using the request body as a json payload.
 // GetByID read the Tomate of given ID
+//
+// @route /read/{id:[0-9]+}
 func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestController", "GetByID")
 
-	xxURLValues := r.URL.Query()
-	var getID string
-	if _, ok := xxURLValues["id"]; ok {
-		xxTmpgetID := xxURLValues.Get("id")
-		getID = xxTmpgetID
+	xxRouteVars := mux.Vars(r)
+	var routeID string
+	if _, ok := xxRouteVars["id"]; ok {
+		xxTmprouteID := xxRouteVars["id"]
+		routeID = xxTmprouteID
 	}
 
-	jsonResBody, err := t.embed.GetByID(getID)
+	jsonResBody, err := t.embed.GetByID(routeID)
 
 	if err != nil {
 
@@ -76,6 +78,8 @@ func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // Create invoke Controller.Create using the request body as a json payload.
 // Create a new Tomate
+//
+// @route /create
 func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestController", "Create")
 
@@ -182,6 +186,48 @@ func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RestController", "Update")
 }
 
+// Remove invoke Controller.Remove using the request body as a json payload.
+// Remove an existing Tomate
+//
+// @route /remove/{id:[0-9]+}
+func (t *RestController) Remove(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestController", "Remove")
+
+	xxRouteVars := mux.Vars(r)
+	var routeID string
+	if _, ok := xxRouteVars["id"]; ok {
+		xxTmprouteID := xxRouteVars["id"]
+		routeID = xxTmprouteID
+	}
+
+	jsonResBody, err := t.embed.Remove(routeID)
+
+	if err != nil {
+
+		t.Log.Handle(w, r, err, "business", "error", "RestController", "Remove")
+		t.embed.Finalizer(w, r, err)
+
+		return
+	}
+
+	{
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		encErr := json.NewEncoder(w).Encode(jsonResBody)
+
+		if encErr != nil {
+
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RestController", "Remove")
+			t.embed.Finalizer(w, r, encErr)
+
+			return
+		}
+
+	}
+
+	t.Log.Handle(w, r, nil, "end", "RestController", "Remove")
+}
+
 // RestControllerDescriptor describe a *RestController
 type RestControllerDescriptor struct {
 	ggt.TypeDescriptor
@@ -189,6 +235,7 @@ type RestControllerDescriptor struct {
 	methodGetByID *ggt.MethodDescriptor
 	methodCreate  *ggt.MethodDescriptor
 	methodUpdate  *ggt.MethodDescriptor
+	methodRemove  *ggt.MethodDescriptor
 }
 
 // NewRestControllerDescriptor describe a *RestController
@@ -197,14 +244,14 @@ func NewRestControllerDescriptor(about *RestController) *RestControllerDescripto
 	ret.methodGetByID = &ggt.MethodDescriptor{
 		Name:    "GetByID",
 		Handler: about.GetByID,
-		Route:   "GetByID",
+		Route:   "/read/{id:[0-9]+}",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetByID)
 	ret.methodCreate = &ggt.MethodDescriptor{
 		Name:    "Create",
 		Handler: about.Create,
-		Route:   "Create",
+		Route:   "/create",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodCreate)
@@ -215,6 +262,13 @@ func NewRestControllerDescriptor(about *RestController) *RestControllerDescripto
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodUpdate)
+	ret.methodRemove = &ggt.MethodDescriptor{
+		Name:    "Remove",
+		Handler: about.Remove,
+		Route:   "/remove/{id:[0-9]+}",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodRemove)
 	return ret
 }
 
@@ -226,3 +280,6 @@ func (t *RestControllerDescriptor) Create() *ggt.MethodDescriptor { return t.met
 
 // Update returns a MethodDescriptor
 func (t *RestControllerDescriptor) Update() *ggt.MethodDescriptor { return t.methodUpdate }
+
+// Remove returns a MethodDescriptor
+func (t *RestControllerDescriptor) Remove() *ggt.MethodDescriptor { return t.methodRemove }

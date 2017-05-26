@@ -178,6 +178,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	}
 
 	if mode == routeMode {
+		fileOut.AddImport("bytes", "")
 		fileOut.AddImport("fmt", "")
 		fileOut.AddImport("io", "")
 		fileOut.AddImport("net/http", "")
@@ -191,6 +192,13 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	for _, m := range foundMethods[srcConcrete] {
 		methodName := astutil.MethodName(m)
 
+		if astutil.IsExported(methodName) == false {
+			continue
+		}
+		if strings.HasSuffix(methodName, "Finalizer") {
+			continue
+		}
+
 		comment := astutil.GetComment(prog, m.Pos())
 		annotations := astutil.GetAnnotations(comment, "@")
 		annotations = mergeAnnotations(structAnnotations, annotations)
@@ -198,9 +206,9 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		lParams := commaArgsToSlice(params)
 		paramNames := astutil.MethodParamNames(m)
 		lParamNames := commaArgsToSlice(paramNames)
+		paramTypes := astutil.MethodInputTypes(m)
 
 		retTypes := astutil.MethodReturnTypes(m)
-		sRetTypes := strings.TrimSpace(strings.Join(retTypes, ", "))
 		retVars := astutil.MethodReturnNamesNormalized(m)
 		sRetVarNames := strings.TrimSpace(strings.Join(retVars, ", "))
 
@@ -223,10 +231,17 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			fmt.Fprintf(dest, `// %v constructs a request to %v
 		`, methodName, methodName)
 
+			defVal := astutil.TypesToDefVal(retTypes)
+			if i := astutil.TypesIndex(retTypes, "error"); i > -1 {
+				defVal[i] = fmt.Sprintf(`errors.New(%q)`, "todo")
+			}
+			sRet := strings.Join(defVal, ", ")
+
+			sRetTypes := strings.TrimSpace(strings.Join(retTypes, ", "))
 			fmt.Fprintf(dest, `func(t %v) %v(%v) (%v) {
-			return nil, errors.New("todo")
+			return %v
 		}
-		`, destName, methodName, params, sRetTypes)
+		`, destName, methodName, params, sRetTypes, sRet)
 
 		} else if route, ok := annotations["route"]; ok {
 
@@ -255,7 +270,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			}
 
 			// - look for url/req/post params, not already managed by the route params
-			for _, paramName := range lParamNames {
+			for paramIndex, paramName := range lParamNames {
 				// paramType := lParamTypes[i]
 				if paramName == reqBodyVarName {
 					continue
@@ -265,30 +280,38 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 
 					if strings.HasPrefix(paramName, "get") || strings.HasPrefix(paramName, "url") || strings.HasPrefix(paramName, "req") {
 						k := strings.ToLower(paramName[3:])
-						getParams += fmt.Sprintf("url.Query().Add(%q, %v)", k, paramName)
+						if astutil.IsAPointedType(paramTypes[paramIndex]) {
+							getParams += fmt.Sprintf("url.Query().Add(%q, *%v)", k, paramName)
+						} else {
+							getParams += fmt.Sprintf("url.Query().Add(%q, %v)", k, paramName)
+						}
 						managedParamNames.Push(paramName)
 
 					} else if strings.HasPrefix(paramName, "post") {
 						k := strings.ToLower(paramName[4:])
-						getParams += fmt.Sprintf("form.Add(%q, %v)", k, paramName)
+						if astutil.IsAPointedType(paramTypes[paramIndex]) {
+							postParams += fmt.Sprintf("form.Add(%q, *%v)", k, paramName)
+						} else {
+							postParams += fmt.Sprintf("form.Add(%q, %v)", k, paramName)
+						}
 						managedParamNames.Push(paramName)
 					}
 				}
 			}
 
 			// - forge url from the router using the route name
-			url := ""
+			urlHandling := ""
 			if routeName != "" {
 				k := ""
 				if len(routeParamsExpr) > 0 {
 					k = strings.Join(routeParamsExpr, ", ")
 					k = k[:len(k)-2]
 				}
-				url = fmt.Sprintf(`url, URLerr := t.router.Get(%q).URL(%v)
+				urlHandling = fmt.Sprintf(`reqURL, URLerr := t.router.Get(%q).URL(%v)
 									`, routeName, k)
 			} else {
 				// - a route without name neeeds a jit update.
-				url += fmt.Sprintf(`surl := %q
+				urlHandling += fmt.Sprintf(`sReqURL := %q
 										`, route)
 
 				routeParams := getRouteParamsFromRoute(mode, route)
@@ -300,43 +323,41 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						log.Println("route param not identified into the method parameters " + routeParam)
 						continue
 					}
-					url += fmt.Sprintf(`surl = strings.Replace(surl, "%v", fmt.Sprintf("%%v", %v), 1)
+					urlHandling += fmt.Sprintf(`sReqURL = strings.Replace(sReqURL, "%v", fmt.Sprintf("%%v", %v), 1)
 													`, routeParam, methodParam)
 					managedParamNames.Push(methodParam)
 				}
 
-				url += fmt.Sprintf(`url, URLerr := url.ParseRequestURI(surl)
+				urlHandling += fmt.Sprintf(`reqURL, URLerr := url.ParseRequestURI(sReqURL)
 									`)
 			}
-			url += handleErr("URLerr")
+			urlHandling += handleErr("URLerr")
 
 			// - if any GET params, handle them
 			if getParams != "" {
-				url += fmt.Sprintf("%v\n", getParams)
+				urlHandling += fmt.Sprintf("%v\n", getParams)
 			}
-			// - if any GET params, handle them
+			// - if any POST params, handle them
 			if postParams != "" {
-				url += fmt.Sprintf("form := url.Values{}\n%v\n", postParams)
+				urlHandling += fmt.Sprintf("form := url.Values{}\n%v\n", postParams)
 			}
 
-			url += fmt.Sprint("finalURL := url.String()\n")
+			urlHandling += fmt.Sprint("finalURL := reqURL.String()\n")
 
 			// - build the final url
 			if base, ok := annotations["base"]; ok {
-				url += fmt.Sprintf("finalURL = fmt.Sprint(%q, %q, finalURL)\n", "%v%v", base)
+				urlHandling += fmt.Sprintf("finalURL = fmt.Sprint(%q, %q, finalURL)\n", "%v%v", base)
 			}
-			url += fmt.Sprintf("finalURL = fmt.Sprintf(%q, t.Base, finalURL)\n", "%v%v")
+			urlHandling += fmt.Sprintf("finalURL = fmt.Sprintf(%q, t.Base, finalURL)\n", "%v%v")
 
 			// modify method params to transform a reqBody ? to reqBody io.Reader
 			methodParams := changeParamType(lParams, "reqBody", "io.Reader")
 
 			body := ""
 			// - handle the request body
-			if postParams != "" {
-				body += fmt.Sprintf("body = strings.NewReader(form.Encode())\n")
-
-			} else if hasReqBody(lParamNames) {
+			if hasReqBody(lParamNames) {
 				body += fmt.Sprintf(`
+				var body io.ReadWriter
 				{
 					var b bytes.Buffer
 					body = &b
@@ -348,8 +369,14 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 
 			// - create the request object
 			preferedMethod := getPreferredMethod(annotations)
-			body += fmt.Sprintf("%v\n", url)
-			body += fmt.Sprintf(" req, reqErr := http.NewRequest(%q, finalURL, body)\n", preferedMethod)
+			body += fmt.Sprintf("%v\n", urlHandling)
+			if postParams != "" {
+				body += fmt.Sprintf(" req, reqErr := http.NewRequest(%q, finalURL, strings.NewReader(form.Encode()))\n", preferedMethod)
+			} else if hasReqBody(lParamNames) {
+				body += fmt.Sprintf(" req, reqErr := http.NewRequest(%q, finalURL, body)\n", preferedMethod)
+			} else {
+				body += fmt.Sprintf(" req, reqErr := http.NewRequest(%q, finalURL, nil)\n", preferedMethod)
+			}
 			body += handleErr("reqErr")
 
 			if !hasResBody(retVars) {
@@ -382,9 +409,6 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			// - print the method
 			fmt.Fprintf(dest, "// %v constructs a request to %v\n", methodName, route)
 			fmt.Fprintf(dest, `func(t %v) %v(%v) %v {
-					        // var ret *http.Request
-					        var body io.ReadWriter
-					        // var err error
 					        %v
 					        return %v
 					      }
@@ -441,6 +465,39 @@ func hasReqBody(paramNames []string) bool {
 func hasResBody(paramNames []string) bool {
 	for _, p := range paramNames {
 		if p == "jsonResBody" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasPostParam(paramNames []string) bool {
+	for _, paramName := range paramNames {
+		if strings.HasPrefix(paramName, "post") {
+			return true
+		} else if strings.HasPrefix(paramName, "req") {
+			return true
+		}
+	}
+	return false
+}
+
+func hasRouteParam(paramNames []string) bool {
+	for _, paramName := range paramNames {
+		if strings.HasPrefix(paramName, "route") {
+			return true
+		} else if strings.HasPrefix(paramName, "url") {
+			return true
+		} else if strings.HasPrefix(paramName, "req") {
+			return true
+		}
+	}
+	return false
+}
+
+func hasGetParam(paramNames []string) bool {
+	for _, paramName := range paramNames {
+		if strings.HasPrefix(paramName, "get") {
 			return true
 		}
 	}

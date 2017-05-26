@@ -18,10 +18,12 @@ func NewController(backend TomatesContract) Controller {
 }
 
 // GetByID read the Tomate of given ID
-func (t Controller) GetByID(getID string) (jsonResBody *Tomate, err error) {
+//
+// @route /read/{id:[0-9]+}
+func (t Controller) GetByID(routeID string) (jsonResBody *Tomate, err error) {
 	t.backend.Transact(func(backend *Tomates) {
 		jsonResBody = backend.
-			Filter(FilterTomates.ByID(getID)).
+			Filter(FilterTomates.ByID(routeID)).
 			First()
 	})
 	if jsonResBody == nil {
@@ -31,6 +33,8 @@ func (t Controller) GetByID(getID string) (jsonResBody *Tomate, err error) {
 }
 
 // Create a new Tomate
+//
+// @route /create
 func (t Controller) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	if postColor == nil {
 		return nil, &UserInputError{errors.New("Missing color parameter")}
@@ -77,6 +81,21 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 	if jsonResBody == nil && err == nil {
 		err = &NotFoundError{errors.New("Tomate not found")}
 	}
+	return jsonResBody, err
+}
+
+// Remove an existing Tomate
+//
+// @route /remove/{id:[0-9]+}
+func (t Controller) Remove(routeID string) (jsonResBody bool, err error) {
+	t.backend.Transact(func(backend *Tomates) {
+		byID := backend.Filter(FilterTomates.ByID(routeID))
+		if byID.Empty() {
+			err = &NotFoundError{errors.New("ID does not exists")}
+			return
+		}
+		jsonResBody = backend.Remove(byID.First())
+	})
 	return jsonResBody, err
 }
 

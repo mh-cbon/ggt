@@ -13,44 +13,46 @@ import (
 	"strconv"
 )
 
-var xxStrconvAtoi = strconv.Atoi
-var xxIoCopy = io.Copy
-var xxHTTPOk = http.StatusOK
+var xxe54b0b93f158f759b6dd1585bc54a7965806c533 = strconv.Atoi
+var xx72debe57433968dd2f490b9bde2dee8c155e06bc = io.Copy
+var xx0921489b227b5f67966848e3dde3a344935f476d = http.StatusOK
 
-// RpcController is an httper of Controller.
+// RPCController is an httper of Controller.
 // Controller of tomatoes.
-type RpcController struct {
+type RPCController struct {
 	embed Controller
 	Log   ggt.HTTPLogger
 }
 
-// NewRpcController constructs an httper of Controller
-func NewRpcController(embed Controller) *RpcController {
-	ret := &RpcController{
+// NewRPCController constructs an httper of Controller
+func NewRPCController(embed Controller) *RPCController {
+	ret := &RPCController{
 		embed: embed,
 		Log:   &ggt.VoidLog{},
 	}
-	ret.Log.Handle(nil, nil, nil, "constructor", "RpcController")
+	ret.Log.Handle(nil, nil, nil, "constructor", "RPCController")
 	return ret
 }
 
 // GetByID invoke Controller.GetByID using the request body as a json payload.
 // GetByID read the Tomate of given ID
-func (t *RpcController) GetByID(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RpcController", "GetByID")
+//
+// @route /read/{id:[0-9]+}
+func (t *RPCController) GetByID(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCController", "GetByID")
 
-	xxURLValues := r.URL.Query()
-	var getID string
-	if _, ok := xxURLValues["id"]; ok {
-		xxTmpgetID := xxURLValues.Get("id")
-		getID = xxTmpgetID
+	xxRouteVars := mux.Vars(r)
+	var routeID string
+	if _, ok := xxRouteVars["id"]; ok {
+		xxTmprouteID := xxRouteVars["id"]
+		routeID = xxTmprouteID
 	}
 
-	jsonResBody, err := t.embed.GetByID(getID)
+	jsonResBody, err := t.embed.GetByID(routeID)
 
 	if err != nil {
 
-		t.Log.Handle(w, r, err, "business", "error", "RpcController", "GetByID")
+		t.Log.Handle(w, r, err, "business", "error", "RPCController", "GetByID")
 		t.embed.Finalizer(w, r, err)
 
 		return
@@ -63,7 +65,7 @@ func (t *RpcController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 		if encErr != nil {
 
-			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RpcController", "GetByID")
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RPCController", "GetByID")
 			t.embed.Finalizer(w, r, encErr)
 
 			return
@@ -71,20 +73,22 @@ func (t *RpcController) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.Log.Handle(w, r, nil, "end", "RpcController", "GetByID")
+	t.Log.Handle(w, r, nil, "end", "RPCController", "GetByID")
 }
 
 // Create invoke Controller.Create using the request body as a json payload.
 // Create a new Tomate
-func (t *RpcController) Create(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RpcController", "Create")
+//
+// @route /create
+func (t *RPCController) Create(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCController", "Create")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RpcController", "Create")
+			t.Log.Handle(w, r, err, "parseform", "error", "RPCController", "Create")
 			t.embed.Finalizer(w, r, err)
 
 			return
@@ -101,7 +105,7 @@ func (t *RpcController) Create(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		t.Log.Handle(w, r, err, "business", "error", "RpcController", "Create")
+		t.Log.Handle(w, r, err, "business", "error", "RPCController", "Create")
 		t.embed.Finalizer(w, r, err)
 
 		return
@@ -114,7 +118,7 @@ func (t *RpcController) Create(w http.ResponseWriter, r *http.Request) {
 
 		if encErr != nil {
 
-			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RpcController", "Create")
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RPCController", "Create")
 			t.embed.Finalizer(w, r, encErr)
 
 			return
@@ -122,15 +126,15 @@ func (t *RpcController) Create(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.Log.Handle(w, r, nil, "end", "RpcController", "Create")
+	t.Log.Handle(w, r, nil, "end", "RPCController", "Create")
 }
 
 // Update invoke Controller.Update using the request body as a json payload.
 // Update an existing Tomate
 //
 // @route /write/{id:[0-9]+}
-func (t *RpcController) Update(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RpcController", "Update")
+func (t *RPCController) Update(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCController", "Update")
 
 	xxRouteVars := mux.Vars(r)
 	var routeID string
@@ -145,7 +149,7 @@ func (t *RpcController) Update(w http.ResponseWriter, r *http.Request) {
 
 		if decErr != nil {
 
-			t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RpcController", "Update")
+			t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCController", "Update")
 			t.embed.Finalizer(w, r, decErr)
 
 			return
@@ -158,7 +162,7 @@ func (t *RpcController) Update(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		t.Log.Handle(w, r, err, "business", "error", "RpcController", "Update")
+		t.Log.Handle(w, r, err, "business", "error", "RPCController", "Update")
 		t.embed.Finalizer(w, r, err)
 
 		return
@@ -171,7 +175,7 @@ func (t *RpcController) Update(w http.ResponseWriter, r *http.Request) {
 
 		if encErr != nil {
 
-			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RpcController", "Update")
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RPCController", "Update")
 			t.embed.Finalizer(w, r, encErr)
 
 			return
@@ -179,32 +183,75 @@ func (t *RpcController) Update(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.Log.Handle(w, r, nil, "end", "RpcController", "Update")
+	t.Log.Handle(w, r, nil, "end", "RPCController", "Update")
 }
 
-// RpcControllerDescriptor describe a *RpcController
-type RpcControllerDescriptor struct {
+// Remove invoke Controller.Remove using the request body as a json payload.
+// Remove an existing Tomate
+//
+// @route /remove/{id:[0-9]+}
+func (t *RPCController) Remove(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCController", "Remove")
+
+	xxRouteVars := mux.Vars(r)
+	var routeID string
+	if _, ok := xxRouteVars["id"]; ok {
+		xxTmprouteID := xxRouteVars["id"]
+		routeID = xxTmprouteID
+	}
+
+	jsonResBody, err := t.embed.Remove(routeID)
+
+	if err != nil {
+
+		t.Log.Handle(w, r, err, "business", "error", "RPCController", "Remove")
+		t.embed.Finalizer(w, r, err)
+
+		return
+	}
+
+	{
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		encErr := json.NewEncoder(w).Encode(jsonResBody)
+
+		if encErr != nil {
+
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RPCController", "Remove")
+			t.embed.Finalizer(w, r, encErr)
+
+			return
+		}
+
+	}
+
+	t.Log.Handle(w, r, nil, "end", "RPCController", "Remove")
+}
+
+// RPCControllerDescriptor describe a *RPCController
+type RPCControllerDescriptor struct {
 	ggt.TypeDescriptor
-	about         *RpcController
+	about         *RPCController
 	methodGetByID *ggt.MethodDescriptor
 	methodCreate  *ggt.MethodDescriptor
 	methodUpdate  *ggt.MethodDescriptor
+	methodRemove  *ggt.MethodDescriptor
 }
 
-// NewRpcControllerDescriptor describe a *RpcController
-func NewRpcControllerDescriptor(about *RpcController) *RpcControllerDescriptor {
-	ret := &RpcControllerDescriptor{about: about}
+// NewRPCControllerDescriptor describe a *RPCController
+func NewRPCControllerDescriptor(about *RPCController) *RPCControllerDescriptor {
+	ret := &RPCControllerDescriptor{about: about}
 	ret.methodGetByID = &ggt.MethodDescriptor{
 		Name:    "GetByID",
 		Handler: about.GetByID,
-		Route:   "GetByID",
+		Route:   "/read/{id:[0-9]+}",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetByID)
 	ret.methodCreate = &ggt.MethodDescriptor{
 		Name:    "Create",
 		Handler: about.Create,
-		Route:   "Create",
+		Route:   "/create",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodCreate)
@@ -215,14 +262,24 @@ func NewRpcControllerDescriptor(about *RpcController) *RpcControllerDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodUpdate)
+	ret.methodRemove = &ggt.MethodDescriptor{
+		Name:    "Remove",
+		Handler: about.Remove,
+		Route:   "/remove/{id:[0-9]+}",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodRemove)
 	return ret
 }
 
 // GetByID returns a MethodDescriptor
-func (t *RpcControllerDescriptor) GetByID() *ggt.MethodDescriptor { return t.methodGetByID }
+func (t *RPCControllerDescriptor) GetByID() *ggt.MethodDescriptor { return t.methodGetByID }
 
 // Create returns a MethodDescriptor
-func (t *RpcControllerDescriptor) Create() *ggt.MethodDescriptor { return t.methodCreate }
+func (t *RPCControllerDescriptor) Create() *ggt.MethodDescriptor { return t.methodCreate }
 
 // Update returns a MethodDescriptor
-func (t *RpcControllerDescriptor) Update() *ggt.MethodDescriptor { return t.methodUpdate }
+func (t *RPCControllerDescriptor) Update() *ggt.MethodDescriptor { return t.methodUpdate }
+
+// Remove returns a MethodDescriptor
+func (t *RPCControllerDescriptor) Remove() *ggt.MethodDescriptor { return t.methodRemove }

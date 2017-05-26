@@ -25,7 +25,7 @@ func NewRPCClient() *RPCClient {
 }
 
 // GetByID constructs a request to GetByID
-func (t RPCClient) GetByID(getID string) (*Tomate, error) {
+func (t RPCClient) GetByID(routeID string) (*Tomate, error) {
 	return nil, errors.New("todo")
 }
 
@@ -39,7 +39,7 @@ func (t RPCClient) Update(routeID string, jsonReqBody *Tomate) (*Tomate, error) 
 	return nil, errors.New("todo")
 }
 
-// Finalizer constructs a request to Finalizer
-func (t RPCClient) Finalizer(w http.ResponseWriter, r *http.Request, err error) {
-	return nil, errors.New("todo")
+// Remove constructs a request to Remove
+func (t RPCClient) Remove(routeID string) (bool, error) {
+	return false, errors.New("todo")
 }
