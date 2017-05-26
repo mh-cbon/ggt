@@ -192,7 +192,7 @@ Transform a business controller into an http client.
 ```sh
 ggt [options] http-consumer ...[FromTypeName:ToTypeName]
 
-generates typed slice
+generates http client implementation of given type.
 
 [options]
 
