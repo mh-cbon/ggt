@@ -49,7 +49,9 @@ Transform a business controller into an http end point.
 
 ## http-clienter
 
-Transform a business controller into an http client, tbd.
+Transform a business controller into an http client.
+
+#### $ {{exec "ggt" "-help" "http-clienter" | color "sh"}}
 
 
 # notes

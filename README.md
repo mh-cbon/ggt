@@ -6,6 +6,7 @@ ggt's generator toolbox
 Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
 
 # TOC
+- [3R](#3r)
 - [Install](#install)
   - [go](#go)
 - [Usage](#usage)
@@ -19,7 +20,12 @@ Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
   - [http-provider](#http-provider)
     - [$ ggt -help http-provider](#-ggt--help-http-provider)
   - [http-clienter](#http-clienter)
+    - [$ ggt -help http-clienter](#-ggt--help-http-clienter)
 - [notes](#notes)
+
+# 3R
+
+Remove Redundant Repetition
 
 # Install
 
@@ -41,7 +47,7 @@ ggt's generator toolbox
     -help        Show help
     -version     Show version
     -vv          More verbose
-    -mode        tbd.
+    -mode        Generator mode when suitable (rpc|route).
 
 [generator]
 
@@ -160,7 +166,7 @@ generates http oriented implementation of given type.
 [options]
 
     -p        Force out package name
-    -mode     TBD.
+    -mode     Generation mode (rpc|route).
 
 ...[FromTypeName:ToTypeName]
 
@@ -180,7 +186,12 @@ Example
 
 ## http-clienter
 
-Transform a business controller into an http client, tbd.
+Transform a business controller into an http client.
+
+#### $ ggt -help http-clienter
+```sh
+sh
+```
 
 
 # notes
