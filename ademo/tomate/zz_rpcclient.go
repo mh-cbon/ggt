@@ -5,6 +5,7 @@ package tomate
 // do not edit
 
 import (
+	"context"
 	"errors"
 	"net/http"
 )
@@ -40,6 +41,6 @@ func (t RPCClient) Update(routeID string, jsonReqBody *Tomate) (*Tomate, error) 
 }
 
 // Remove constructs a request to Remove
-func (t RPCClient) Remove(routeID string) (bool, error) {
+func (t RPCClient) Remove(ctx context.Context, routeID string) (bool, error) {
 	return false, errors.New("todo")
 }

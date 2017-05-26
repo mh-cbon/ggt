@@ -184,6 +184,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		fileOut.AddImport("net/http", "")
 		fileOut.AddImport("net/url", "")
 		fileOut.AddImport("strings", "")
+		fileOut.AddImport("context", "")
 		fileOut.AddImport("github.com/gorilla/mux", "")
 	} else {
 		fileOut.AddImport("net/http", "")
@@ -219,12 +220,12 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		`, errVarName, sRetVarNames)
 		}
 
-		if mode == "rpc" {
+		importIDs := astutil.GetSignatureImportIdentifiers(m)
+		for _, i := range importIDs {
+			fileOut.AddImport(i, astutil.GetImportPath(pkg, i))
+		}
 
-			importIDs := astutil.GetSignatureImportIdentifiers(m)
-			for _, i := range importIDs {
-				fileOut.AddImport(astutil.GetImportPath(pkg, i), i)
-			}
+		if mode == "rpc" {
 
 			fileOut.AddImport("errors", "")
 
@@ -244,11 +245,6 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		`, destName, methodName, params, sRetTypes, sRet)
 
 		} else if route, ok := annotations["route"]; ok {
-
-			importIDs := astutil.GetSignatureImportIdentifiers(m)
-			for _, i := range importIDs {
-				fileOut.AddImport(astutil.GetImportPath(pkg, i), i)
-			}
 
 			getParams := ""
 			postParams := ""

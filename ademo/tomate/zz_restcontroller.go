@@ -194,13 +194,14 @@ func (t *RestController) Remove(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestController", "Remove")
 
 	xxRouteVars := mux.Vars(r)
+	ctx := r.Context()
 	var routeID string
 	if _, ok := xxRouteVars["id"]; ok {
 		xxTmprouteID := xxRouteVars["id"]
 		routeID = xxTmprouteID
 	}
 
-	jsonResBody, err := t.embed.Remove(routeID)
+	jsonResBody, err := t.embed.Remove(ctx, routeID)
 
 	if err != nil {
 

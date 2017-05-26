@@ -366,6 +366,9 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			} else if paramType == "http.ResponseWriter" && paramName != "w" {
 				bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "w")
 
+			} else if paramType == "context.Context" {
+				bodyFunc += fmt.Sprintf("%v := %v.Context()\n", paramName, "r")
+
 			} else {
 				bodyFunc += fmt.Sprintf("var %v %v\n", paramName, paramType)
 			}

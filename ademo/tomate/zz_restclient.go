@@ -6,13 +6,15 @@ package tomate
 
 import (
 	"bytes"
+	"context"
 	json "encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 // RestClient is an http-clienter of Controller.
@@ -141,7 +143,7 @@ func (t RestClient) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 }
 
 // Remove constructs a request to /remove/{id:[0-9]+}
-func (t RestClient) Remove(routeID string) (jsonResBody bool, err error) {
+func (t RestClient) Remove(ctx context.Context, routeID string) (jsonResBody bool, err error) {
 	sReqURL := "/remove/{id:[0-9]+}"
 	sReqURL = strings.Replace(sReqURL, "{id:[0-9]+}", fmt.Sprintf("%v", routeID), 1)
 	reqURL, URLerr := url.ParseRequestURI(sReqURL)
@@ -152,6 +154,7 @@ func (t RestClient) Remove(routeID string) (jsonResBody bool, err error) {
 	finalURL = fmt.Sprintf("%v%v", t.Base, finalURL)
 
 	req, reqErr := http.NewRequest("GET", finalURL, nil)
+	req = req.WithContext(ctx)
 	if reqErr != nil {
 		return jsonResBody, err
 	}

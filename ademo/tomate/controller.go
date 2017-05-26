@@ -1,6 +1,7 @@
 package tomate
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -87,7 +88,7 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 // Remove an existing Tomate
 //
 // @route /remove/{id:[0-9]+}
-func (t Controller) Remove(routeID string) (jsonResBody bool, err error) {
+func (t Controller) Remove(ctx context.Context, routeID string) (jsonResBody bool, err error) {
 	t.backend.Transact(func(backend *Tomates) {
 		byID := backend.Filter(FilterTomates.ByID(routeID))
 		if byID.Empty() {
