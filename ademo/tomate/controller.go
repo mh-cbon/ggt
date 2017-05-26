@@ -67,19 +67,16 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 	}
 	t.backend.Transact(func(backend *Tomates) {
 		byID := backend.Filter(FilterTomates.ByID(routeID))
-		if byID.Len() == 0 {
+		if byID.Empty() {
 			err = &NotFoundError{errors.New("ID does not exists")}
 			return
 		}
-		byColor := backend.Filter(FilterTomates.ByColor(jsonReqBody.Color))
-		if byColor.Len() > 0 && byID.First().ID != byColor.First().ID {
+		byColor := backend.Filter(FilterTomates.ByColor(jsonReqBody.Color), FilterTomates.ByID(routeID))
+		if !byColor.Empty() {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
-		jsonResBody = backend.
-			Filter(FilterTomates.ByID(routeID)).
-			Map(SetterTomates.SetColor(jsonReqBody.Color)).
-			First()
+		jsonResBody = byID.Map(SetterTomates.SetColor(jsonReqBody.Color)).First()
 	})
 	if jsonResBody == nil && err == nil {
 		err = &NotFoundError{errors.New("Tomate not found")}
