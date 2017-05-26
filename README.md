@@ -51,7 +51,7 @@ ggt's generator toolbox
 
 [generator]
 
-    One of slicer, chaner, mutexer, http-provider.
+    One of slicer, chaner, mutexer, http-provider, http-consumer.
 
 [...types]
     A list of types such as src:dst.

@@ -17,10 +17,22 @@ import (
 var name = "ggt"
 var version = "0.0.0"
 
+type runner interface {
+	Run(*opts.Cli)
+}
+
 func main() {
 
 	options := &opts.Cli{}
 	options.Bind()
+
+	subCmds := map[string]runner{
+		"slicer":        &slicer.Cmd{},
+		"mutexer":       &mutexer.Cmd{},
+		"chaner":        &chaner.Cmd{},
+		"http-provider": &httpProvider.Cmd{},
+		"http-consumer": &httpConsumer.Cmd{},
+	}
 
 	flag.SetInstallFlags("complete", "uncomplete")
 	flag.Parse()
@@ -46,21 +58,16 @@ func main() {
 	cmd := args[0]
 	options.Args = args[1:]
 
-	if cmd == "slicer" {
-		(slicer.Cmd{}).Run(options)
-
-	} else if cmd == "mutexer" {
-		(mutexer.Cmd{}).Run(options)
-
-	} else if cmd == "chaner" {
-		(chaner.Cmd{}).Run(options)
-
-	} else if cmd == "http-provider" {
-		(httpProvider.Cmd{}).Run(options)
-
-	} else if cmd == "http-consumer" {
-		(httpConsumer.Cmd{}).Run(options)
-
+	found := false
+	for name, handler := range subCmds {
+		if cmd == name {
+			handler.Run(options)
+			found = true
+		}
+	}
+	if !found {
+		wrongInput("unknown generator %v", name)
+		return
 	}
 
 }
@@ -84,7 +91,7 @@ ggt's generator toolbox
 
 [generator]
 
-    One of slicer, chaner, mutexer, http-provider.
+    One of slicer, chaner, mutexer, http-provider, http-consumer.
 
 [...types]
     A list of types such as src:dst.
