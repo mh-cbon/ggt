@@ -53,6 +53,8 @@ Transform a business controller into an http client.
 
 #### $ {{exec "ggt" "-help" "http-consumer" | color "sh"}}
 
+[here](https://github.com/mh-cbon/ggt/tree/master/http-consumer).
+
 
 # notes
 

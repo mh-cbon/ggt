@@ -215,6 +215,8 @@ Example
     ggt -mode route http-consumer myModule/*MySrcType:gen/NewGenType
 ```
 
+[here](https://github.com/mh-cbon/ggt/tree/master/http-consumer).
+
 
 # notes
 
