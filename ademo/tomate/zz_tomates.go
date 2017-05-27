@@ -225,27 +225,6 @@ func (t *Tomates) Transact(F ...func(*Tomates)) {
 	}
 }
 
-// TypeCheckTomates type check given interface{} to *Tomate
-var TypeCheckTomates = func(F ...func(*Tomate)) func(interface{}) {
-	return func(v interface{}) {
-		if x, ok := v.(*Tomate); ok {
-			for _, f := range F {
-				f(x)
-			}
-		}
-	}
-}
-
-// AnonymousTomates produce interface{} of *Tomate
-var AnonymousTomates = func(F ...func(interface{})) func(*Tomate) *Tomate {
-	return func(v *Tomate) *Tomate {
-		for _, f := range F {
-			f(v)
-		}
-		return v
-	}
-}
-
 //UnmarshalJSON JSON unserializes Tomates
 func (t *Tomates) UnmarshalJSON(b []byte) error {
 	var items []*Tomate

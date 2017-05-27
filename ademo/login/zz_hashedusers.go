@@ -214,9 +214,16 @@ func (t *HashedUsers) Empty() bool {
 	return len(t.items) == 0
 }
 
+// NotEmpty returns true if the slice is not empty.
+func (t *HashedUsers) NotEmpty() bool {
+	return len(t.items) > 0
+}
+
 // Transact execute one op.
-func (t *HashedUsers) Transact(f func(*HashedUsers)) {
-	f(t)
+func (t *HashedUsers) Transact(F ...func(*HashedUsers)) {
+	for _, f := range F {
+		f(t)
+	}
 }
 
 //UnmarshalJSON JSON unserializes HashedUsers
@@ -255,24 +262,125 @@ type HashedUsersContract interface {
 	Map(mappers ...func(*HashedUser) *HashedUser) *HashedUsers
 	First() *HashedUser
 	Last() *HashedUser
-	Transact(func(*HashedUsers))
+	Transact(...func(*HashedUsers))
 	Len() int
 	Empty() bool
+	NotEmpty() bool
 }
 
 // FilterHashedUsers provides filters for a struct.
 var FilterHashedUsers = struct {
-	ByLogin      func(string) func(*HashedUser) bool
-	ByPassword   func(string) func(*HashedUser) bool
-	ByHash       func(string) func(*HashedUser) bool
-	ByLastLogin  func(time.Time) func(*HashedUser) bool
-	ByLastLogout func(time.Time) func(*HashedUser) bool
+	ByLogin       func(...string) func(*HashedUser) bool
+	NotLogin      func(...string) func(*HashedUser) bool
+	ByPassword    func(...string) func(*HashedUser) bool
+	NotPassword   func(...string) func(*HashedUser) bool
+	ByHash        func(...string) func(*HashedUser) bool
+	NotHash       func(...string) func(*HashedUser) bool
+	ByLastLogin   func(...time.Time) func(*HashedUser) bool
+	NotLastLogin  func(...time.Time) func(*HashedUser) bool
+	ByLastLogout  func(...time.Time) func(*HashedUser) bool
+	NotLastLogout func(...time.Time) func(*HashedUser) bool
 }{
-	ByLogin:      func(v string) func(*HashedUser) bool { return func(o *HashedUser) bool { return o.Login == v } },
-	ByPassword:   func(v string) func(*HashedUser) bool { return func(o *HashedUser) bool { return o.Password == v } },
-	ByHash:       func(v string) func(*HashedUser) bool { return func(o *HashedUser) bool { return o.Hash == v } },
-	ByLastLogin:  func(v time.Time) func(*HashedUser) bool { return func(o *HashedUser) bool { return o.LastLogin == v } },
-	ByLastLogout: func(v time.Time) func(*HashedUser) bool { return func(o *HashedUser) bool { return o.LastLogout == v } },
+	ByLogin: func(all ...string) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.Login == v {
+					return true
+				}
+			}
+			return false
+		}
+	},
+	NotLogin: func(all ...string) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.Login == v {
+					return false
+				}
+			}
+			return true
+		}
+	},
+	ByPassword: func(all ...string) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.Password == v {
+					return true
+				}
+			}
+			return false
+		}
+	},
+	NotPassword: func(all ...string) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.Password == v {
+					return false
+				}
+			}
+			return true
+		}
+	},
+	ByHash: func(all ...string) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.Hash == v {
+					return true
+				}
+			}
+			return false
+		}
+	},
+	NotHash: func(all ...string) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.Hash == v {
+					return false
+				}
+			}
+			return true
+		}
+	},
+	ByLastLogin: func(all ...time.Time) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.LastLogin == v {
+					return true
+				}
+			}
+			return false
+		}
+	},
+	NotLastLogin: func(all ...time.Time) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.LastLogin == v {
+					return false
+				}
+			}
+			return true
+		}
+	},
+	ByLastLogout: func(all ...time.Time) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.LastLogout == v {
+					return true
+				}
+			}
+			return false
+		}
+	},
+	NotLastLogout: func(all ...time.Time) func(*HashedUser) bool {
+		return func(o *HashedUser) bool {
+			for _, v := range all {
+				if o.LastLogout == v {
+					return false
+				}
+			}
+			return true
+		}
+	},
 }
 
 // SetterHashedUsers provides sets properties.

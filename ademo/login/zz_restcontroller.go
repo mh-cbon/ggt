@@ -57,11 +57,13 @@ func (t *RestController) Login(w http.ResponseWriter, r *http.Request) {
 	var postLogin string
 	if _, ok := r.Form["login"]; ok {
 		xxTmppostLogin := r.FormValue("login")
+		t.Log.Handle(w, r, nil, "input", "form", "login", xxTmppostLogin, "RestController", "Login")
 		postLogin = xxTmppostLogin
 	}
 	var postPassword string
 	if _, ok := r.Form["password"]; ok {
 		xxTmppostPassword := r.FormValue("password")
+		t.Log.Handle(w, r, nil, "input", "form", "password", xxTmppostPassword, "RestController", "Login")
 		postPassword = xxTmppostPassword
 	}
 
@@ -169,11 +171,13 @@ func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 	var postLogin string
 	if _, ok := r.Form["login"]; ok {
 		xxTmppostLogin := r.FormValue("login")
+		t.Log.Handle(w, r, nil, "input", "form", "login", xxTmppostLogin, "RestController", "Create")
 		postLogin = xxTmppostLogin
 	}
 	var postPassword string
 	if _, ok := r.Form["password"]; ok {
 		xxTmppostPassword := r.FormValue("password")
+		t.Log.Handle(w, r, nil, "input", "form", "password", xxTmppostPassword, "RestController", "Create")
 		postPassword = xxTmppostPassword
 	}
 

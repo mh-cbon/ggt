@@ -434,30 +434,30 @@ func processType(contract bool, todo utils.TransformArg, fileOut *utils.FileOut)
 }`, destPointed, destPointed)
 	fmt.Fprintln(dest, "")
 
-	if srcIsPointer {
-		fmt.Fprintf(dest, `// TypeCheck%v type check given interface{} to %v
-			var TypeCheck%v = func(F ...func(%v)) func(interface{}) {
-				return func(v interface{}) {
-					if x, ok := v.(%v); ok {
-						for _, f := range F {
-							f(x)
-						}
-					}
-				}
-			}
-		`, destConcrete, srcNameFq, destConcrete, srcNameFq, srcNameFq)
-
-		fmt.Fprintf(dest, `// Anonymous%v produce interface{} of %v
-			var Anonymous%v = func(F ...func(interface{})) func(%v)%v {
-				return func(v %v) %v {
-					for _, f := range F {
-						f(v)
-					}
-					return v
-				}
-			}
-		`, destConcrete, srcNameFq, destConcrete, srcNameFq, srcNameFq, srcNameFq, srcNameFq)
-	}
+	// if srcIsPointer {
+	// 	fmt.Fprintf(dest, `// TypeCheck%v type check given interface{} to %v
+	// 		var TypeCheck%v = func(F ...func(%v)) func(interface{}) {
+	// 			return func(v interface{}) {
+	// 				if x, ok := v.(%v); ok {
+	// 					for _, f := range F {
+	// 						f(x)
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	`, destConcrete, srcNameFq, destConcrete, srcNameFq, srcNameFq)
+	//
+	// 	fmt.Fprintf(dest, `// Anonymous%v produce interface{} of %v
+	// 		var Anonymous%v = func(F ...func(interface{})) func(%v)%v {
+	// 			return func(v %v) %v {
+	// 				for _, f := range F {
+	// 					f(v)
+	// 				}
+	// 				return v
+	// 			}
+	// 		}
+	// 	`, destConcrete, srcNameFq, destConcrete, srcNameFq, srcNameFq, srcNameFq, srcNameFq)
+	// }
 
 	// 	fmt.Fprintf(dest, `// %vPusher pushes %v
 	// 		type %vPusher func(...%vProducer)
