@@ -1,3 +1,4 @@
+// Package utils for the generators.
 package utils
 
 import (
