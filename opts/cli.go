@@ -1,3 +1,4 @@
+// Package opts of the cli.
 package opts
 
 import "github.com/posener/flag"

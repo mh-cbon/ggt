@@ -1,3 +1,4 @@
+// Package lib provides runtime api.
 package lib
 
 import "net/http"

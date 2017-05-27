@@ -1,3 +1,4 @@
+// Package provider generates typed http provider.
 package provider
 
 import (
