@@ -98,8 +98,17 @@ func (t *RestController) SimilarColor(w http.ResponseWriter, r *http.Request) {
 		xxTmpgetSensitive := xxURLValues.Get("sensitive")
 		t.Log.Handle(w, r, nil, "input", "get", "sensitive", xxTmpgetSensitive, "RestController", "SimilarColor")
 		{
-			xxTmp := xxTmpgetSensitive == "true"
-			getSensitive = &xxTmp
+			xxTmpValue, err := strconv.ParseBool(xxTmpgetSensitive)
+
+			if err != nil {
+
+				t.Log.Handle(w, r, err, "RestController", "SimilarColor", "get", "error", "RestController", "SimilarColor")
+				t.embed.Finalizer(w, r, err)
+
+				return
+			}
+
+			getSensitive = &xxTmpValue
 		}
 
 	}

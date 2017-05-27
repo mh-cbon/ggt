@@ -294,6 +294,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 
 		if mode == rpcMode {
 			if len(paramTypes) > 0 {
+				fileOut.AddImport("encoding/json", "json")
 				bodyFunc += fmt.Sprintf(`input := struct{
 						%v
 					}{}
@@ -311,28 +312,56 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				if strings.HasPrefix(paramName, "get") {
 					k := strings.ToLower(paramName[3:])
 					bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
-					bodyFunc += fmt.Sprintf(`
-							if _, ok := xxURLValues[%q]; ok {
-								xxTmp%v := xxURLValues.Get(%q)
-								%v
-								%v
-							}
-						`, k, paramName, k,
-						addlog("t", "nil", "input", "get", k, "!xxTmp"+paramName),
-						convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, destName, methodName, "get"))
+
+					if astutil.IsArrayType(paramType) {
+						bodyFunc += fmt.Sprintf(`
+										if _, ok := xxURLValues[%q]; ok {
+											xxTmp%v := xxURLValues[%q]
+											%v
+											%v
+										}
+									`, k, paramName, k,
+							addlog("t", "nil", "input", "get", k /*, "!xxTmp"+paramName*/),
+							convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, destName, methodName, "get"))
+
+					} else {
+						bodyFunc += fmt.Sprintf(`
+									if _, ok := xxURLValues[%q]; ok {
+										xxTmp%v := xxURLValues.Get(%q)
+										%v
+										%v
+									}
+								`, k, paramName, k,
+							addlog("t", "nil", "input", "get", k, "!xxTmp"+paramName),
+							convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, destName, methodName, "get"))
+					}
 
 				} else if strings.HasPrefix(paramName, "post") {
 					k := strings.ToLower(paramName[4:])
 					bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
-					bodyFunc += fmt.Sprintf(`
+
+					if astutil.IsArrayType(paramType) {
+						bodyFunc += fmt.Sprintf(`
 							if _, ok := r.Form[%q]; ok {
-								xxTmp%v := r.FormValue(%q)
-								%v
-								%v
-							}
-						`, k, paramName, k,
-						addlog("t", "nil", "input", "form", k, "!xxTmp"+paramName),
-						convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "post"))
+										xxTmp%v := r.Form[%q]
+										%v
+										%v
+									}
+								`, k, paramName, k,
+							addlog("t", "nil", "input", "form", k /*, "!xxTmp"+paramName*/),
+							convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, destName, methodName, "form"))
+
+					} else {
+						bodyFunc += fmt.Sprintf(`
+									if _, ok := r.Form[%q]; ok {
+										xxTmp%v := r.FormValue(%q)
+										%v
+										%v
+									}
+								`, k, paramName, k,
+							addlog("t", "nil", "input", "form", k, "!xxTmp"+paramName),
+							convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "post"))
+					}
 
 				} else if strings.HasPrefix(paramName, "route") {
 					k := strings.ToLower(paramName[5:])
@@ -355,12 +384,13 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							xxTmp%v := xxRouteVars[%q]
 							%v
 						}`,
-						k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "url", "route"))
+						k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "url", "route"))
 
 					bodyFunc += fmt.Sprintf(`else if _, ok := xxURLValues[%q]; ok {
-						xxTmp%v := xxURLValues(%q)
-							%v
-						}`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "url", "get"))
+							xxTmp%v := xxURLValues.Get(%q)
+								%v
+							}
+							`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "url", "get"))
 
 				} else if strings.HasPrefix(paramName, "req") {
 					k := strings.ToLower(paramName[3:])
@@ -370,18 +400,18 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							xxTmp%v := xxRouteVars[%q]
 							%v
 						}`,
-						k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "route"))
+						k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "route"))
 
 					bodyFunc += fmt.Sprintf(`else if _, ok := xxURLValues[%q]; ok {
-						xxTmp%v := xxURLValues(%q)
-							%v
-						}`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "get"))
+						xxTmp%v := xxURLValues.Get(%q)
+						%v
+						}`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "get"))
 
 					bodyFunc += fmt.Sprintf(`else if _, ok := r.Form[%q]; ok {
 								xxTmp%v := r.FormValue(%q)
 								%v
 							}
-						`, k, paramName, k, convertStrTo("xxTmp"+paramName, k, paramType, errHandler, "form"))
+						`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "form"))
 
 				} else if strings.HasPrefix(paramName, "cookie") {
 					k := strings.ToLower(paramName[6:])
@@ -392,8 +422,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							%v
 							%v
 						}
-						`,
-						k, errHandler("cookieErr", "req", "cookie", "error"), convertStrTo("c.Value", paramName, paramType, errHandler, "route"))
+						`, k, errHandler("cookieErr", "req", "cookie", "error"), convertStrTo("c.Value", paramName, paramType, errHandler, "route"))
 
 				} else if paramName == "jsonReqBody" {
 
@@ -476,26 +505,31 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 
 		// proceed to the method call on embed
 		if mode == rpcMode {
-			bodyFunc += fmt.Sprintf(`
+			if sRetVars == "" {
+				bodyFunc += fmt.Sprintf(`
+						t.embed.%v(%v)
+						`, methodName, mapParamNamesToStructProps(lParamNames, hasEllipse))
+			} else {
+				bodyFunc += fmt.Sprintf(`
 					%v := t.embed.%v(%v)
 					`, sRetVars, methodName, mapParamNamesToStructProps(lParamNames, hasEllipse))
 
-			mappedParams := mapParamsToStruct(retTypes, false)
-			mappedParamNames := mapParamsToStructNames(retTypes)
-			mappedParamValues := mapParamsToStructValues(retVars)
-			bodyFunc += fmt.Sprintf(`output := struct{
+				mappedParams := mapParamsToStruct(retTypes, false)
+				mappedParamNames := mapParamsToStructNames(retTypes)
+				mappedParamValues := mapParamsToStructValues(retVars)
+				bodyFunc += fmt.Sprintf(`output := struct{
 			%v
 		}{
 			%v
 		}
 		`, mappedParams, mappedParamValues)
 
-			fileOut.AddImport("encoding/json", "json")
+				fileOut.AddImport("encoding/json", "json")
 
-			for i, retVar := range retVars {
-				if retTypes[i] == "*"+httpCookieType {
-					fileOut.AddImport("time", "")
-					bodyFunc += fmt.Sprintf(`
+				for i, retVar := range retVars {
+					if retTypes[i] == "*"+httpCookieType {
+						fileOut.AddImport("time", "")
+						bodyFunc += fmt.Sprintf(`
 						if output.%v == nil {
 							http.SetCookie(w, &http.Cookie{
 								Name: %q,
@@ -506,14 +540,14 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						}
 							`, mappedParamNames[i], retVar, mappedParamNames[i])
 
-				} else if retTypes[i] == httpCookieType {
-					bodyFunc += fmt.Sprintf(`http.SetCookie(w, &%v)
+					} else if retTypes[i] == httpCookieType {
+						bodyFunc += fmt.Sprintf(`http.SetCookie(w, &%v)
 											`, mappedParamNames[i])
 
+					}
 				}
-			}
 
-			bodyFunc += fmt.Sprintf(`
+				bodyFunc += fmt.Sprintf(`
 			{
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(200)
@@ -521,7 +555,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				%v
 			}
 				`, errHandler("encErr", "res", "json", "encode"))
-
+			}
 		} else {
 
 			if sRetVars == "" {
@@ -749,6 +783,10 @@ func hasGetParam(paramNames []string) bool {
 	for _, paramName := range paramNames {
 		if strings.HasPrefix(paramName, "get") {
 			return true
+		} else if strings.HasPrefix(paramName, "url") {
+			return true
+		} else if strings.HasPrefix(paramName, "req") {
+			return true
 		}
 	}
 	return false
@@ -777,23 +815,45 @@ func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(stri
 	} else if astutil.GetUnpointedType(toType) == "bool" {
 		if astutil.IsAPointedType(toType) {
 			return fmt.Sprintf(`{
-				xxTmp := %v=="true"
-					%v = &xxTmp
+				xxTmpValue, err := strconv.ParseBool(%v)
+				%v
+				%v = &xxTmpValue
 			}
-	`, fromStrVarName, toVarName)
+	`, fromStrVarName, errHandler("err", subjects...), toVarName)
 		}
-		return fmt.Sprintf(`%v = %v=="true"
-`, fromStrVarName, toVarName)
+		return fmt.Sprintf(`{
+			var err error
+			%v, err = strconv.ParseBool(%v)
+			%v
+		}
+	`, toVarName, fromStrVarName, errHandler("err", subjects...))
 
 	} else if astutil.GetUnpointedType(toType) == "int" {
 		if astutil.IsAPointedType(toType) {
-			return fmt.Sprintf(`%v, err := strconv.Atoi(*%v)
-		%v
-	`, toVarName, fromStrVarName, errHandler("err", subjects...))
+			return fmt.Sprintf(`{
+				xxTmpValue, err := strconv.Atoi(%v)
+				%v
+				%v = &xxTmpValue
+			}
+	`, fromStrVarName, errHandler("err", subjects...), toVarName)
 		}
-		return fmt.Sprintf(`%v, err := strconv.Atoi(%v)
-		%v
+		return fmt.Sprintf(`{
+			var err error
+			%v, err = strconv.Atoi(%v)
+			%v
+		}
 	`, toVarName, fromStrVarName, errHandler("err", subjects...))
+
+	} else if astutil.IsArrayType(toType) {
+		toType = toType[2:]
+		return fmt.Sprintf(`
+			for _, xxValueTemp := range %v {
+				var xxNewValueTemp %v
+				%v
+				%v = append(%v, xxNewValueTemp)
+			}
+		`, fromStrVarName, toType, convertStrTo("xxValueTemp", "xxNewValueTemp", toType, errHandler), toVarName, toVarName)
+
 	}
 	return fmt.Sprintf(`// conversion not handled string to %v
 	`, toType)
