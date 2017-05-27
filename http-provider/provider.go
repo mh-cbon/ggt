@@ -691,7 +691,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		annotations := astutil.GetAnnotations(comment, "@")
 		annotations = mergeAnnotations(structAnnotations, annotations)
 
-		methods := fmt.Sprintf("[]string{%q}", "GET")
+		methods := fmt.Sprint("[]string{}")
 		route := methodName
 		if r, ok := annotations["route"]; ok {
 			route = r

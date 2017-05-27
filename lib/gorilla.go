@@ -13,6 +13,9 @@ func Gorilla(instance Descriptor, router *mux.Router) {
 		if !strings.HasPrefix(x, "/") {
 			x = "/" + x
 		}
-		router.HandleFunc(x, m.Wrapped())
+		route := router.HandleFunc(x, m.Wrapped())
+		if len(m.Methods) > 0 {
+			route.Methods(m.Methods...)
+		}
 	}
 }

@@ -301,14 +301,14 @@ func NewRPCControllerDescriptor(about *RPCController) *RPCControllerDescriptor {
 		Name:    "GetByID",
 		Handler: about.GetByID,
 		Route:   "/read/{id:[0-9]+}",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetByID)
 	ret.methodSimilarColor = &ggt.MethodDescriptor{
 		Name:    "SimilarColor",
 		Handler: about.SimilarColor,
 		Route:   "/similar/color/{color}",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodSimilarColor)
 	ret.methodCreate = &ggt.MethodDescriptor{
