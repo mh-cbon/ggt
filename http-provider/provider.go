@@ -309,7 +309,179 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			for i, paramName := range lParamNames {
 				paramType := lParamTypes[i]
 
-				if strings.HasPrefix(paramName, "get") {
+				if paramName == "postValues" && paramType == mapStringSliceString {
+					bodyFunc += fmt.Sprintf(`%v := r.PostForm
+							`, paramName)
+
+				} else if paramName == "postValues" && paramType == mapStringString {
+					bodyFunc += fmt.Sprintf(`%v := map[string]string{}
+					{
+						for k,v := range r.PostForm {
+							if len(v)>0{
+								%v[k] = v[0]
+							}
+						}
+					}
+					`, paramName, paramName)
+
+				} else if paramName == "getValues" && paramType == mapStringSliceString {
+					bodyFunc += fmt.Sprintf(`%v := xxURLValues
+					`, paramName)
+
+				} else if paramName == "getValues" && paramType == mapStringString {
+					bodyFunc += fmt.Sprintf(`%v := map[string]string{}
+					{
+						for k,v := range xxURLValues {
+							if len(v)>0{
+								%v[k] = v[0]
+							}
+						}
+					}
+				`, paramName, paramName)
+
+				} else if paramName == "reqValues" && paramType == mapStringSliceString {
+					bodyFunc += fmt.Sprintf(`
+						var %v map[string][]string
+						{
+							%v = map[string][]string{}
+							xxTempValue := %v
+							for k,v := range xxRouteVars {
+								if _, ok := xxTempValue[k]; ok {
+									xxTempValue[k] = append(xxTempValue[k], v)
+								} else {
+									xxTempValue[k] = []string{v}
+								}
+							}
+							for k,v := range xxURLValues {
+								if _, ok := xxTempValue[k]; ok {
+									xxTempValue[k] = append(xxTempValue[k], v...)
+								} else {
+									xxTempValue[k] = v
+								}
+							}
+							for k,v := range r.Form {
+								if _, ok := xxTempValue[k]; ok {
+									xxTempValue[k] = append(xxTempValue[k], v...)
+								} else {
+									xxTempValue[k] = v
+								}
+							}
+					}
+					`, paramName, paramName, paramName)
+
+				} else if paramName == "reqValues" && paramType == mapStringString {
+					bodyFunc += fmt.Sprintf(`
+						var %v map[string]string
+						{
+							%v = map[string]string{}
+							xxTempValue := %v
+							for k,v := range xxRouteVars {
+								if len(v)>0{
+									xxTempValue[k] = v
+								}
+							}
+							for k,v := range xxURLValues {
+								if len(v)>0{
+									if _, ok := xxTempValue[k]; ok {
+										for _, vv := range v{
+											if len(vv)>0 {
+												xxTempValue[k] = vv
+												break
+											}
+										}
+									} else {
+										for _, vv := range v{
+											if len(vv)>0 {
+												xxTempValue[k] = vv
+												break
+											}
+										}
+									}
+								}
+							}
+							for k,v := range r.Form {
+								if len(v)>0{
+									if _, ok := xxTempValue[k]; ok {
+										for _, vv := range v{
+											if len(vv)>0 {
+												xxTempValue[k] = vv
+												break
+											}
+										}
+									} else {
+										for _, vv := range v{
+											if len(vv)>0 {
+												xxTempValue[k] = vv
+												break
+											}
+										}
+									}
+								}
+							}
+					}
+					`, paramName, paramName, paramName)
+
+				} else if paramName == "urlValues" && paramType == mapStringSliceString {
+					bodyFunc += fmt.Sprintf(`
+							var %v map[string][]string
+							{
+								%v = map[string][]string{}
+								xxTempValue := %v
+								for k,v := range xxRouteVars {
+									if _, ok := xxTempValue[k]; ok {
+										xxTempValue[k] = append(xxTempValue[k], v)
+									} else {
+										xxTempValue[k] = []string{v}
+									}
+								}
+								for k,v := range xxURLValues {
+									if _, ok := xxTempValue[k]; ok {
+										xxTempValue[k] = append(xxTempValue[k], v...)
+									} else {
+										xxTempValue[k] = v
+									}
+								}
+						}
+						`, paramName, paramName, paramName)
+
+				} else if paramName == "urlValues" && paramType == mapStringString {
+					bodyFunc += fmt.Sprintf(`
+						var %v map[string]string
+						{
+							%v = map[string]string{}
+							xxTempValue := %v
+							for k,v := range xxRouteVars {
+								if len(v)>0{
+									xxTempValue[k] = v
+								}
+							}
+							for k,v := range xxURLValues {
+								if len(v)>0{
+									if _, ok := xxTempValue[k]; ok {
+										for _, vv := range v{
+											if len(vv)>0 {
+												xxTempValue[k] = vv
+												break
+											}
+										}
+									} else {
+										for _, vv := range v{
+											if len(vv)>0 {
+												xxTempValue[k] = vv
+												break
+											}
+										}
+									}
+								}
+							}
+						}
+					`, paramName, paramName, paramName)
+
+				} else if paramName == "routeValues" && paramType == mapStringString {
+					bodyFunc += fmt.Sprintf(`%v := xxRouteVars
+					`, paramName)
+
+				} else if strings.HasPrefix(paramName, "get") {
 					k := strings.ToLower(paramName[3:])
 					bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
 
@@ -440,16 +612,6 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 						    defer r.Body.Close()
 							}
 						`, astutil.GetTypeToStructInit(paramType), errHandler("decErr", "req", "json", "decode"))
-
-				} else if paramName == "postValues" {
-					// might to something more handy here to handle differrent type than
-					// map[string][]string
-					bodyFunc += fmt.Sprintf("%v := r.PostForm\n", paramName)
-
-				} else if paramName == "getValues" {
-					// might to something more handy here to handle differrent type than
-					// map[string][]string
-					bodyFunc += fmt.Sprintf("%v := r.URL.Query()\n", paramName)
 
 				} else if paramName == "headers" {
 					bodyFunc += fmt.Sprintf("%v := r.Header\n", paramName)
@@ -734,6 +896,8 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	return nil
 }
 
+var mapStringString = "map[string]string"
+var mapStringSliceString = "map[string][]string"
 var rpcMode = "rpc"
 
 func stringifyList(s string) string {

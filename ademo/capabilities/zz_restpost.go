@@ -32,6 +32,63 @@ func NewRestPost(embed Post) *RestPost {
 	return ret
 }
 
+// GetAll invoke Post.GetAll using the request body as a json payload.
+// GetAll ...
+func (t *RestPost) GetAll(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetAll")
+
+	{
+		err := r.ParseForm()
+
+		if err != nil {
+
+			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "GetAll")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}
+	postValues := r.PostForm
+
+	t.embed.GetAll(postValues)
+	w.WriteHeader(200)
+
+	t.Log.Handle(w, r, nil, "end", "RestPost", "GetAll")
+}
+
+// GetAll2 invoke Post.GetAll2 using the request body as a json payload.
+// GetAll2 ...
+func (t *RestPost) GetAll2(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetAll2")
+
+	{
+		err := r.ParseForm()
+
+		if err != nil {
+
+			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "GetAll2")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}
+	postValues := map[string]string{}
+	{
+		for k, v := range r.PostForm {
+			if len(v) > 0 {
+				postValues[k] = v[0]
+			}
+		}
+	}
+
+	t.embed.GetAll2(postValues)
+	w.WriteHeader(200)
+
+	t.Log.Handle(w, r, nil, "end", "RestPost", "GetAll2")
+}
+
 // GetOne invoke Post.GetOne using the request body as a json payload.
 // GetOne ...
 func (t *RestPost) GetOne(w http.ResponseWriter, r *http.Request) {
@@ -267,6 +324,8 @@ func (t *RestPost) GetMaybe(w http.ResponseWriter, r *http.Request) {
 type RestPostDescriptor struct {
 	ggt.TypeDescriptor
 	about                     *RestPost
+	methodGetAll              *ggt.MethodDescriptor
+	methodGetAll2             *ggt.MethodDescriptor
 	methodGetOne              *ggt.MethodDescriptor
 	methodGetMany             *ggt.MethodDescriptor
 	methodGetConvertedToInt   *ggt.MethodDescriptor
@@ -278,50 +337,70 @@ type RestPostDescriptor struct {
 // NewRestPostDescriptor describe a *RestPost
 func NewRestPostDescriptor(about *RestPost) *RestPostDescriptor {
 	ret := &RestPostDescriptor{about: about}
+	ret.methodGetAll = &ggt.MethodDescriptor{
+		Name:    "GetAll",
+		Handler: about.GetAll,
+		Route:   "GetAll",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll)
+	ret.methodGetAll2 = &ggt.MethodDescriptor{
+		Name:    "GetAll2",
+		Handler: about.GetAll2,
+		Route:   "GetAll2",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll2)
 	ret.methodGetOne = &ggt.MethodDescriptor{
 		Name:    "GetOne",
 		Handler: about.GetOne,
 		Route:   "GetOne",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetOne)
 	ret.methodGetMany = &ggt.MethodDescriptor{
 		Name:    "GetMany",
 		Handler: about.GetMany,
 		Route:   "GetMany",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
 	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToInt",
 		Handler: about.GetConvertedToInt,
 		Route:   "GetConvertedToInt",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
 	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToBool",
 		Handler: about.GetConvertedToBool,
 		Route:   "GetConvertedToBool",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
 	ret.methodGetConvertedToSlice = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToSlice",
 		Handler: about.GetConvertedToSlice,
 		Route:   "GetConvertedToSlice",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToSlice)
 	ret.methodGetMaybe = &ggt.MethodDescriptor{
 		Name:    "GetMaybe",
 		Handler: about.GetMaybe,
 		Route:   "GetMaybe",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMaybe)
 	return ret
 }
+
+// GetAll returns a MethodDescriptor
+func (t *RestPostDescriptor) GetAll() *ggt.MethodDescriptor { return t.methodGetAll }
+
+// GetAll2 returns a MethodDescriptor
+func (t *RestPostDescriptor) GetAll2() *ggt.MethodDescriptor { return t.methodGetAll2 }
 
 // GetOne returns a MethodDescriptor
 func (t *RestPostDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetOne }

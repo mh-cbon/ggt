@@ -33,6 +33,28 @@ func NewRPCRoute(embed Route) *RPCRoute {
 	return ret
 }
 
+// GetAll invoke Route.GetAll using the request body as a json payload.
+// GetAll ...
+func (t *RPCRoute) GetAll(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCRoute", "GetAll")
+	input := struct {
+		Arg0 map[string]string
+	}{}
+	decErr := json.NewDecoder(r.Body).Decode(&input)
+
+	if decErr != nil {
+
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCRoute", "GetAll")
+		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	t.embed.GetAll(input.Arg0)
+
+	t.Log.Handle(w, r, nil, "end", "RPCRoute", "GetAll")
+}
+
 // GetOne invoke Route.GetOne using the request body as a json payload.
 // GetOne ...
 func (t *RPCRoute) GetOne(w http.ResponseWriter, r *http.Request) {
@@ -148,6 +170,7 @@ func (t *RPCRoute) GetMaybe(w http.ResponseWriter, r *http.Request) {
 type RPCRouteDescriptor struct {
 	ggt.TypeDescriptor
 	about                    *RPCRoute
+	methodGetAll             *ggt.MethodDescriptor
 	methodGetOne             *ggt.MethodDescriptor
 	methodGetMany            *ggt.MethodDescriptor
 	methodGetConvertedToInt  *ggt.MethodDescriptor
@@ -158,43 +181,53 @@ type RPCRouteDescriptor struct {
 // NewRPCRouteDescriptor describe a *RPCRoute
 func NewRPCRouteDescriptor(about *RPCRoute) *RPCRouteDescriptor {
 	ret := &RPCRouteDescriptor{about: about}
+	ret.methodGetAll = &ggt.MethodDescriptor{
+		Name:    "GetAll",
+		Handler: about.GetAll,
+		Route:   "GetAll",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll)
 	ret.methodGetOne = &ggt.MethodDescriptor{
 		Name:    "GetOne",
 		Handler: about.GetOne,
 		Route:   "GetOne",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetOne)
 	ret.methodGetMany = &ggt.MethodDescriptor{
 		Name:    "GetMany",
 		Handler: about.GetMany,
 		Route:   "GetMany",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
 	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToInt",
 		Handler: about.GetConvertedToInt,
 		Route:   "GetConvertedToInt",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
 	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToBool",
 		Handler: about.GetConvertedToBool,
 		Route:   "GetConvertedToBool",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
 	ret.methodGetMaybe = &ggt.MethodDescriptor{
 		Name:    "GetMaybe",
 		Handler: about.GetMaybe,
 		Route:   "GetMaybe",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMaybe)
 	return ret
 }
+
+// GetAll returns a MethodDescriptor
+func (t *RPCRouteDescriptor) GetAll() *ggt.MethodDescriptor { return t.methodGetAll }
 
 // GetOne returns a MethodDescriptor
 func (t *RPCRouteDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetOne }

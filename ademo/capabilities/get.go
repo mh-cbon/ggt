@@ -5,6 +5,18 @@ import "fmt"
 // Get ...
 type Get struct{}
 
+// GetAll ...
+func (c Get) GetAll(getValues map[string][]string) {
+	fmt.Printf(`getValues %q
+    `, getValues)
+}
+
+// GetAll2 ...
+func (c Get) GetAll2(getValues map[string]string) {
+	fmt.Printf(`getValues %q
+    `, getValues)
+}
+
 // GetOne ...
 func (c Get) GetOne(getArg1 string) {
 	fmt.Printf(`getArg1 %q

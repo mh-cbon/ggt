@@ -33,6 +33,138 @@ func NewRestReq(embed Req) *RestReq {
 	return ret
 }
 
+// GetAll invoke Req.GetAll using the request body as a json payload.
+// GetAll ...
+func (t *RestReq) GetAll(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestReq", "GetAll")
+
+	{
+		err := r.ParseForm()
+
+		if err != nil {
+
+			t.Log.Handle(w, r, err, "parseform", "error", "RestReq", "GetAll")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}
+
+	xxRouteVars := mux.Vars(r)
+
+	xxURLValues := r.URL.Query()
+
+	var reqValues map[string][]string
+	{
+		reqValues = map[string][]string{}
+		xxTempValue := reqValues
+		for k, v := range xxRouteVars {
+			if _, ok := xxTempValue[k]; ok {
+				xxTempValue[k] = append(xxTempValue[k], v)
+			} else {
+				xxTempValue[k] = []string{v}
+			}
+		}
+		for k, v := range xxURLValues {
+			if _, ok := xxTempValue[k]; ok {
+				xxTempValue[k] = append(xxTempValue[k], v...)
+			} else {
+				xxTempValue[k] = v
+			}
+		}
+		for k, v := range r.Form {
+			if _, ok := xxTempValue[k]; ok {
+				xxTempValue[k] = append(xxTempValue[k], v...)
+			} else {
+				xxTempValue[k] = v
+			}
+		}
+	}
+
+	t.embed.GetAll(reqValues)
+	w.WriteHeader(200)
+
+	t.Log.Handle(w, r, nil, "end", "RestReq", "GetAll")
+}
+
+// GetAll2 invoke Req.GetAll2 using the request body as a json payload.
+// GetAll2 ...
+func (t *RestReq) GetAll2(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestReq", "GetAll2")
+
+	{
+		err := r.ParseForm()
+
+		if err != nil {
+
+			t.Log.Handle(w, r, err, "parseform", "error", "RestReq", "GetAll2")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}
+
+	xxRouteVars := mux.Vars(r)
+
+	xxURLValues := r.URL.Query()
+
+	var reqValues map[string]string
+	{
+		reqValues = map[string]string{}
+		xxTempValue := reqValues
+		for k, v := range xxRouteVars {
+			if len(v) > 0 {
+				xxTempValue[k] = v
+			}
+		}
+		for k, v := range xxURLValues {
+			if len(v) > 0 {
+				if _, ok := xxTempValue[k]; ok {
+					for _, vv := range v {
+						if len(vv) > 0 {
+							xxTempValue[k] = vv
+							break
+						}
+					}
+				} else {
+					for _, vv := range v {
+						if len(vv) > 0 {
+							xxTempValue[k] = vv
+							break
+						}
+					}
+				}
+			}
+		}
+		for k, v := range r.Form {
+			if len(v) > 0 {
+				if _, ok := xxTempValue[k]; ok {
+					for _, vv := range v {
+						if len(vv) > 0 {
+							xxTempValue[k] = vv
+							break
+						}
+					}
+				} else {
+					for _, vv := range v {
+						if len(vv) > 0 {
+							xxTempValue[k] = vv
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+
+	t.embed.GetAll2(reqValues)
+	w.WriteHeader(200)
+
+	t.Log.Handle(w, r, nil, "end", "RestReq", "GetAll2")
+}
+
 // GetOne invoke Req.GetOne using the request body as a json payload.
 // GetOne ...
 func (t *RestReq) GetOne(w http.ResponseWriter, r *http.Request) {
@@ -321,6 +453,8 @@ func (t *RestReq) GetMaybe(w http.ResponseWriter, r *http.Request) {
 type RestReqDescriptor struct {
 	ggt.TypeDescriptor
 	about                    *RestReq
+	methodGetAll             *ggt.MethodDescriptor
+	methodGetAll2            *ggt.MethodDescriptor
 	methodGetOne             *ggt.MethodDescriptor
 	methodGetMany            *ggt.MethodDescriptor
 	methodGetConvertedToInt  *ggt.MethodDescriptor
@@ -331,43 +465,63 @@ type RestReqDescriptor struct {
 // NewRestReqDescriptor describe a *RestReq
 func NewRestReqDescriptor(about *RestReq) *RestReqDescriptor {
 	ret := &RestReqDescriptor{about: about}
+	ret.methodGetAll = &ggt.MethodDescriptor{
+		Name:    "GetAll",
+		Handler: about.GetAll,
+		Route:   "GetAll",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll)
+	ret.methodGetAll2 = &ggt.MethodDescriptor{
+		Name:    "GetAll2",
+		Handler: about.GetAll2,
+		Route:   "GetAll2",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll2)
 	ret.methodGetOne = &ggt.MethodDescriptor{
 		Name:    "GetOne",
 		Handler: about.GetOne,
 		Route:   "GetOne",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetOne)
 	ret.methodGetMany = &ggt.MethodDescriptor{
 		Name:    "GetMany",
 		Handler: about.GetMany,
 		Route:   "GetMany",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
 	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToInt",
 		Handler: about.GetConvertedToInt,
 		Route:   "GetConvertedToInt",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
 	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToBool",
 		Handler: about.GetConvertedToBool,
 		Route:   "GetConvertedToBool",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
 	ret.methodGetMaybe = &ggt.MethodDescriptor{
 		Name:    "GetMaybe",
 		Handler: about.GetMaybe,
 		Route:   "GetMaybe",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMaybe)
 	return ret
 }
+
+// GetAll returns a MethodDescriptor
+func (t *RestReqDescriptor) GetAll() *ggt.MethodDescriptor { return t.methodGetAll }
+
+// GetAll2 returns a MethodDescriptor
+func (t *RestReqDescriptor) GetAll2() *ggt.MethodDescriptor { return t.methodGetAll2 }
 
 // GetOne returns a MethodDescriptor
 func (t *RestReqDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetOne }

@@ -5,6 +5,18 @@ import "fmt"
 // Req ...
 type Req struct{}
 
+// GetAll ...
+func (c Req) GetAll(reqValues map[string][]string) {
+	fmt.Printf(`reqValues %q
+    `, reqValues)
+}
+
+// GetAll2 ...
+func (c Req) GetAll2(reqValues map[string]string) {
+	fmt.Printf(`reqValues %q
+    `, reqValues)
+}
+
 // GetOne ...
 func (c Req) GetOne(reqArg1 string) {
 	fmt.Printf(`reqArg1 %q

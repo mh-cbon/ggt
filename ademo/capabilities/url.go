@@ -5,6 +5,18 @@ import "fmt"
 // URL ...
 type URL struct{}
 
+// GetAll ...
+func (c URL) GetAll(urlValues map[string][]string) {
+	fmt.Printf(`urlValues %q
+    `, urlValues)
+}
+
+// GetAll2 ...
+func (c URL) GetAll2(urlValues map[string]string) {
+	fmt.Printf(`urlValues %q
+    `, urlValues)
+}
+
 // GetOne ...
 func (c URL) GetOne(urlArg1 string) {
 	fmt.Printf(`urlArg1 %q

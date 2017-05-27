@@ -33,6 +33,76 @@ func NewRPCPost(embed Post) *RPCPost {
 	return ret
 }
 
+// GetAll invoke Post.GetAll using the request body as a json payload.
+// GetAll ...
+func (t *RPCPost) GetAll(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCPost", "GetAll")
+
+	{
+		err := r.ParseForm()
+
+		if err != nil {
+
+			t.Log.Handle(w, r, err, "parseform", "error", "RPCPost", "GetAll")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}
+	input := struct {
+		Arg0 map[string][]string
+	}{}
+	decErr := json.NewDecoder(r.Body).Decode(&input)
+
+	if decErr != nil {
+
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "GetAll")
+		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	t.embed.GetAll(input.Arg0)
+
+	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetAll")
+}
+
+// GetAll2 invoke Post.GetAll2 using the request body as a json payload.
+// GetAll2 ...
+func (t *RPCPost) GetAll2(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCPost", "GetAll2")
+
+	{
+		err := r.ParseForm()
+
+		if err != nil {
+
+			t.Log.Handle(w, r, err, "parseform", "error", "RPCPost", "GetAll2")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}
+	input := struct {
+		Arg0 map[string]string
+	}{}
+	decErr := json.NewDecoder(r.Body).Decode(&input)
+
+	if decErr != nil {
+
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "GetAll2")
+		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	t.embed.GetAll2(input.Arg0)
+
+	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetAll2")
+}
+
 // GetOne invoke Post.GetOne using the request body as a json payload.
 // GetOne ...
 func (t *RPCPost) GetOne(w http.ResponseWriter, r *http.Request) {
@@ -248,6 +318,8 @@ func (t *RPCPost) GetMaybe(w http.ResponseWriter, r *http.Request) {
 type RPCPostDescriptor struct {
 	ggt.TypeDescriptor
 	about                     *RPCPost
+	methodGetAll              *ggt.MethodDescriptor
+	methodGetAll2             *ggt.MethodDescriptor
 	methodGetOne              *ggt.MethodDescriptor
 	methodGetMany             *ggt.MethodDescriptor
 	methodGetConvertedToInt   *ggt.MethodDescriptor
@@ -259,50 +331,70 @@ type RPCPostDescriptor struct {
 // NewRPCPostDescriptor describe a *RPCPost
 func NewRPCPostDescriptor(about *RPCPost) *RPCPostDescriptor {
 	ret := &RPCPostDescriptor{about: about}
+	ret.methodGetAll = &ggt.MethodDescriptor{
+		Name:    "GetAll",
+		Handler: about.GetAll,
+		Route:   "GetAll",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll)
+	ret.methodGetAll2 = &ggt.MethodDescriptor{
+		Name:    "GetAll2",
+		Handler: about.GetAll2,
+		Route:   "GetAll2",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll2)
 	ret.methodGetOne = &ggt.MethodDescriptor{
 		Name:    "GetOne",
 		Handler: about.GetOne,
 		Route:   "GetOne",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetOne)
 	ret.methodGetMany = &ggt.MethodDescriptor{
 		Name:    "GetMany",
 		Handler: about.GetMany,
 		Route:   "GetMany",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
 	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToInt",
 		Handler: about.GetConvertedToInt,
 		Route:   "GetConvertedToInt",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
 	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToBool",
 		Handler: about.GetConvertedToBool,
 		Route:   "GetConvertedToBool",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
 	ret.methodGetConvertedToSlice = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToSlice",
 		Handler: about.GetConvertedToSlice,
 		Route:   "GetConvertedToSlice",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToSlice)
 	ret.methodGetMaybe = &ggt.MethodDescriptor{
 		Name:    "GetMaybe",
 		Handler: about.GetMaybe,
 		Route:   "GetMaybe",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMaybe)
 	return ret
 }
+
+// GetAll returns a MethodDescriptor
+func (t *RPCPostDescriptor) GetAll() *ggt.MethodDescriptor { return t.methodGetAll }
+
+// GetAll2 returns a MethodDescriptor
+func (t *RPCPostDescriptor) GetAll2() *ggt.MethodDescriptor { return t.methodGetAll2 }
 
 // GetOne returns a MethodDescriptor
 func (t *RPCPostDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetOne }

@@ -5,6 +5,12 @@ import "fmt"
 // Route ...
 type Route struct{}
 
+// GetAll ...
+func (c Route) GetAll(routeValues map[string]string) {
+	fmt.Printf(`routeValues %q
+    `, routeValues)
+}
+
 // GetOne ...
 func (c Route) GetOne(routeArg1 string) {
 	fmt.Printf(`routeArg1 %q

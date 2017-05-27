@@ -33,6 +33,86 @@ func NewRestURL(embed URL) *RestURL {
 	return ret
 }
 
+// GetAll invoke URL.GetAll using the request body as a json payload.
+// GetAll ...
+func (t *RestURL) GetAll(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestURL", "GetAll")
+
+	xxRouteVars := mux.Vars(r)
+
+	xxURLValues := r.URL.Query()
+
+	var urlValues map[string][]string
+	{
+		urlValues = map[string][]string{}
+		xxTempValue := urlValues
+		for k, v := range xxRouteVars {
+			if _, ok := xxTempValue[k]; ok {
+				xxTempValue[k] = append(xxTempValue[k], v)
+			} else {
+				xxTempValue[k] = []string{v}
+			}
+		}
+		for k, v := range xxURLValues {
+			if _, ok := xxTempValue[k]; ok {
+				xxTempValue[k] = append(xxTempValue[k], v...)
+			} else {
+				xxTempValue[k] = v
+			}
+		}
+	}
+
+	t.embed.GetAll(urlValues)
+	w.WriteHeader(200)
+
+	t.Log.Handle(w, r, nil, "end", "RestURL", "GetAll")
+}
+
+// GetAll2 invoke URL.GetAll2 using the request body as a json payload.
+// GetAll2 ...
+func (t *RestURL) GetAll2(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestURL", "GetAll2")
+
+	xxRouteVars := mux.Vars(r)
+
+	xxURLValues := r.URL.Query()
+
+	var urlValues map[string]string
+	{
+		urlValues = map[string]string{}
+		xxTempValue := urlValues
+		for k, v := range xxRouteVars {
+			if len(v) > 0 {
+				xxTempValue[k] = v
+			}
+		}
+		for k, v := range xxURLValues {
+			if len(v) > 0 {
+				if _, ok := xxTempValue[k]; ok {
+					for _, vv := range v {
+						if len(vv) > 0 {
+							xxTempValue[k] = vv
+							break
+						}
+					}
+				} else {
+					for _, vv := range v {
+						if len(vv) > 0 {
+							xxTempValue[k] = vv
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+
+	t.embed.GetAll2(urlValues)
+	w.WriteHeader(200)
+
+	t.Log.Handle(w, r, nil, "end", "RestURL", "GetAll2")
+}
+
 // GetOne invoke URL.GetOne using the request body as a json payload.
 // GetOne ...
 func (t *RestURL) GetOne(w http.ResponseWriter, r *http.Request) {
@@ -212,6 +292,8 @@ func (t *RestURL) GetMaybe(w http.ResponseWriter, r *http.Request) {
 type RestURLDescriptor struct {
 	ggt.TypeDescriptor
 	about                    *RestURL
+	methodGetAll             *ggt.MethodDescriptor
+	methodGetAll2            *ggt.MethodDescriptor
 	methodGetOne             *ggt.MethodDescriptor
 	methodGetMany            *ggt.MethodDescriptor
 	methodGetConvertedToInt  *ggt.MethodDescriptor
@@ -222,43 +304,63 @@ type RestURLDescriptor struct {
 // NewRestURLDescriptor describe a *RestURL
 func NewRestURLDescriptor(about *RestURL) *RestURLDescriptor {
 	ret := &RestURLDescriptor{about: about}
+	ret.methodGetAll = &ggt.MethodDescriptor{
+		Name:    "GetAll",
+		Handler: about.GetAll,
+		Route:   "GetAll",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll)
+	ret.methodGetAll2 = &ggt.MethodDescriptor{
+		Name:    "GetAll2",
+		Handler: about.GetAll2,
+		Route:   "GetAll2",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll2)
 	ret.methodGetOne = &ggt.MethodDescriptor{
 		Name:    "GetOne",
 		Handler: about.GetOne,
 		Route:   "GetOne",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetOne)
 	ret.methodGetMany = &ggt.MethodDescriptor{
 		Name:    "GetMany",
 		Handler: about.GetMany,
 		Route:   "GetMany",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
 	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToInt",
 		Handler: about.GetConvertedToInt,
 		Route:   "GetConvertedToInt",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
 	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToBool",
 		Handler: about.GetConvertedToBool,
 		Route:   "GetConvertedToBool",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
 	ret.methodGetMaybe = &ggt.MethodDescriptor{
 		Name:    "GetMaybe",
 		Handler: about.GetMaybe,
 		Route:   "GetMaybe",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMaybe)
 	return ret
 }
+
+// GetAll returns a MethodDescriptor
+func (t *RestURLDescriptor) GetAll() *ggt.MethodDescriptor { return t.methodGetAll }
+
+// GetAll2 returns a MethodDescriptor
+func (t *RestURLDescriptor) GetAll2() *ggt.MethodDescriptor { return t.methodGetAll2 }
 
 // GetOne returns a MethodDescriptor
 func (t *RestURLDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetOne }

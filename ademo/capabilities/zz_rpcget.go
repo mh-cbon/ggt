@@ -33,6 +33,50 @@ func NewRPCGet(embed Get) *RPCGet {
 	return ret
 }
 
+// GetAll invoke Get.GetAll using the request body as a json payload.
+// GetAll ...
+func (t *RPCGet) GetAll(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetAll")
+	input := struct {
+		Arg0 map[string][]string
+	}{}
+	decErr := json.NewDecoder(r.Body).Decode(&input)
+
+	if decErr != nil {
+
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetAll")
+		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	t.embed.GetAll(input.Arg0)
+
+	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetAll")
+}
+
+// GetAll2 invoke Get.GetAll2 using the request body as a json payload.
+// GetAll2 ...
+func (t *RPCGet) GetAll2(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetAll2")
+	input := struct {
+		Arg0 map[string]string
+	}{}
+	decErr := json.NewDecoder(r.Body).Decode(&input)
+
+	if decErr != nil {
+
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetAll2")
+		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	t.embed.GetAll2(input.Arg0)
+
+	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetAll2")
+}
+
 // GetOne invoke Get.GetOne using the request body as a json payload.
 // GetOne ...
 func (t *RPCGet) GetOne(w http.ResponseWriter, r *http.Request) {
@@ -170,6 +214,8 @@ func (t *RPCGet) GetMaybe(w http.ResponseWriter, r *http.Request) {
 type RPCGetDescriptor struct {
 	ggt.TypeDescriptor
 	about                     *RPCGet
+	methodGetAll              *ggt.MethodDescriptor
+	methodGetAll2             *ggt.MethodDescriptor
 	methodGetOne              *ggt.MethodDescriptor
 	methodGetMany             *ggt.MethodDescriptor
 	methodGetConvertedToInt   *ggt.MethodDescriptor
@@ -181,50 +227,70 @@ type RPCGetDescriptor struct {
 // NewRPCGetDescriptor describe a *RPCGet
 func NewRPCGetDescriptor(about *RPCGet) *RPCGetDescriptor {
 	ret := &RPCGetDescriptor{about: about}
+	ret.methodGetAll = &ggt.MethodDescriptor{
+		Name:    "GetAll",
+		Handler: about.GetAll,
+		Route:   "GetAll",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll)
+	ret.methodGetAll2 = &ggt.MethodDescriptor{
+		Name:    "GetAll2",
+		Handler: about.GetAll2,
+		Route:   "GetAll2",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodGetAll2)
 	ret.methodGetOne = &ggt.MethodDescriptor{
 		Name:    "GetOne",
 		Handler: about.GetOne,
 		Route:   "GetOne",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetOne)
 	ret.methodGetMany = &ggt.MethodDescriptor{
 		Name:    "GetMany",
 		Handler: about.GetMany,
 		Route:   "GetMany",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
 	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToInt",
 		Handler: about.GetConvertedToInt,
 		Route:   "GetConvertedToInt",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
 	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToBool",
 		Handler: about.GetConvertedToBool,
 		Route:   "GetConvertedToBool",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
 	ret.methodGetConvertedToSlice = &ggt.MethodDescriptor{
 		Name:    "GetConvertedToSlice",
 		Handler: about.GetConvertedToSlice,
 		Route:   "GetConvertedToSlice",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetConvertedToSlice)
 	ret.methodGetMaybe = &ggt.MethodDescriptor{
 		Name:    "GetMaybe",
 		Handler: about.GetMaybe,
 		Route:   "GetMaybe",
-		Methods: []string{"GET"},
+		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMaybe)
 	return ret
 }
+
+// GetAll returns a MethodDescriptor
+func (t *RPCGetDescriptor) GetAll() *ggt.MethodDescriptor { return t.methodGetAll }
+
+// GetAll2 returns a MethodDescriptor
+func (t *RPCGetDescriptor) GetAll2() *ggt.MethodDescriptor { return t.methodGetAll2 }
 
 // GetOne returns a MethodDescriptor
 func (t *RPCGetDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetOne }
