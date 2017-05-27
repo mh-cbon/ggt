@@ -34,7 +34,7 @@ func NewRPCGet(embed Get) *RPCGet {
 }
 
 // GetAll invoke Get.GetAll using the request body as a json payload.
-// GetAll ...
+// GetAll values in url query as a map of values
 func (t *RPCGet) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetAll")
 	input := struct {
@@ -56,7 +56,7 @@ func (t *RPCGet) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAll2 invoke Get.GetAll2 using the request body as a json payload.
-// GetAll2 ...
+// GetAll2 values in url query as a map of value
 func (t *RPCGet) GetAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetAll2")
 	input := struct {
@@ -78,7 +78,7 @@ func (t *RPCGet) GetAll2(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOne invoke Get.GetOne using the request body as a json payload.
-// GetOne ...
+// GetOne arg from url query
 func (t *RPCGet) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetOne")
 	input := struct {
@@ -100,7 +100,7 @@ func (t *RPCGet) GetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetMany invoke Get.GetMany using the request body as a json payload.
-// GetMany ...
+// GetMany args from url query
 func (t *RPCGet) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetMany")
 	input := struct {
@@ -122,10 +122,10 @@ func (t *RPCGet) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetMany")
 }
 
-// GetConvertedToInt invoke Get.GetConvertedToInt using the request body as a json payload.
-// GetConvertedToInt ...
-func (t *RPCGet) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetConvertedToInt")
+// ConvertToInt invoke Get.ConvertToInt using the request body as a json payload.
+// ConvertToInt an arg from url query
+func (t *RPCGet) ConvertToInt(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCGet", "ConvertToInt")
 	input := struct {
 		Arg0 int
 	}{}
@@ -133,21 +133,21 @@ func (t *RPCGet) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetConvertedToInt")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "ConvertToInt")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetConvertedToInt(input.Arg0)
+	t.embed.ConvertToInt(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetConvertedToInt")
+	t.Log.Handle(w, r, nil, "end", "RPCGet", "ConvertToInt")
 }
 
-// GetConvertedToBool invoke Get.GetConvertedToBool using the request body as a json payload.
-// GetConvertedToBool ...
-func (t *RPCGet) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetConvertedToBool")
+// ConvertToBool invoke Get.ConvertToBool using the request body as a json payload.
+// ConvertToBool an arg from url query
+func (t *RPCGet) ConvertToBool(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCGet", "ConvertToBool")
 	input := struct {
 		Arg0 bool
 	}{}
@@ -155,21 +155,21 @@ func (t *RPCGet) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetConvertedToBool")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "ConvertToBool")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetConvertedToBool(input.Arg0)
+	t.embed.ConvertToBool(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetConvertedToBool")
+	t.Log.Handle(w, r, nil, "end", "RPCGet", "ConvertToBool")
 }
 
-// GetConvertedToSlice invoke Get.GetConvertedToSlice using the request body as a json payload.
-// GetConvertedToSlice ...
-func (t *RPCGet) GetConvertedToSlice(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetConvertedToSlice")
+// ConvertToSlice invoke Get.ConvertToSlice using the request body as a json payload.
+// ConvertToSlice an arg from url query
+func (t *RPCGet) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCGet", "ConvertToSlice")
 	input := struct {
 		Arg0 []bool
 	}{}
@@ -177,21 +177,21 @@ func (t *RPCGet) GetConvertedToSlice(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetConvertedToSlice")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "ConvertToSlice")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetConvertedToSlice(input.Arg0)
+	t.embed.ConvertToSlice(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetConvertedToSlice")
+	t.Log.Handle(w, r, nil, "end", "RPCGet", "ConvertToSlice")
 }
 
-// GetMaybe invoke Get.GetMaybe using the request body as a json payload.
-// GetMaybe ...
-func (t *RPCGet) GetMaybe(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetMaybe")
+// MaybeGet invoke Get.MaybeGet using the request body as a json payload.
+// MaybeGet an arg if it exists in url query.
+func (t *RPCGet) MaybeGet(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCGet", "MaybeGet")
 	input := struct {
 		Arg0 *string
 	}{}
@@ -199,29 +199,29 @@ func (t *RPCGet) GetMaybe(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetMaybe")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "MaybeGet")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetMaybe(input.Arg0)
+	t.embed.MaybeGet(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetMaybe")
+	t.Log.Handle(w, r, nil, "end", "RPCGet", "MaybeGet")
 }
 
 // RPCGetDescriptor describe a *RPCGet
 type RPCGetDescriptor struct {
 	ggt.TypeDescriptor
-	about                     *RPCGet
-	methodGetAll              *ggt.MethodDescriptor
-	methodGetAll2             *ggt.MethodDescriptor
-	methodGetOne              *ggt.MethodDescriptor
-	methodGetMany             *ggt.MethodDescriptor
-	methodGetConvertedToInt   *ggt.MethodDescriptor
-	methodGetConvertedToBool  *ggt.MethodDescriptor
-	methodGetConvertedToSlice *ggt.MethodDescriptor
-	methodGetMaybe            *ggt.MethodDescriptor
+	about                *RPCGet
+	methodGetAll         *ggt.MethodDescriptor
+	methodGetAll2        *ggt.MethodDescriptor
+	methodGetOne         *ggt.MethodDescriptor
+	methodGetMany        *ggt.MethodDescriptor
+	methodConvertToInt   *ggt.MethodDescriptor
+	methodConvertToBool  *ggt.MethodDescriptor
+	methodConvertToSlice *ggt.MethodDescriptor
+	methodMaybeGet       *ggt.MethodDescriptor
 }
 
 // NewRPCGetDescriptor describe a *RPCGet
@@ -255,34 +255,34 @@ func NewRPCGetDescriptor(about *RPCGet) *RPCGetDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
-	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToInt",
-		Handler: about.GetConvertedToInt,
-		Route:   "GetConvertedToInt",
+	ret.methodConvertToInt = &ggt.MethodDescriptor{
+		Name:    "ConvertToInt",
+		Handler: about.ConvertToInt,
+		Route:   "ConvertToInt",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
-	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToBool",
-		Handler: about.GetConvertedToBool,
-		Route:   "GetConvertedToBool",
+	ret.TypeDescriptor.Register(ret.methodConvertToInt)
+	ret.methodConvertToBool = &ggt.MethodDescriptor{
+		Name:    "ConvertToBool",
+		Handler: about.ConvertToBool,
+		Route:   "ConvertToBool",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
-	ret.methodGetConvertedToSlice = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToSlice",
-		Handler: about.GetConvertedToSlice,
-		Route:   "GetConvertedToSlice",
+	ret.TypeDescriptor.Register(ret.methodConvertToBool)
+	ret.methodConvertToSlice = &ggt.MethodDescriptor{
+		Name:    "ConvertToSlice",
+		Handler: about.ConvertToSlice,
+		Route:   "ConvertToSlice",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToSlice)
-	ret.methodGetMaybe = &ggt.MethodDescriptor{
-		Name:    "GetMaybe",
-		Handler: about.GetMaybe,
-		Route:   "GetMaybe",
+	ret.TypeDescriptor.Register(ret.methodConvertToSlice)
+	ret.methodMaybeGet = &ggt.MethodDescriptor{
+		Name:    "MaybeGet",
+		Handler: about.MaybeGet,
+		Route:   "MaybeGet",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetMaybe)
+	ret.TypeDescriptor.Register(ret.methodMaybeGet)
 	return ret
 }
 
@@ -298,18 +298,14 @@ func (t *RPCGetDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetOn
 // GetMany returns a MethodDescriptor
 func (t *RPCGetDescriptor) GetMany() *ggt.MethodDescriptor { return t.methodGetMany }
 
-// GetConvertedToInt returns a MethodDescriptor
-func (t *RPCGetDescriptor) GetConvertedToInt() *ggt.MethodDescriptor { return t.methodGetConvertedToInt }
+// ConvertToInt returns a MethodDescriptor
+func (t *RPCGetDescriptor) ConvertToInt() *ggt.MethodDescriptor { return t.methodConvertToInt }
 
-// GetConvertedToBool returns a MethodDescriptor
-func (t *RPCGetDescriptor) GetConvertedToBool() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToBool
-}
+// ConvertToBool returns a MethodDescriptor
+func (t *RPCGetDescriptor) ConvertToBool() *ggt.MethodDescriptor { return t.methodConvertToBool }
 
-// GetConvertedToSlice returns a MethodDescriptor
-func (t *RPCGetDescriptor) GetConvertedToSlice() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToSlice
-}
+// ConvertToSlice returns a MethodDescriptor
+func (t *RPCGetDescriptor) ConvertToSlice() *ggt.MethodDescriptor { return t.methodConvertToSlice }
 
-// GetMaybe returns a MethodDescriptor
-func (t *RPCGetDescriptor) GetMaybe() *ggt.MethodDescriptor { return t.methodGetMaybe }
+// MaybeGet returns a MethodDescriptor
+func (t *RPCGetDescriptor) MaybeGet() *ggt.MethodDescriptor { return t.methodMaybeGet }

@@ -17,7 +17,7 @@ var xxbba276dee07f896b516db08fd667bef01088e0ad = io.Copy
 var xx253de98ee8936f17e74b80de8934125614595420 = http.StatusOK
 
 // RestURL is an httper of URL.
-// URL ...
+// URL is a merge of route, url
 type RestURL struct {
 	embed URL
 	Log   ggt.HTTPLogger
@@ -34,7 +34,7 @@ func NewRestURL(embed URL) *RestURL {
 }
 
 // GetAll invoke URL.GetAll using the request body as a json payload.
-// GetAll ...
+// GetAll  return a merged map of route, url
 func (t *RestURL) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestURL", "GetAll")
 
@@ -69,7 +69,7 @@ func (t *RestURL) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAll2 invoke URL.GetAll2 using the request body as a json payload.
-// GetAll2 ...
+// GetAll2 return a merged map of route, url
 func (t *RestURL) GetAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestURL", "GetAll2")
 
@@ -114,7 +114,7 @@ func (t *RestURL) GetAll2(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOne invoke URL.GetOne using the request body as a json payload.
-// GetOne ...
+// GetOne return the first value in route, url
 func (t *RestURL) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestURL", "GetOne")
 
@@ -137,7 +137,7 @@ func (t *RestURL) GetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetMany invoke URL.GetMany using the request body as a json payload.
-// GetMany ...
+// GetMany return the first value of each parameter in route, url
 func (t *RestURL) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestURL", "GetMany")
 
@@ -167,10 +167,10 @@ func (t *RestURL) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RestURL", "GetMany")
 }
 
-// GetConvertedToInt invoke URL.GetConvertedToInt using the request body as a json payload.
-// GetConvertedToInt ...
-func (t *RestURL) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestURL", "GetConvertedToInt")
+// ConvertToInt invoke URL.ConvertToInt using the request body as a json payload.
+// ConvertToInt an arg
+func (t *RestURL) ConvertToInt(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestURL", "ConvertToInt")
 
 	xxRouteVars := mux.Vars(r)
 
@@ -184,7 +184,7 @@ func (t *RestURL) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "url", "route", "error", "RestURL", "GetConvertedToInt")
+				t.Log.Handle(w, r, err, "url", "route", "error", "RestURL", "ConvertToInt")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -200,7 +200,7 @@ func (t *RestURL) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "url", "get", "error", "RestURL", "GetConvertedToInt")
+				t.Log.Handle(w, r, err, "url", "get", "error", "RestURL", "ConvertToInt")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -210,16 +210,16 @@ func (t *RestURL) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.embed.GetConvertedToInt(urlArg1)
+	t.embed.ConvertToInt(urlArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestURL", "GetConvertedToInt")
+	t.Log.Handle(w, r, nil, "end", "RestURL", "ConvertToInt")
 }
 
-// GetConvertedToBool invoke URL.GetConvertedToBool using the request body as a json payload.
-// GetConvertedToBool ...
-func (t *RestURL) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestURL", "GetConvertedToBool")
+// ConvertToBool invoke URL.ConvertToBool using the request body as a json payload.
+// ConvertToBool an arg
+func (t *RestURL) ConvertToBool(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestURL", "ConvertToBool")
 
 	xxRouteVars := mux.Vars(r)
 
@@ -233,7 +233,7 @@ func (t *RestURL) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "url", "route", "error", "RestURL", "GetConvertedToBool")
+				t.Log.Handle(w, r, err, "url", "route", "error", "RestURL", "ConvertToBool")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -249,7 +249,7 @@ func (t *RestURL) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "url", "get", "error", "RestURL", "GetConvertedToBool")
+				t.Log.Handle(w, r, err, "url", "get", "error", "RestURL", "ConvertToBool")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -259,16 +259,16 @@ func (t *RestURL) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.embed.GetConvertedToBool(urlArg1)
+	t.embed.ConvertToBool(urlArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestURL", "GetConvertedToBool")
+	t.Log.Handle(w, r, nil, "end", "RestURL", "ConvertToBool")
 }
 
-// GetMaybe invoke URL.GetMaybe using the request body as a json payload.
-// GetMaybe ...
-func (t *RestURL) GetMaybe(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestURL", "GetMaybe")
+// MaybeGet invoke URL.MaybeGet using the request body as a json payload.
+// MaybeGet an arg if it exists.
+func (t *RestURL) MaybeGet(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestURL", "MaybeGet")
 
 	xxRouteVars := mux.Vars(r)
 
@@ -282,23 +282,23 @@ func (t *RestURL) GetMaybe(w http.ResponseWriter, r *http.Request) {
 		urlArg1 = &xxTmpurlArg1
 	}
 
-	t.embed.GetMaybe(urlArg1)
+	t.embed.MaybeGet(urlArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestURL", "GetMaybe")
+	t.Log.Handle(w, r, nil, "end", "RestURL", "MaybeGet")
 }
 
 // RestURLDescriptor describe a *RestURL
 type RestURLDescriptor struct {
 	ggt.TypeDescriptor
-	about                    *RestURL
-	methodGetAll             *ggt.MethodDescriptor
-	methodGetAll2            *ggt.MethodDescriptor
-	methodGetOne             *ggt.MethodDescriptor
-	methodGetMany            *ggt.MethodDescriptor
-	methodGetConvertedToInt  *ggt.MethodDescriptor
-	methodGetConvertedToBool *ggt.MethodDescriptor
-	methodGetMaybe           *ggt.MethodDescriptor
+	about               *RestURL
+	methodGetAll        *ggt.MethodDescriptor
+	methodGetAll2       *ggt.MethodDescriptor
+	methodGetOne        *ggt.MethodDescriptor
+	methodGetMany       *ggt.MethodDescriptor
+	methodConvertToInt  *ggt.MethodDescriptor
+	methodConvertToBool *ggt.MethodDescriptor
+	methodMaybeGet      *ggt.MethodDescriptor
 }
 
 // NewRestURLDescriptor describe a *RestURL
@@ -332,27 +332,27 @@ func NewRestURLDescriptor(about *RestURL) *RestURLDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
-	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToInt",
-		Handler: about.GetConvertedToInt,
-		Route:   "GetConvertedToInt",
+	ret.methodConvertToInt = &ggt.MethodDescriptor{
+		Name:    "ConvertToInt",
+		Handler: about.ConvertToInt,
+		Route:   "ConvertToInt",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
-	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToBool",
-		Handler: about.GetConvertedToBool,
-		Route:   "GetConvertedToBool",
+	ret.TypeDescriptor.Register(ret.methodConvertToInt)
+	ret.methodConvertToBool = &ggt.MethodDescriptor{
+		Name:    "ConvertToBool",
+		Handler: about.ConvertToBool,
+		Route:   "ConvertToBool",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
-	ret.methodGetMaybe = &ggt.MethodDescriptor{
-		Name:    "GetMaybe",
-		Handler: about.GetMaybe,
-		Route:   "GetMaybe",
+	ret.TypeDescriptor.Register(ret.methodConvertToBool)
+	ret.methodMaybeGet = &ggt.MethodDescriptor{
+		Name:    "MaybeGet",
+		Handler: about.MaybeGet,
+		Route:   "MaybeGet",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetMaybe)
+	ret.TypeDescriptor.Register(ret.methodMaybeGet)
 	return ret
 }
 
@@ -368,15 +368,11 @@ func (t *RestURLDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetO
 // GetMany returns a MethodDescriptor
 func (t *RestURLDescriptor) GetMany() *ggt.MethodDescriptor { return t.methodGetMany }
 
-// GetConvertedToInt returns a MethodDescriptor
-func (t *RestURLDescriptor) GetConvertedToInt() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToInt
-}
+// ConvertToInt returns a MethodDescriptor
+func (t *RestURLDescriptor) ConvertToInt() *ggt.MethodDescriptor { return t.methodConvertToInt }
 
-// GetConvertedToBool returns a MethodDescriptor
-func (t *RestURLDescriptor) GetConvertedToBool() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToBool
-}
+// ConvertToBool returns a MethodDescriptor
+func (t *RestURLDescriptor) ConvertToBool() *ggt.MethodDescriptor { return t.methodConvertToBool }
 
-// GetMaybe returns a MethodDescriptor
-func (t *RestURLDescriptor) GetMaybe() *ggt.MethodDescriptor { return t.methodGetMaybe }
+// MaybeGet returns a MethodDescriptor
+func (t *RestURLDescriptor) MaybeGet() *ggt.MethodDescriptor { return t.methodMaybeGet }

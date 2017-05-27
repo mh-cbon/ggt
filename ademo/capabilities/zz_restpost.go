@@ -33,7 +33,7 @@ func NewRestPost(embed Post) *RestPost {
 }
 
 // GetAll invoke Post.GetAll using the request body as a json payload.
-// GetAll ...
+// GetAll values from the form.
 func (t *RestPost) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetAll")
 
@@ -58,7 +58,7 @@ func (t *RestPost) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAll2 invoke Post.GetAll2 using the request body as a json payload.
-// GetAll2 ...
+// GetAll2 values from the form.
 func (t *RestPost) GetAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetAll2")
 
@@ -90,7 +90,7 @@ func (t *RestPost) GetAll2(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOne invoke Post.GetOne using the request body as a json payload.
-// GetOne ...
+// GetOne arg form the form.
 func (t *RestPost) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetOne")
 
@@ -120,7 +120,7 @@ func (t *RestPost) GetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetMany invoke Post.GetMany using the request body as a json payload.
-// GetMany ...
+// GetMany args form the form.
 func (t *RestPost) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetMany")
 
@@ -155,17 +155,17 @@ func (t *RestPost) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RestPost", "GetMany")
 }
 
-// GetConvertedToInt invoke Post.GetConvertedToInt using the request body as a json payload.
-// GetConvertedToInt ...
-func (t *RestPost) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetConvertedToInt")
+// ConvertToInt invoke Post.ConvertToInt using the request body as a json payload.
+// ConvertToInt an arg from the form.
+func (t *RestPost) ConvertToInt(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestPost", "ConvertToInt")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "GetConvertedToInt")
+			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "ConvertToInt")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -175,14 +175,14 @@ func (t *RestPost) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 	var postArg1 int
 	if _, ok := r.Form["arg1"]; ok {
 		xxTmppostArg1 := r.FormValue("arg1")
-		t.Log.Handle(w, r, nil, "input", "form", "arg1", xxTmppostArg1, "RestPost", "GetConvertedToInt")
+		t.Log.Handle(w, r, nil, "input", "form", "arg1", xxTmppostArg1, "RestPost", "ConvertToInt")
 		{
 			var err error
 			postArg1, err = strconv.Atoi(xxTmppostArg1)
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "post", "error", "RestPost", "GetConvertedToInt")
+				t.Log.Handle(w, r, err, "post", "error", "RestPost", "ConvertToInt")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -192,23 +192,23 @@ func (t *RestPost) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.embed.GetConvertedToInt(postArg1)
+	t.embed.ConvertToInt(postArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestPost", "GetConvertedToInt")
+	t.Log.Handle(w, r, nil, "end", "RestPost", "ConvertToInt")
 }
 
-// GetConvertedToBool invoke Post.GetConvertedToBool using the request body as a json payload.
-// GetConvertedToBool ...
-func (t *RestPost) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetConvertedToBool")
+// ConvertToBool invoke Post.ConvertToBool using the request body as a json payload.
+// ConvertToBool an arg from the form.
+func (t *RestPost) ConvertToBool(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestPost", "ConvertToBool")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "GetConvertedToBool")
+			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "ConvertToBool")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -218,14 +218,14 @@ func (t *RestPost) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 	var postArg1 bool
 	if _, ok := r.Form["arg1"]; ok {
 		xxTmppostArg1 := r.FormValue("arg1")
-		t.Log.Handle(w, r, nil, "input", "form", "arg1", xxTmppostArg1, "RestPost", "GetConvertedToBool")
+		t.Log.Handle(w, r, nil, "input", "form", "arg1", xxTmppostArg1, "RestPost", "ConvertToBool")
 		{
 			var err error
 			postArg1, err = strconv.ParseBool(xxTmppostArg1)
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "post", "error", "RestPost", "GetConvertedToBool")
+				t.Log.Handle(w, r, err, "post", "error", "RestPost", "ConvertToBool")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -235,23 +235,23 @@ func (t *RestPost) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.embed.GetConvertedToBool(postArg1)
+	t.embed.ConvertToBool(postArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestPost", "GetConvertedToBool")
+	t.Log.Handle(w, r, nil, "end", "RestPost", "ConvertToBool")
 }
 
-// GetConvertedToSlice invoke Post.GetConvertedToSlice using the request body as a json payload.
-// GetConvertedToSlice ...
-func (t *RestPost) GetConvertedToSlice(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetConvertedToSlice")
+// ConvertToSlice invoke Post.ConvertToSlice using the request body as a json payload.
+// ConvertToSlice an arg from the form.
+func (t *RestPost) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestPost", "ConvertToSlice")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "GetConvertedToSlice")
+			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "ConvertToSlice")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -261,7 +261,7 @@ func (t *RestPost) GetConvertedToSlice(w http.ResponseWriter, r *http.Request) {
 	var postArg1 []bool
 	if _, ok := r.Form["arg1"]; ok {
 		xxTmppostArg1 := r.Form["arg1"]
-		t.Log.Handle(w, r, nil, "input", "form", "arg1", "RestPost", "GetConvertedToSlice")
+		t.Log.Handle(w, r, nil, "input", "form", "arg1", "RestPost", "ConvertToSlice")
 
 		for _, xxValueTemp := range xxTmppostArg1 {
 			var xxNewValueTemp bool
@@ -271,7 +271,7 @@ func (t *RestPost) GetConvertedToSlice(w http.ResponseWriter, r *http.Request) {
 
 				if err != nil {
 
-					t.Log.Handle(w, r, err, "error", "RestPost", "GetConvertedToSlice")
+					t.Log.Handle(w, r, err, "error", "RestPost", "ConvertToSlice")
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 
 					return
@@ -284,23 +284,23 @@ func (t *RestPost) GetConvertedToSlice(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.embed.GetConvertedToSlice(postArg1)
+	t.embed.ConvertToSlice(postArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestPost", "GetConvertedToSlice")
+	t.Log.Handle(w, r, nil, "end", "RestPost", "ConvertToSlice")
 }
 
-// GetMaybe invoke Post.GetMaybe using the request body as a json payload.
-// GetMaybe ...
-func (t *RestPost) GetMaybe(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestPost", "GetMaybe")
+// MaybeGet invoke Post.MaybeGet using the request body as a json payload.
+// MaybeGet an arg if it exists in the form.
+func (t *RestPost) MaybeGet(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestPost", "MaybeGet")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "GetMaybe")
+			t.Log.Handle(w, r, err, "parseform", "error", "RestPost", "MaybeGet")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -310,28 +310,28 @@ func (t *RestPost) GetMaybe(w http.ResponseWriter, r *http.Request) {
 	var postArg1 *string
 	if _, ok := r.Form["arg1"]; ok {
 		xxTmppostArg1 := r.FormValue("arg1")
-		t.Log.Handle(w, r, nil, "input", "form", "arg1", xxTmppostArg1, "RestPost", "GetMaybe")
+		t.Log.Handle(w, r, nil, "input", "form", "arg1", xxTmppostArg1, "RestPost", "MaybeGet")
 		postArg1 = &xxTmppostArg1
 	}
 
-	t.embed.GetMaybe(postArg1)
+	t.embed.MaybeGet(postArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestPost", "GetMaybe")
+	t.Log.Handle(w, r, nil, "end", "RestPost", "MaybeGet")
 }
 
 // RestPostDescriptor describe a *RestPost
 type RestPostDescriptor struct {
 	ggt.TypeDescriptor
-	about                     *RestPost
-	methodGetAll              *ggt.MethodDescriptor
-	methodGetAll2             *ggt.MethodDescriptor
-	methodGetOne              *ggt.MethodDescriptor
-	methodGetMany             *ggt.MethodDescriptor
-	methodGetConvertedToInt   *ggt.MethodDescriptor
-	methodGetConvertedToBool  *ggt.MethodDescriptor
-	methodGetConvertedToSlice *ggt.MethodDescriptor
-	methodGetMaybe            *ggt.MethodDescriptor
+	about                *RestPost
+	methodGetAll         *ggt.MethodDescriptor
+	methodGetAll2        *ggt.MethodDescriptor
+	methodGetOne         *ggt.MethodDescriptor
+	methodGetMany        *ggt.MethodDescriptor
+	methodConvertToInt   *ggt.MethodDescriptor
+	methodConvertToBool  *ggt.MethodDescriptor
+	methodConvertToSlice *ggt.MethodDescriptor
+	methodMaybeGet       *ggt.MethodDescriptor
 }
 
 // NewRestPostDescriptor describe a *RestPost
@@ -365,34 +365,34 @@ func NewRestPostDescriptor(about *RestPost) *RestPostDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
-	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToInt",
-		Handler: about.GetConvertedToInt,
-		Route:   "GetConvertedToInt",
+	ret.methodConvertToInt = &ggt.MethodDescriptor{
+		Name:    "ConvertToInt",
+		Handler: about.ConvertToInt,
+		Route:   "ConvertToInt",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
-	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToBool",
-		Handler: about.GetConvertedToBool,
-		Route:   "GetConvertedToBool",
+	ret.TypeDescriptor.Register(ret.methodConvertToInt)
+	ret.methodConvertToBool = &ggt.MethodDescriptor{
+		Name:    "ConvertToBool",
+		Handler: about.ConvertToBool,
+		Route:   "ConvertToBool",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
-	ret.methodGetConvertedToSlice = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToSlice",
-		Handler: about.GetConvertedToSlice,
-		Route:   "GetConvertedToSlice",
+	ret.TypeDescriptor.Register(ret.methodConvertToBool)
+	ret.methodConvertToSlice = &ggt.MethodDescriptor{
+		Name:    "ConvertToSlice",
+		Handler: about.ConvertToSlice,
+		Route:   "ConvertToSlice",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToSlice)
-	ret.methodGetMaybe = &ggt.MethodDescriptor{
-		Name:    "GetMaybe",
-		Handler: about.GetMaybe,
-		Route:   "GetMaybe",
+	ret.TypeDescriptor.Register(ret.methodConvertToSlice)
+	ret.methodMaybeGet = &ggt.MethodDescriptor{
+		Name:    "MaybeGet",
+		Handler: about.MaybeGet,
+		Route:   "MaybeGet",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetMaybe)
+	ret.TypeDescriptor.Register(ret.methodMaybeGet)
 	return ret
 }
 
@@ -408,20 +408,14 @@ func (t *RestPostDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGet
 // GetMany returns a MethodDescriptor
 func (t *RestPostDescriptor) GetMany() *ggt.MethodDescriptor { return t.methodGetMany }
 
-// GetConvertedToInt returns a MethodDescriptor
-func (t *RestPostDescriptor) GetConvertedToInt() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToInt
-}
+// ConvertToInt returns a MethodDescriptor
+func (t *RestPostDescriptor) ConvertToInt() *ggt.MethodDescriptor { return t.methodConvertToInt }
 
-// GetConvertedToBool returns a MethodDescriptor
-func (t *RestPostDescriptor) GetConvertedToBool() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToBool
-}
+// ConvertToBool returns a MethodDescriptor
+func (t *RestPostDescriptor) ConvertToBool() *ggt.MethodDescriptor { return t.methodConvertToBool }
 
-// GetConvertedToSlice returns a MethodDescriptor
-func (t *RestPostDescriptor) GetConvertedToSlice() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToSlice
-}
+// ConvertToSlice returns a MethodDescriptor
+func (t *RestPostDescriptor) ConvertToSlice() *ggt.MethodDescriptor { return t.methodConvertToSlice }
 
-// GetMaybe returns a MethodDescriptor
-func (t *RestPostDescriptor) GetMaybe() *ggt.MethodDescriptor { return t.methodGetMaybe }
+// MaybeGet returns a MethodDescriptor
+func (t *RestPostDescriptor) MaybeGet() *ggt.MethodDescriptor { return t.methodMaybeGet }

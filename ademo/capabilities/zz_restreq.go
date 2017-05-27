@@ -17,7 +17,7 @@ var xx34995c941601fa6fe9e9e2281bb739c5ca3c4b98 = io.Copy
 var xxafd96cb0b6a582f43bb5bb685964cbe68c65a47a = http.StatusOK
 
 // RestReq is an httper of Req.
-// Req ...
+// Req is a merge of route, url, form
 type RestReq struct {
 	embed Req
 	Log   ggt.HTTPLogger
@@ -34,7 +34,7 @@ func NewRestReq(embed Req) *RestReq {
 }
 
 // GetAll invoke Req.GetAll using the request body as a json payload.
-// GetAll ...
+// GetAll return a merged map of route, url, form
 func (t *RestReq) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestReq", "GetAll")
 
@@ -89,7 +89,7 @@ func (t *RestReq) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAll2 invoke Req.GetAll2 using the request body as a json payload.
-// GetAll2 ...
+// GetAll2 return a merged map of route, url, form
 func (t *RestReq) GetAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestReq", "GetAll2")
 
@@ -166,7 +166,7 @@ func (t *RestReq) GetAll2(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOne invoke Req.GetOne using the request body as a json payload.
-// GetOne ...
+// GetOne return the first value in route, url, form
 func (t *RestReq) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestReq", "GetOne")
 
@@ -205,7 +205,7 @@ func (t *RestReq) GetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetMany invoke Req.GetMany using the request body as a json payload.
-// GetMany ...
+// GetMany return the first value of each parameter in route, url, form
 func (t *RestReq) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestReq", "GetMany")
 
@@ -254,17 +254,17 @@ func (t *RestReq) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RestReq", "GetMany")
 }
 
-// GetConvertedToInt invoke Req.GetConvertedToInt using the request body as a json payload.
-// GetConvertedToInt ...
-func (t *RestReq) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestReq", "GetConvertedToInt")
+// ConvertToInt invoke Req.ConvertToInt using the request body as a json payload.
+// ConvertToInt an arg
+func (t *RestReq) ConvertToInt(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestReq", "ConvertToInt")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RestReq", "GetConvertedToInt")
+			t.Log.Handle(w, r, err, "parseform", "error", "RestReq", "ConvertToInt")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -284,7 +284,7 @@ func (t *RestReq) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "route", "error", "RestReq", "GetConvertedToInt")
+				t.Log.Handle(w, r, err, "route", "error", "RestReq", "ConvertToInt")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -300,7 +300,7 @@ func (t *RestReq) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "get", "error", "RestReq", "GetConvertedToInt")
+				t.Log.Handle(w, r, err, "get", "error", "RestReq", "ConvertToInt")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -316,7 +316,7 @@ func (t *RestReq) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "form", "error", "RestReq", "GetConvertedToInt")
+				t.Log.Handle(w, r, err, "form", "error", "RestReq", "ConvertToInt")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -326,23 +326,23 @@ func (t *RestReq) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.embed.GetConvertedToInt(reqArg1)
+	t.embed.ConvertToInt(reqArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestReq", "GetConvertedToInt")
+	t.Log.Handle(w, r, nil, "end", "RestReq", "ConvertToInt")
 }
 
-// GetConvertedToBool invoke Req.GetConvertedToBool using the request body as a json payload.
-// GetConvertedToBool ...
-func (t *RestReq) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestReq", "GetConvertedToBool")
+// ConvertToBool invoke Req.ConvertToBool using the request body as a json payload.
+// ConvertToBool an arg
+func (t *RestReq) ConvertToBool(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestReq", "ConvertToBool")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RestReq", "GetConvertedToBool")
+			t.Log.Handle(w, r, err, "parseform", "error", "RestReq", "ConvertToBool")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -362,7 +362,7 @@ func (t *RestReq) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "route", "error", "RestReq", "GetConvertedToBool")
+				t.Log.Handle(w, r, err, "route", "error", "RestReq", "ConvertToBool")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -378,7 +378,7 @@ func (t *RestReq) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "get", "error", "RestReq", "GetConvertedToBool")
+				t.Log.Handle(w, r, err, "get", "error", "RestReq", "ConvertToBool")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -394,7 +394,7 @@ func (t *RestReq) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "form", "error", "RestReq", "GetConvertedToBool")
+				t.Log.Handle(w, r, err, "form", "error", "RestReq", "ConvertToBool")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -404,23 +404,23 @@ func (t *RestReq) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.embed.GetConvertedToBool(reqArg1)
+	t.embed.ConvertToBool(reqArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestReq", "GetConvertedToBool")
+	t.Log.Handle(w, r, nil, "end", "RestReq", "ConvertToBool")
 }
 
-// GetMaybe invoke Req.GetMaybe using the request body as a json payload.
-// GetMaybe ...
-func (t *RestReq) GetMaybe(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestReq", "GetMaybe")
+// MaybeGet invoke Req.MaybeGet using the request body as a json payload.
+// MaybeGet an arg if it exists.
+func (t *RestReq) MaybeGet(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestReq", "MaybeGet")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RestReq", "GetMaybe")
+			t.Log.Handle(w, r, err, "parseform", "error", "RestReq", "MaybeGet")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -443,23 +443,23 @@ func (t *RestReq) GetMaybe(w http.ResponseWriter, r *http.Request) {
 		reqArg1 = &xxTmpreqArg1
 	}
 
-	t.embed.GetMaybe(reqArg1)
+	t.embed.MaybeGet(reqArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestReq", "GetMaybe")
+	t.Log.Handle(w, r, nil, "end", "RestReq", "MaybeGet")
 }
 
 // RestReqDescriptor describe a *RestReq
 type RestReqDescriptor struct {
 	ggt.TypeDescriptor
-	about                    *RestReq
-	methodGetAll             *ggt.MethodDescriptor
-	methodGetAll2            *ggt.MethodDescriptor
-	methodGetOne             *ggt.MethodDescriptor
-	methodGetMany            *ggt.MethodDescriptor
-	methodGetConvertedToInt  *ggt.MethodDescriptor
-	methodGetConvertedToBool *ggt.MethodDescriptor
-	methodGetMaybe           *ggt.MethodDescriptor
+	about               *RestReq
+	methodGetAll        *ggt.MethodDescriptor
+	methodGetAll2       *ggt.MethodDescriptor
+	methodGetOne        *ggt.MethodDescriptor
+	methodGetMany       *ggt.MethodDescriptor
+	methodConvertToInt  *ggt.MethodDescriptor
+	methodConvertToBool *ggt.MethodDescriptor
+	methodMaybeGet      *ggt.MethodDescriptor
 }
 
 // NewRestReqDescriptor describe a *RestReq
@@ -493,27 +493,27 @@ func NewRestReqDescriptor(about *RestReq) *RestReqDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
-	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToInt",
-		Handler: about.GetConvertedToInt,
-		Route:   "GetConvertedToInt",
+	ret.methodConvertToInt = &ggt.MethodDescriptor{
+		Name:    "ConvertToInt",
+		Handler: about.ConvertToInt,
+		Route:   "ConvertToInt",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
-	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToBool",
-		Handler: about.GetConvertedToBool,
-		Route:   "GetConvertedToBool",
+	ret.TypeDescriptor.Register(ret.methodConvertToInt)
+	ret.methodConvertToBool = &ggt.MethodDescriptor{
+		Name:    "ConvertToBool",
+		Handler: about.ConvertToBool,
+		Route:   "ConvertToBool",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
-	ret.methodGetMaybe = &ggt.MethodDescriptor{
-		Name:    "GetMaybe",
-		Handler: about.GetMaybe,
-		Route:   "GetMaybe",
+	ret.TypeDescriptor.Register(ret.methodConvertToBool)
+	ret.methodMaybeGet = &ggt.MethodDescriptor{
+		Name:    "MaybeGet",
+		Handler: about.MaybeGet,
+		Route:   "MaybeGet",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetMaybe)
+	ret.TypeDescriptor.Register(ret.methodMaybeGet)
 	return ret
 }
 
@@ -529,15 +529,11 @@ func (t *RestReqDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetO
 // GetMany returns a MethodDescriptor
 func (t *RestReqDescriptor) GetMany() *ggt.MethodDescriptor { return t.methodGetMany }
 
-// GetConvertedToInt returns a MethodDescriptor
-func (t *RestReqDescriptor) GetConvertedToInt() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToInt
-}
+// ConvertToInt returns a MethodDescriptor
+func (t *RestReqDescriptor) ConvertToInt() *ggt.MethodDescriptor { return t.methodConvertToInt }
 
-// GetConvertedToBool returns a MethodDescriptor
-func (t *RestReqDescriptor) GetConvertedToBool() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToBool
-}
+// ConvertToBool returns a MethodDescriptor
+func (t *RestReqDescriptor) ConvertToBool() *ggt.MethodDescriptor { return t.methodConvertToBool }
 
-// GetMaybe returns a MethodDescriptor
-func (t *RestReqDescriptor) GetMaybe() *ggt.MethodDescriptor { return t.methodGetMaybe }
+// MaybeGet returns a MethodDescriptor
+func (t *RestReqDescriptor) MaybeGet() *ggt.MethodDescriptor { return t.methodMaybeGet }

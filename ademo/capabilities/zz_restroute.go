@@ -34,7 +34,7 @@ func NewRestRoute(embed Route) *RestRoute {
 }
 
 // GetAll invoke Route.GetAll using the request body as a json payload.
-// GetAll ...
+// GetAll values from the route.
 func (t *RestRoute) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestRoute", "GetAll")
 
@@ -48,7 +48,7 @@ func (t *RestRoute) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOne invoke Route.GetOne using the request body as a json payload.
-// GetOne ...
+// GetOne value from the route.
 func (t *RestRoute) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestRoute", "GetOne")
 
@@ -67,7 +67,7 @@ func (t *RestRoute) GetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetMany invoke Route.GetMany using the request body as a json payload.
-// GetMany ...
+// GetMany values from the route.
 func (t *RestRoute) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestRoute", "GetMany")
 
@@ -91,23 +91,23 @@ func (t *RestRoute) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RestRoute", "GetMany")
 }
 
-// GetConvertedToInt invoke Route.GetConvertedToInt using the request body as a json payload.
-// GetConvertedToInt ...
-func (t *RestRoute) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestRoute", "GetConvertedToInt")
+// ConvertToInt invoke Route.ConvertToInt using the request body as a json payload.
+// ConvertToInt an arg from the route.
+func (t *RestRoute) ConvertToInt(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestRoute", "ConvertToInt")
 
 	xxRouteVars := mux.Vars(r)
 	var routeArg1 int
 	if _, ok := xxRouteVars["arg1"]; ok {
 		xxTmprouteArg1 := xxRouteVars["arg1"]
-		t.Log.Handle(w, r, nil, "input", "route", "arg1", xxTmprouteArg1, "RestRoute", "GetConvertedToInt")
+		t.Log.Handle(w, r, nil, "input", "route", "arg1", xxTmprouteArg1, "RestRoute", "ConvertToInt")
 		{
 			var err error
 			routeArg1, err = strconv.Atoi(xxTmprouteArg1)
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "route", "error", "RestRoute", "GetConvertedToInt")
+				t.Log.Handle(w, r, err, "route", "error", "RestRoute", "ConvertToInt")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -117,29 +117,29 @@ func (t *RestRoute) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.embed.GetConvertedToInt(routeArg1)
+	t.embed.ConvertToInt(routeArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestRoute", "GetConvertedToInt")
+	t.Log.Handle(w, r, nil, "end", "RestRoute", "ConvertToInt")
 }
 
-// GetConvertedToBool invoke Route.GetConvertedToBool using the request body as a json payload.
-// GetConvertedToBool ...
-func (t *RestRoute) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestRoute", "GetConvertedToBool")
+// ConvertToBool invoke Route.ConvertToBool using the request body as a json payload.
+// ConvertToBool an arg from the route.
+func (t *RestRoute) ConvertToBool(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestRoute", "ConvertToBool")
 
 	xxRouteVars := mux.Vars(r)
 	var routeArg1 bool
 	if _, ok := xxRouteVars["arg1"]; ok {
 		xxTmprouteArg1 := xxRouteVars["arg1"]
-		t.Log.Handle(w, r, nil, "input", "route", "arg1", xxTmprouteArg1, "RestRoute", "GetConvertedToBool")
+		t.Log.Handle(w, r, nil, "input", "route", "arg1", xxTmprouteArg1, "RestRoute", "ConvertToBool")
 		{
 			var err error
 			routeArg1, err = strconv.ParseBool(xxTmprouteArg1)
 
 			if err != nil {
 
-				t.Log.Handle(w, r, err, "route", "error", "RestRoute", "GetConvertedToBool")
+				t.Log.Handle(w, r, err, "route", "error", "RestRoute", "ConvertToBool")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 
 				return
@@ -149,41 +149,41 @@ func (t *RestRoute) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	t.embed.GetConvertedToBool(routeArg1)
+	t.embed.ConvertToBool(routeArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestRoute", "GetConvertedToBool")
+	t.Log.Handle(w, r, nil, "end", "RestRoute", "ConvertToBool")
 }
 
-// GetMaybe invoke Route.GetMaybe using the request body as a json payload.
-// GetMaybe ...
-func (t *RestRoute) GetMaybe(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RestRoute", "GetMaybe")
+// MaybeGet invoke Route.MaybeGet using the request body as a json payload.
+// MaybeGet an arg from the route if it exists.
+func (t *RestRoute) MaybeGet(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestRoute", "MaybeGet")
 
 	xxRouteVars := mux.Vars(r)
 	var routeArg1 *string
 	if _, ok := xxRouteVars["arg1"]; ok {
 		xxTmprouteArg1 := xxRouteVars["arg1"]
-		t.Log.Handle(w, r, nil, "input", "route", "arg1", xxTmprouteArg1, "RestRoute", "GetMaybe")
+		t.Log.Handle(w, r, nil, "input", "route", "arg1", xxTmprouteArg1, "RestRoute", "MaybeGet")
 		routeArg1 = &xxTmprouteArg1
 	}
 
-	t.embed.GetMaybe(routeArg1)
+	t.embed.MaybeGet(routeArg1)
 	w.WriteHeader(200)
 
-	t.Log.Handle(w, r, nil, "end", "RestRoute", "GetMaybe")
+	t.Log.Handle(w, r, nil, "end", "RestRoute", "MaybeGet")
 }
 
 // RestRouteDescriptor describe a *RestRoute
 type RestRouteDescriptor struct {
 	ggt.TypeDescriptor
-	about                    *RestRoute
-	methodGetAll             *ggt.MethodDescriptor
-	methodGetOne             *ggt.MethodDescriptor
-	methodGetMany            *ggt.MethodDescriptor
-	methodGetConvertedToInt  *ggt.MethodDescriptor
-	methodGetConvertedToBool *ggt.MethodDescriptor
-	methodGetMaybe           *ggt.MethodDescriptor
+	about               *RestRoute
+	methodGetAll        *ggt.MethodDescriptor
+	methodGetOne        *ggt.MethodDescriptor
+	methodGetMany       *ggt.MethodDescriptor
+	methodConvertToInt  *ggt.MethodDescriptor
+	methodConvertToBool *ggt.MethodDescriptor
+	methodMaybeGet      *ggt.MethodDescriptor
 }
 
 // NewRestRouteDescriptor describe a *RestRoute
@@ -210,27 +210,27 @@ func NewRestRouteDescriptor(about *RestRoute) *RestRouteDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
-	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToInt",
-		Handler: about.GetConvertedToInt,
-		Route:   "GetConvertedToInt",
+	ret.methodConvertToInt = &ggt.MethodDescriptor{
+		Name:    "ConvertToInt",
+		Handler: about.ConvertToInt,
+		Route:   "ConvertToInt",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
-	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToBool",
-		Handler: about.GetConvertedToBool,
-		Route:   "GetConvertedToBool",
+	ret.TypeDescriptor.Register(ret.methodConvertToInt)
+	ret.methodConvertToBool = &ggt.MethodDescriptor{
+		Name:    "ConvertToBool",
+		Handler: about.ConvertToBool,
+		Route:   "ConvertToBool",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
-	ret.methodGetMaybe = &ggt.MethodDescriptor{
-		Name:    "GetMaybe",
-		Handler: about.GetMaybe,
-		Route:   "GetMaybe",
+	ret.TypeDescriptor.Register(ret.methodConvertToBool)
+	ret.methodMaybeGet = &ggt.MethodDescriptor{
+		Name:    "MaybeGet",
+		Handler: about.MaybeGet,
+		Route:   "MaybeGet",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetMaybe)
+	ret.TypeDescriptor.Register(ret.methodMaybeGet)
 	return ret
 }
 
@@ -243,15 +243,11 @@ func (t *RestRouteDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGe
 // GetMany returns a MethodDescriptor
 func (t *RestRouteDescriptor) GetMany() *ggt.MethodDescriptor { return t.methodGetMany }
 
-// GetConvertedToInt returns a MethodDescriptor
-func (t *RestRouteDescriptor) GetConvertedToInt() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToInt
-}
+// ConvertToInt returns a MethodDescriptor
+func (t *RestRouteDescriptor) ConvertToInt() *ggt.MethodDescriptor { return t.methodConvertToInt }
 
-// GetConvertedToBool returns a MethodDescriptor
-func (t *RestRouteDescriptor) GetConvertedToBool() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToBool
-}
+// ConvertToBool returns a MethodDescriptor
+func (t *RestRouteDescriptor) ConvertToBool() *ggt.MethodDescriptor { return t.methodConvertToBool }
 
-// GetMaybe returns a MethodDescriptor
-func (t *RestRouteDescriptor) GetMaybe() *ggt.MethodDescriptor { return t.methodGetMaybe }
+// MaybeGet returns a MethodDescriptor
+func (t *RestRouteDescriptor) MaybeGet() *ggt.MethodDescriptor { return t.methodMaybeGet }

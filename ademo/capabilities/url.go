@@ -2,28 +2,28 @@ package capable
 
 import "fmt"
 
-// URL ...
+// URL is a merge of route, url
 type URL struct{}
 
-// GetAll ...
+// GetAll  return a merged map of route, url
 func (c URL) GetAll(urlValues map[string][]string) {
 	fmt.Printf(`urlValues %q
     `, urlValues)
 }
 
-// GetAll2 ...
+// GetAll2 return a merged map of route, url
 func (c URL) GetAll2(urlValues map[string]string) {
 	fmt.Printf(`urlValues %q
     `, urlValues)
 }
 
-// GetOne ...
+// GetOne return the first value in route, url
 func (c URL) GetOne(urlArg1 string) {
 	fmt.Printf(`urlArg1 %q
     `, urlArg1)
 }
 
-// GetMany ...
+// GetMany return the first value of each parameter in route, url
 func (c URL) GetMany(urlArg1, urlArg2 string) {
 	fmt.Printf(`urlArg1 %q
     `, urlArg1)
@@ -31,26 +31,26 @@ func (c URL) GetMany(urlArg1, urlArg2 string) {
     `, urlArg2)
 }
 
-// GetConvertedToInt ...
-func (c URL) GetConvertedToInt(urlArg1 int) {
+// ConvertToInt an arg
+func (c URL) ConvertToInt(urlArg1 int) {
 	fmt.Printf(`urlArg1 %q
     `, urlArg1)
 }
 
-// GetConvertedToBool ...
-func (c URL) GetConvertedToBool(urlArg1 bool) {
+// ConvertToBool an arg
+func (c URL) ConvertToBool(urlArg1 bool) {
 	fmt.Printf(`urlArg1 %v
     `, urlArg1)
 }
 
-// GetConvertedToSlice is impossible as route can not accept []string
-// func (c URL) GetConvertedToSlice(urlArg1 []bool) {
+// ConvertToSlice is impossible as route can not accept []string
+// func (c URL) ConvertToSlice(urlArg1 []bool) {
 // 	fmt.Printf(`urlArg1 %v
 //     `, urlArg1)
 // }
 
-// GetMaybe ...
-func (c URL) GetMaybe(urlArg1 *string) {
+// MaybeGet an arg if it exists.
+func (c URL) MaybeGet(urlArg1 *string) {
 	fmt.Printf(`urlArg1 %q
     `, urlArg1)
 }

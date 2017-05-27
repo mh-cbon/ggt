@@ -17,7 +17,7 @@ var xx852b6e11b7f0f2f3552afc8fa28e4a7ce8ebbbb8 = io.Copy
 var xx182b08c3e322e698beff04017c453e2bc56bc601 = http.StatusOK
 
 // RPReq is an httper of Req.
-// Req ...
+// Req is a merge of route, url, form
 type RPReq struct {
 	embed Req
 	Log   ggt.HTTPLogger
@@ -34,7 +34,7 @@ func NewRPReq(embed Req) *RPReq {
 }
 
 // GetAll invoke Req.GetAll using the request body as a json payload.
-// GetAll ...
+// GetAll return a merged map of route, url, form
 func (t *RPReq) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPReq", "GetAll")
 
@@ -69,7 +69,7 @@ func (t *RPReq) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAll2 invoke Req.GetAll2 using the request body as a json payload.
-// GetAll2 ...
+// GetAll2 return a merged map of route, url, form
 func (t *RPReq) GetAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPReq", "GetAll2")
 
@@ -104,7 +104,7 @@ func (t *RPReq) GetAll2(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOne invoke Req.GetOne using the request body as a json payload.
-// GetOne ...
+// GetOne return the first value in route, url, form
 func (t *RPReq) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPReq", "GetOne")
 
@@ -139,7 +139,7 @@ func (t *RPReq) GetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetMany invoke Req.GetMany using the request body as a json payload.
-// GetMany ...
+// GetMany return the first value of each parameter in route, url, form
 func (t *RPReq) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPReq", "GetMany")
 
@@ -174,17 +174,17 @@ func (t *RPReq) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RPReq", "GetMany")
 }
 
-// GetConvertedToInt invoke Req.GetConvertedToInt using the request body as a json payload.
-// GetConvertedToInt ...
-func (t *RPReq) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPReq", "GetConvertedToInt")
+// ConvertToInt invoke Req.ConvertToInt using the request body as a json payload.
+// ConvertToInt an arg
+func (t *RPReq) ConvertToInt(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPReq", "ConvertToInt")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RPReq", "GetConvertedToInt")
+			t.Log.Handle(w, r, err, "parseform", "error", "RPReq", "ConvertToInt")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -198,28 +198,28 @@ func (t *RPReq) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPReq", "GetConvertedToInt")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPReq", "ConvertToInt")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetConvertedToInt(input.Arg0)
+	t.embed.ConvertToInt(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPReq", "GetConvertedToInt")
+	t.Log.Handle(w, r, nil, "end", "RPReq", "ConvertToInt")
 }
 
-// GetConvertedToBool invoke Req.GetConvertedToBool using the request body as a json payload.
-// GetConvertedToBool ...
-func (t *RPReq) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPReq", "GetConvertedToBool")
+// ConvertToBool invoke Req.ConvertToBool using the request body as a json payload.
+// ConvertToBool an arg
+func (t *RPReq) ConvertToBool(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPReq", "ConvertToBool")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RPReq", "GetConvertedToBool")
+			t.Log.Handle(w, r, err, "parseform", "error", "RPReq", "ConvertToBool")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -233,28 +233,28 @@ func (t *RPReq) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPReq", "GetConvertedToBool")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPReq", "ConvertToBool")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetConvertedToBool(input.Arg0)
+	t.embed.ConvertToBool(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPReq", "GetConvertedToBool")
+	t.Log.Handle(w, r, nil, "end", "RPReq", "ConvertToBool")
 }
 
-// GetMaybe invoke Req.GetMaybe using the request body as a json payload.
-// GetMaybe ...
-func (t *RPReq) GetMaybe(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPReq", "GetMaybe")
+// MaybeGet invoke Req.MaybeGet using the request body as a json payload.
+// MaybeGet an arg if it exists.
+func (t *RPReq) MaybeGet(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPReq", "MaybeGet")
 
 	{
 		err := r.ParseForm()
 
 		if err != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RPReq", "GetMaybe")
+			t.Log.Handle(w, r, err, "parseform", "error", "RPReq", "MaybeGet")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 
 			return
@@ -268,28 +268,28 @@ func (t *RPReq) GetMaybe(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPReq", "GetMaybe")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPReq", "MaybeGet")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetMaybe(input.Arg0)
+	t.embed.MaybeGet(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPReq", "GetMaybe")
+	t.Log.Handle(w, r, nil, "end", "RPReq", "MaybeGet")
 }
 
 // RPReqDescriptor describe a *RPReq
 type RPReqDescriptor struct {
 	ggt.TypeDescriptor
-	about                    *RPReq
-	methodGetAll             *ggt.MethodDescriptor
-	methodGetAll2            *ggt.MethodDescriptor
-	methodGetOne             *ggt.MethodDescriptor
-	methodGetMany            *ggt.MethodDescriptor
-	methodGetConvertedToInt  *ggt.MethodDescriptor
-	methodGetConvertedToBool *ggt.MethodDescriptor
-	methodGetMaybe           *ggt.MethodDescriptor
+	about               *RPReq
+	methodGetAll        *ggt.MethodDescriptor
+	methodGetAll2       *ggt.MethodDescriptor
+	methodGetOne        *ggt.MethodDescriptor
+	methodGetMany       *ggt.MethodDescriptor
+	methodConvertToInt  *ggt.MethodDescriptor
+	methodConvertToBool *ggt.MethodDescriptor
+	methodMaybeGet      *ggt.MethodDescriptor
 }
 
 // NewRPReqDescriptor describe a *RPReq
@@ -323,27 +323,27 @@ func NewRPReqDescriptor(about *RPReq) *RPReqDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
-	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToInt",
-		Handler: about.GetConvertedToInt,
-		Route:   "GetConvertedToInt",
+	ret.methodConvertToInt = &ggt.MethodDescriptor{
+		Name:    "ConvertToInt",
+		Handler: about.ConvertToInt,
+		Route:   "ConvertToInt",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
-	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToBool",
-		Handler: about.GetConvertedToBool,
-		Route:   "GetConvertedToBool",
+	ret.TypeDescriptor.Register(ret.methodConvertToInt)
+	ret.methodConvertToBool = &ggt.MethodDescriptor{
+		Name:    "ConvertToBool",
+		Handler: about.ConvertToBool,
+		Route:   "ConvertToBool",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
-	ret.methodGetMaybe = &ggt.MethodDescriptor{
-		Name:    "GetMaybe",
-		Handler: about.GetMaybe,
-		Route:   "GetMaybe",
+	ret.TypeDescriptor.Register(ret.methodConvertToBool)
+	ret.methodMaybeGet = &ggt.MethodDescriptor{
+		Name:    "MaybeGet",
+		Handler: about.MaybeGet,
+		Route:   "MaybeGet",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetMaybe)
+	ret.TypeDescriptor.Register(ret.methodMaybeGet)
 	return ret
 }
 
@@ -359,13 +359,11 @@ func (t *RPReqDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetOne
 // GetMany returns a MethodDescriptor
 func (t *RPReqDescriptor) GetMany() *ggt.MethodDescriptor { return t.methodGetMany }
 
-// GetConvertedToInt returns a MethodDescriptor
-func (t *RPReqDescriptor) GetConvertedToInt() *ggt.MethodDescriptor { return t.methodGetConvertedToInt }
+// ConvertToInt returns a MethodDescriptor
+func (t *RPReqDescriptor) ConvertToInt() *ggt.MethodDescriptor { return t.methodConvertToInt }
 
-// GetConvertedToBool returns a MethodDescriptor
-func (t *RPReqDescriptor) GetConvertedToBool() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToBool
-}
+// ConvertToBool returns a MethodDescriptor
+func (t *RPReqDescriptor) ConvertToBool() *ggt.MethodDescriptor { return t.methodConvertToBool }
 
-// GetMaybe returns a MethodDescriptor
-func (t *RPReqDescriptor) GetMaybe() *ggt.MethodDescriptor { return t.methodGetMaybe }
+// MaybeGet returns a MethodDescriptor
+func (t *RPReqDescriptor) MaybeGet() *ggt.MethodDescriptor { return t.methodMaybeGet }

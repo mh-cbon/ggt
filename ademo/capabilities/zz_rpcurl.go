@@ -17,7 +17,7 @@ var xxd1a2e54d5453fde3f436876c82267a9ca80342d9 = io.Copy
 var xxd52c045e402fb2d4669649eac947db0b10904609 = http.StatusOK
 
 // RPCURL is an httper of URL.
-// URL ...
+// URL is a merge of route, url
 type RPCURL struct {
 	embed URL
 	Log   ggt.HTTPLogger
@@ -34,7 +34,7 @@ func NewRPCURL(embed URL) *RPCURL {
 }
 
 // GetAll invoke URL.GetAll using the request body as a json payload.
-// GetAll ...
+// GetAll  return a merged map of route, url
 func (t *RPCURL) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCURL", "GetAll")
 	input := struct {
@@ -56,7 +56,7 @@ func (t *RPCURL) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAll2 invoke URL.GetAll2 using the request body as a json payload.
-// GetAll2 ...
+// GetAll2 return a merged map of route, url
 func (t *RPCURL) GetAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCURL", "GetAll2")
 	input := struct {
@@ -78,7 +78,7 @@ func (t *RPCURL) GetAll2(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetOne invoke URL.GetOne using the request body as a json payload.
-// GetOne ...
+// GetOne return the first value in route, url
 func (t *RPCURL) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCURL", "GetOne")
 	input := struct {
@@ -100,7 +100,7 @@ func (t *RPCURL) GetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetMany invoke URL.GetMany using the request body as a json payload.
-// GetMany ...
+// GetMany return the first value of each parameter in route, url
 func (t *RPCURL) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCURL", "GetMany")
 	input := struct {
@@ -122,10 +122,10 @@ func (t *RPCURL) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RPCURL", "GetMany")
 }
 
-// GetConvertedToInt invoke URL.GetConvertedToInt using the request body as a json payload.
-// GetConvertedToInt ...
-func (t *RPCURL) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPCURL", "GetConvertedToInt")
+// ConvertToInt invoke URL.ConvertToInt using the request body as a json payload.
+// ConvertToInt an arg
+func (t *RPCURL) ConvertToInt(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCURL", "ConvertToInt")
 	input := struct {
 		Arg0 int
 	}{}
@@ -133,21 +133,21 @@ func (t *RPCURL) GetConvertedToInt(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCURL", "GetConvertedToInt")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCURL", "ConvertToInt")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetConvertedToInt(input.Arg0)
+	t.embed.ConvertToInt(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPCURL", "GetConvertedToInt")
+	t.Log.Handle(w, r, nil, "end", "RPCURL", "ConvertToInt")
 }
 
-// GetConvertedToBool invoke URL.GetConvertedToBool using the request body as a json payload.
-// GetConvertedToBool ...
-func (t *RPCURL) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPCURL", "GetConvertedToBool")
+// ConvertToBool invoke URL.ConvertToBool using the request body as a json payload.
+// ConvertToBool an arg
+func (t *RPCURL) ConvertToBool(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCURL", "ConvertToBool")
 	input := struct {
 		Arg0 bool
 	}{}
@@ -155,21 +155,21 @@ func (t *RPCURL) GetConvertedToBool(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCURL", "GetConvertedToBool")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCURL", "ConvertToBool")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetConvertedToBool(input.Arg0)
+	t.embed.ConvertToBool(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPCURL", "GetConvertedToBool")
+	t.Log.Handle(w, r, nil, "end", "RPCURL", "ConvertToBool")
 }
 
-// GetMaybe invoke URL.GetMaybe using the request body as a json payload.
-// GetMaybe ...
-func (t *RPCURL) GetMaybe(w http.ResponseWriter, r *http.Request) {
-	t.Log.Handle(w, r, nil, "begin", "RPCURL", "GetMaybe")
+// MaybeGet invoke URL.MaybeGet using the request body as a json payload.
+// MaybeGet an arg if it exists.
+func (t *RPCURL) MaybeGet(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCURL", "MaybeGet")
 	input := struct {
 		Arg0 *string
 	}{}
@@ -177,28 +177,28 @@ func (t *RPCURL) GetMaybe(w http.ResponseWriter, r *http.Request) {
 
 	if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCURL", "GetMaybe")
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCURL", "MaybeGet")
 		http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.GetMaybe(input.Arg0)
+	t.embed.MaybeGet(input.Arg0)
 
-	t.Log.Handle(w, r, nil, "end", "RPCURL", "GetMaybe")
+	t.Log.Handle(w, r, nil, "end", "RPCURL", "MaybeGet")
 }
 
 // RPCURLDescriptor describe a *RPCURL
 type RPCURLDescriptor struct {
 	ggt.TypeDescriptor
-	about                    *RPCURL
-	methodGetAll             *ggt.MethodDescriptor
-	methodGetAll2            *ggt.MethodDescriptor
-	methodGetOne             *ggt.MethodDescriptor
-	methodGetMany            *ggt.MethodDescriptor
-	methodGetConvertedToInt  *ggt.MethodDescriptor
-	methodGetConvertedToBool *ggt.MethodDescriptor
-	methodGetMaybe           *ggt.MethodDescriptor
+	about               *RPCURL
+	methodGetAll        *ggt.MethodDescriptor
+	methodGetAll2       *ggt.MethodDescriptor
+	methodGetOne        *ggt.MethodDescriptor
+	methodGetMany       *ggt.MethodDescriptor
+	methodConvertToInt  *ggt.MethodDescriptor
+	methodConvertToBool *ggt.MethodDescriptor
+	methodMaybeGet      *ggt.MethodDescriptor
 }
 
 // NewRPCURLDescriptor describe a *RPCURL
@@ -232,27 +232,27 @@ func NewRPCURLDescriptor(about *RPCURL) *RPCURLDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
-	ret.methodGetConvertedToInt = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToInt",
-		Handler: about.GetConvertedToInt,
-		Route:   "GetConvertedToInt",
+	ret.methodConvertToInt = &ggt.MethodDescriptor{
+		Name:    "ConvertToInt",
+		Handler: about.ConvertToInt,
+		Route:   "ConvertToInt",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToInt)
-	ret.methodGetConvertedToBool = &ggt.MethodDescriptor{
-		Name:    "GetConvertedToBool",
-		Handler: about.GetConvertedToBool,
-		Route:   "GetConvertedToBool",
+	ret.TypeDescriptor.Register(ret.methodConvertToInt)
+	ret.methodConvertToBool = &ggt.MethodDescriptor{
+		Name:    "ConvertToBool",
+		Handler: about.ConvertToBool,
+		Route:   "ConvertToBool",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetConvertedToBool)
-	ret.methodGetMaybe = &ggt.MethodDescriptor{
-		Name:    "GetMaybe",
-		Handler: about.GetMaybe,
-		Route:   "GetMaybe",
+	ret.TypeDescriptor.Register(ret.methodConvertToBool)
+	ret.methodMaybeGet = &ggt.MethodDescriptor{
+		Name:    "MaybeGet",
+		Handler: about.MaybeGet,
+		Route:   "MaybeGet",
 		Methods: []string{},
 	}
-	ret.TypeDescriptor.Register(ret.methodGetMaybe)
+	ret.TypeDescriptor.Register(ret.methodMaybeGet)
 	return ret
 }
 
@@ -268,13 +268,11 @@ func (t *RPCURLDescriptor) GetOne() *ggt.MethodDescriptor { return t.methodGetOn
 // GetMany returns a MethodDescriptor
 func (t *RPCURLDescriptor) GetMany() *ggt.MethodDescriptor { return t.methodGetMany }
 
-// GetConvertedToInt returns a MethodDescriptor
-func (t *RPCURLDescriptor) GetConvertedToInt() *ggt.MethodDescriptor { return t.methodGetConvertedToInt }
+// ConvertToInt returns a MethodDescriptor
+func (t *RPCURLDescriptor) ConvertToInt() *ggt.MethodDescriptor { return t.methodConvertToInt }
 
-// GetConvertedToBool returns a MethodDescriptor
-func (t *RPCURLDescriptor) GetConvertedToBool() *ggt.MethodDescriptor {
-	return t.methodGetConvertedToBool
-}
+// ConvertToBool returns a MethodDescriptor
+func (t *RPCURLDescriptor) ConvertToBool() *ggt.MethodDescriptor { return t.methodConvertToBool }
 
-// GetMaybe returns a MethodDescriptor
-func (t *RPCURLDescriptor) GetMaybe() *ggt.MethodDescriptor { return t.methodGetMaybe }
+// MaybeGet returns a MethodDescriptor
+func (t *RPCURLDescriptor) MaybeGet() *ggt.MethodDescriptor { return t.methodMaybeGet }

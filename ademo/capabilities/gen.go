@@ -14,3 +14,9 @@ package capable
 
 //go:generate ggt -mode route http-provider Req:RestReq
 //go:generate ggt -mode rpc http-provider Req:RPReq
+
+//go:generate ggt -mode route http-provider JSON:RestJSON
+//go:generate ggt -mode rpc http-provider JSON:RPCJSON
+
+//go:generate ggt -mode route http-provider Error:RestError
+//go:generate ggt -mode rpc http-provider Error:RPCError

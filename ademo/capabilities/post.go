@@ -5,25 +5,25 @@ import "fmt"
 // Post ...
 type Post struct{}
 
-// GetAll ...
+// GetAll values from the form.
 func (c Post) GetAll(postValues map[string][]string) {
 	fmt.Printf(`postValues %q
     `, postValues)
 }
 
-// GetAll2 ...
+// GetAll2 values from the form.
 func (c Post) GetAll2(postValues map[string]string) {
 	fmt.Printf(`postValues %q
     `, postValues)
 }
 
-// GetOne ...
+// GetOne arg form the form.
 func (c Post) GetOne(postArg1 string) {
 	fmt.Printf(`postArg1 %q
     `, postArg1)
 }
 
-// GetMany ...
+// GetMany args form the form.
 func (c Post) GetMany(postArg1, postArg2 string) {
 	fmt.Printf(`postArg1 %q
     `, postArg1)
@@ -31,26 +31,26 @@ func (c Post) GetMany(postArg1, postArg2 string) {
     `, postArg2)
 }
 
-// GetConvertedToInt ...
-func (c Post) GetConvertedToInt(postArg1 int) {
+// ConvertToInt an arg from the form.
+func (c Post) ConvertToInt(postArg1 int) {
 	fmt.Printf(`postArg1 %q
     `, postArg1)
 }
 
-// GetConvertedToBool ...
-func (c Post) GetConvertedToBool(postArg1 bool) {
+// ConvertToBool an arg from the form.
+func (c Post) ConvertToBool(postArg1 bool) {
 	fmt.Printf(`postArg1 %v
     `, postArg1)
 }
 
-// GetConvertedToSlice ...
-func (c Post) GetConvertedToSlice(postArg1 []bool) {
+// ConvertToSlice an arg from the form.
+func (c Post) ConvertToSlice(postArg1 []bool) {
 	fmt.Printf(`postArg1 %v
     `, postArg1)
 }
 
-// GetMaybe ...
-func (c Post) GetMaybe(postArg1 *string) {
+// MaybeGet an arg if it exists in the form.
+func (c Post) MaybeGet(postArg1 *string) {
 	fmt.Printf(`postArg1 %q
     `, postArg1)
 }
