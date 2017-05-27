@@ -219,9 +219,12 @@ func New%v(%v) *%v {
 
 	fmt.Fprintf(dest, `// Transact execute one op.`)
 	fmt.Fprintln(dest, "")
-	fmt.Fprintf(dest, `func (t *%v) Transact(f func(*%v))  {
+	fmt.Fprintf(dest, `func (t *%v) Transact(F ...func(*%v))  {
 	ref := &t.embed
-	f(ref)
+	t.ops<-func() {
+		ref.Transact(F...)
+	}
+	<-t.tick
 	t.embed = *ref
 }`, destName, srcName)
 	fmt.Fprintln(dest, "")

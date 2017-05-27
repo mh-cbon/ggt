@@ -195,9 +195,11 @@ func processType(todo utils.TransformArg, fileOut *utils.FileOut) error {
 
 	fmt.Fprintf(dest, `// Transact execute one op.`)
 	fmt.Fprintln(dest, "")
-	fmt.Fprintf(dest, `func (t *%v) Transact(f func(*%v))  {
+	fmt.Fprintf(dest, `func (t *%v) Transact(F ...func(*%v))  {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
 	ref := &t.embed
-	f(ref)
+	ref.Transact(F...)
 	t.embed = *ref
 }`, destName, srcName)
 	fmt.Fprintln(dest, "")

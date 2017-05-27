@@ -46,7 +46,7 @@ func (t Controller) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	}
 	byPostColor := FilterTomates.ByColor(color)
 	t.backend.Transact(func(backend *Tomates) {
-		if !backend.Filter(byPostColor).Empty() {
+		if backend.Filter(byPostColor).NotEmpty() {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
@@ -75,7 +75,7 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 			err = &NotFoundError{errors.New("ID does not exists")}
 			return
 		}
-		if !backend.Filter(byBodyColor, notRouteID).Empty() {
+		if backend.Filter(byBodyColor, notRouteID).NotEmpty() {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}

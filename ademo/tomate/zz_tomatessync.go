@@ -233,31 +233,44 @@ func (t *TomatesSync) Empty() bool {
 	return retVar20
 }
 
-// UnmarshalJSON is channeled
-func (t *TomatesSync) UnmarshalJSON(b []byte) error {
-	var retVar21 error
+// NotEmpty is channeled
+func (t *TomatesSync) NotEmpty() bool {
+	var retVar21 bool
 	t.ops <- func() {
-		retVar21 = t.embed.UnmarshalJSON(b)
+		retVar21 = t.embed.NotEmpty()
 	}
 	<-t.tick
 	return retVar21
 }
 
-// MarshalJSON is channeled
-func (t *TomatesSync) MarshalJSON() ([]byte, error) {
-	var retVar22 []byte
-	var retVar23 error
+// UnmarshalJSON is channeled
+func (t *TomatesSync) UnmarshalJSON(b []byte) error {
+	var retVar22 error
 	t.ops <- func() {
-		retVar22, retVar23 = t.embed.MarshalJSON()
+		retVar22 = t.embed.UnmarshalJSON(b)
 	}
 	<-t.tick
-	return retVar22, retVar23
+	return retVar22
+}
+
+// MarshalJSON is channeled
+func (t *TomatesSync) MarshalJSON() ([]byte, error) {
+	var retVar23 []byte
+	var retVar24 error
+	t.ops <- func() {
+		retVar23, retVar24 = t.embed.MarshalJSON()
+	}
+	<-t.tick
+	return retVar23, retVar24
 }
 
 // Transact execute one op.
-func (t *TomatesSync) Transact(f func(*Tomates)) {
+func (t *TomatesSync) Transact(F ...func(*Tomates)) {
 	ref := &t.embed
-	f(ref)
+	t.ops <- func() {
+		ref.Transact(F...)
+	}
+	<-t.tick
 	t.embed = *ref
 }
 

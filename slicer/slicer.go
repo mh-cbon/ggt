@@ -418,10 +418,19 @@ func processType(contract bool, todo utils.TransformArg, fileOut *utils.FileOut)
 }`, destPointed)
 	fmt.Fprintln(dest, "")
 
+	fmt.Fprintf(dest, `// NotEmpty returns true if the slice is not empty.`)
+	fmt.Fprintln(dest, "")
+	fmt.Fprintf(dest, `func (t %v) NotEmpty() bool {
+	return len(t.items)>0
+}`, destPointed)
+	fmt.Fprintln(dest, "")
+
 	fmt.Fprintf(dest, `// Transact execute one op.`)
 	fmt.Fprintln(dest, "")
-	fmt.Fprintf(dest, `func (t %v) Transact(f func(%v))  {
-	f(t)
+	fmt.Fprintf(dest, `func (t %v) Transact(F ...func(%v))  {
+		for _, f := range F {
+			f(t)
+		}
 }`, destPointed, destPointed)
 	fmt.Fprintln(dest, "")
 
@@ -514,11 +523,12 @@ func (t %v) MarshalJSON() ([]byte, error) {
 		fmt.Fprintf(dest, `Last() %v
 	`, srcNameFq)
 
-		fmt.Fprintf(dest, `Transact(func(%v))
+		fmt.Fprintf(dest, `Transact(...func(%v))
 	`, destPointed)
 
 		fmt.Fprint(dest, `Len() int
 	Empty() bool
+	NotEmpty() bool
 	`)
 
 		fmt.Fprintf(dest, `}

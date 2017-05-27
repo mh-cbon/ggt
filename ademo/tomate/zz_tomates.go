@@ -213,9 +213,16 @@ func (t *Tomates) Empty() bool {
 	return len(t.items) == 0
 }
 
+// NotEmpty returns true if the slice is not empty.
+func (t *Tomates) NotEmpty() bool {
+	return len(t.items) > 0
+}
+
 // Transact execute one op.
-func (t *Tomates) Transact(f func(*Tomates)) {
-	f(t)
+func (t *Tomates) Transact(F ...func(*Tomates)) {
+	for _, f := range F {
+		f(t)
+	}
 }
 
 //UnmarshalJSON JSON unserializes Tomates
@@ -254,9 +261,10 @@ type TomatesContract interface {
 	Map(mappers ...func(*Tomate) *Tomate) *Tomates
 	First() *Tomate
 	Last() *Tomate
-	Transact(func(*Tomates))
+	Transact(...func(*Tomates))
 	Len() int
 	Empty() bool
+	NotEmpty() bool
 }
 
 // FilterTomates provides filters for a struct.
