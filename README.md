@@ -6,7 +6,7 @@ ggt's generator toolbox
 Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
 
 # TOC
-- [3R](#3r)
+- [DDP 2 3R](#ddp-2-3r)
 - [Install](#install)
   - [go](#go)
 - [Usage](#usage)
@@ -23,9 +23,9 @@ Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
     - [$ ggt -help http-consumer](#-ggt--help-http-consumer)
 - [notes](#notes)
 
-# 3R
+# DDP 2 3R
 
-Remove Redundant Repetition
+Domain Driven Programming 2 Remove Redundant Repetition
 
 # Install
 

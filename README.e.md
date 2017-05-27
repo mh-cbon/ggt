@@ -6,9 +6,9 @@ Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)
 
 # {{toc 5}}
 
-# 3R
+# DDP 2 3R
 
-Remove Redundant Repetition
+Domain Driven Programming 2 Remove Redundant Repetition
 
 # Install
 
