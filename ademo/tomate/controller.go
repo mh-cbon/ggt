@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/agext/levenshtein"
 )
 
 // Controller of tomatoes.
@@ -29,6 +31,29 @@ func (t Controller) GetByID(routeID string) (jsonResBody *Tomate, err error) {
 	if jsonResBody == nil {
 		err = &NotFoundError{errors.New("Tomate not found")}
 	}
+	return jsonResBody, err
+}
+
+// SimilarColor returns colors similar to the given input
+//
+// @route /similar/color/{color}
+func (t Controller) SimilarColor(routeColor string, getSensitive *bool) (jsonResBody []string, err error) {
+	t.backend.Transact(func(backend *Tomates) {
+		p := levenshtein.NewParams()
+		backend.Filter(func(t *Tomate) bool {
+			from := routeColor
+			to := t.Color
+			if getSensitive == nil || *getSensitive == false {
+				from = strings.ToLower(from)
+				to = strings.ToLower(to)
+			}
+			res := levenshtein.Similarity(from, to, p)
+			if res > 0 {
+				jsonResBody = append(jsonResBody, t.Color)
+			}
+			return true
+		})
+	})
 	return jsonResBody, err
 }
 

@@ -752,6 +752,18 @@ func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(stri
 			return fmt.Sprintf("%v = &%v", toVarName, fromStrVarName)
 		}
 		return fmt.Sprintf("%v = %v", toVarName, fromStrVarName)
+
+	} else if astutil.GetUnpointedType(toType) == "bool" {
+		if astutil.IsAPointedType(toType) {
+			return fmt.Sprintf(`{
+				xxTmp := %v=="true"
+					%v = &xxTmp
+			}
+	`, fromStrVarName, toVarName)
+		}
+		return fmt.Sprintf(`%v = %v=="true"
+`, fromStrVarName, toVarName)
+
 	} else if astutil.GetUnpointedType(toType) == "int" {
 		if astutil.IsAPointedType(toType) {
 			return fmt.Sprintf(`%v, err := strconv.Atoi(*%v)
@@ -762,7 +774,8 @@ func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(stri
 		%v
 	`, toVarName, fromStrVarName, errHandler("err", subjects...))
 	}
-	return ""
+	return fmt.Sprintf(`// conversion not handled string to %v
+	`, toType)
 }
 
 func paramType(params string) string {

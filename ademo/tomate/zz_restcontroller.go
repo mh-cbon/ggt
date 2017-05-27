@@ -76,6 +76,59 @@ func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RestController", "GetByID")
 }
 
+// SimilarColor invoke Controller.SimilarColor using the request body as a json payload.
+// SimilarColor returns colors similar to the given input
+//
+// @route /similar/color/{color}
+func (t *RestController) SimilarColor(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestController", "SimilarColor")
+
+	xxRouteVars := mux.Vars(r)
+
+	xxURLValues := r.URL.Query()
+	var routeColor string
+	if _, ok := xxRouteVars["color"]; ok {
+		xxTmprouteColor := xxRouteVars["color"]
+		routeColor = xxTmprouteColor
+	}
+	var getSensitive *bool
+	if _, ok := xxURLValues["sensitive"]; ok {
+		xxTmpgetSensitive := xxURLValues.Get("sensitive")
+		{
+			xxTmp := xxTmpgetSensitive == "true"
+			getSensitive = &xxTmp
+		}
+
+	}
+
+	jsonResBody, err := t.embed.SimilarColor(routeColor, getSensitive)
+
+	if err != nil {
+
+		t.Log.Handle(w, r, err, "business", "error", "RestController", "SimilarColor")
+		t.embed.Finalizer(w, r, err)
+
+		return
+	}
+
+	{
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		encErr := json.NewEncoder(w).Encode(jsonResBody)
+
+		if encErr != nil {
+
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RestController", "SimilarColor")
+			t.embed.Finalizer(w, r, encErr)
+
+			return
+		}
+
+	}
+
+	t.Log.Handle(w, r, nil, "end", "RestController", "SimilarColor")
+}
+
 // Create invoke Controller.Create using the request body as a json payload.
 // Create a new Tomate
 //
@@ -235,11 +288,12 @@ func (t *RestController) Remove(w http.ResponseWriter, r *http.Request) {
 // RestControllerDescriptor describe a *RestController
 type RestControllerDescriptor struct {
 	ggt.TypeDescriptor
-	about         *RestController
-	methodGetByID *ggt.MethodDescriptor
-	methodCreate  *ggt.MethodDescriptor
-	methodUpdate  *ggt.MethodDescriptor
-	methodRemove  *ggt.MethodDescriptor
+	about              *RestController
+	methodGetByID      *ggt.MethodDescriptor
+	methodSimilarColor *ggt.MethodDescriptor
+	methodCreate       *ggt.MethodDescriptor
+	methodUpdate       *ggt.MethodDescriptor
+	methodRemove       *ggt.MethodDescriptor
 }
 
 // NewRestControllerDescriptor describe a *RestController
@@ -252,6 +306,13 @@ func NewRestControllerDescriptor(about *RestController) *RestControllerDescripto
 		Methods: []string{"GET"},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetByID)
+	ret.methodSimilarColor = &ggt.MethodDescriptor{
+		Name:    "SimilarColor",
+		Handler: about.SimilarColor,
+		Route:   "/similar/color/{color}",
+		Methods: []string{"GET"},
+	}
+	ret.TypeDescriptor.Register(ret.methodSimilarColor)
 	ret.methodCreate = &ggt.MethodDescriptor{
 		Name:    "Create",
 		Handler: about.Create,
@@ -278,6 +339,9 @@ func NewRestControllerDescriptor(about *RestController) *RestControllerDescripto
 
 // GetByID returns a MethodDescriptor
 func (t *RestControllerDescriptor) GetByID() *ggt.MethodDescriptor { return t.methodGetByID }
+
+// SimilarColor returns a MethodDescriptor
+func (t *RestControllerDescriptor) SimilarColor() *ggt.MethodDescriptor { return t.methodSimilarColor }
 
 // Create returns a MethodDescriptor
 func (t *RestControllerDescriptor) Create() *ggt.MethodDescriptor { return t.methodCreate }

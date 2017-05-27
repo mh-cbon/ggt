@@ -360,20 +360,21 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 
 			// - look for url/req/post params, not already managed by the route params
 			for paramIndex, paramName := range lParamNames {
-				// paramType := lParamTypes[i]
 				if paramName == reqBodyVarName {
 					continue
 				}
+				paramType := paramTypes[paramIndex]
 
 				if !managedParamNames.Contains(paramName) {
 
 					if strings.HasPrefix(paramName, "get") || strings.HasPrefix(paramName, "url") || strings.HasPrefix(paramName, "req") {
 						k := strings.ToLower(paramName[3:])
-						if astutil.IsAPointedType(paramTypes[paramIndex]) {
-							getParams += fmt.Sprintf("url.Query().Add(%q, *%v)", k, paramName)
-						} else {
-							getParams += fmt.Sprintf("url.Query().Add(%q, %v)", k, paramName)
-						}
+
+						getParams += fmt.Sprintf(`var xx%v string
+							%v
+							reqURL.Query().Add(%q, xx%v)
+							`, paramName, convertToStr(paramName, "xx"+paramName, paramType, handleErr, destName, methodName, "get"), k, paramName)
+
 						managedParamNames.Push(paramName)
 
 					} else if strings.HasPrefix(paramName, "post") {
@@ -508,6 +509,64 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	}
 
 	return nil
+}
+
+func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(string, ...string) string, subjects ...string) string {
+	if astutil.GetUnpointedType(toType) == "string" {
+		if astutil.IsAPointedType(toType) {
+			return fmt.Sprintf("%v = &%v", toVarName, fromStrVarName)
+		}
+		return fmt.Sprintf("%v = %v", toVarName, fromStrVarName)
+
+	} else if astutil.GetUnpointedType(toType) == "bool" {
+		if astutil.IsAPointedType(toType) {
+			return fmt.Sprintf(`%v = *%v=="true"
+	`, toVarName, fromStrVarName)
+		}
+		return fmt.Sprintf(`%v = %v=="true"
+	`, toVarName, fromStrVarName)
+
+	} else if astutil.GetUnpointedType(toType) == "int" {
+		if astutil.IsAPointedType(toType) {
+			return fmt.Sprintf(`%v, err := strconv.Atoi(*%v)
+		%v
+	`, toVarName, fromStrVarName, errHandler("err", subjects...))
+		}
+		return fmt.Sprintf(`%v, err := strconv.Atoi(%v)
+		%v
+	`, toVarName, fromStrVarName, errHandler("err", subjects...))
+	}
+	return fmt.Sprintf(`// conversion not handled string to %v
+	`, toType)
+}
+
+func convertToStr(fromVarName, toStrVarName, fromType string, errHandler func(string, ...string) string, subjects ...string) string {
+	if astutil.GetUnpointedType(fromType) == "string" {
+		if astutil.IsAPointedType(fromType) {
+			return fmt.Sprintf("%v = &%v", toStrVarName, fromVarName)
+		}
+		return fmt.Sprintf("%v = %v", toStrVarName, fromVarName)
+
+	} else if astutil.GetUnpointedType(fromType) == "bool" {
+		if astutil.IsAPointedType(fromType) {
+			return fmt.Sprintf(`%v = "false"
+			if %v != nil && *%v {
+				%v = "true"
+			}
+	`, toStrVarName, fromVarName, fromVarName, toStrVarName)
+		}
+		return fmt.Sprintf(`%v = "false"
+			if %v {
+				%v = "true"
+			}
+	`, toStrVarName, fromVarName, toStrVarName)
+
+	} else if astutil.GetUnpointedType(fromType) == "int" {
+		return fmt.Sprintf(`%v := fmt.Sprintf("%%v", %v)
+	`, toStrVarName, fromVarName)
+	}
+	return fmt.Sprintf(`// conversion not handled  %v to string
+	`, fromType)
 }
 
 func getMethodParamForRouteParam(mode string,

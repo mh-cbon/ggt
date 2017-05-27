@@ -80,6 +80,53 @@ func (t *RPCController) GetByID(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RPCController", "GetByID")
 }
 
+// SimilarColor invoke Controller.SimilarColor using the request body as a json payload.
+// SimilarColor returns colors similar to the given input
+//
+// @route /similar/color/{color}
+func (t *RPCController) SimilarColor(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCController", "SimilarColor")
+	input := struct {
+		Arg0 string
+		Arg1 *bool
+	}{}
+	decErr := json.NewDecoder(r.Body).Decode(&input)
+
+	if decErr != nil {
+
+		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCController", "SimilarColor")
+		t.embed.Finalizer(w, r, decErr)
+
+		return
+	}
+
+	jsonResBody, err := t.embed.SimilarColor(input.Arg0, input.Arg1)
+	output := struct {
+		Arg0 []string
+		Arg1 error
+	}{
+		Arg0: jsonResBody,
+		Arg1: err,
+	}
+
+	{
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(200)
+		encErr := json.NewEncoder(w).Encode(output)
+
+		if encErr != nil {
+
+			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RPCController", "SimilarColor")
+			t.embed.Finalizer(w, r, encErr)
+
+			return
+		}
+
+	}
+
+	t.Log.Handle(w, r, nil, "end", "RPCController", "SimilarColor")
+}
+
 // Create invoke Controller.Create using the request body as a json payload.
 // Create a new Tomate
 //
@@ -239,11 +286,12 @@ func (t *RPCController) Remove(w http.ResponseWriter, r *http.Request) {
 // RPCControllerDescriptor describe a *RPCController
 type RPCControllerDescriptor struct {
 	ggt.TypeDescriptor
-	about         *RPCController
-	methodGetByID *ggt.MethodDescriptor
-	methodCreate  *ggt.MethodDescriptor
-	methodUpdate  *ggt.MethodDescriptor
-	methodRemove  *ggt.MethodDescriptor
+	about              *RPCController
+	methodGetByID      *ggt.MethodDescriptor
+	methodSimilarColor *ggt.MethodDescriptor
+	methodCreate       *ggt.MethodDescriptor
+	methodUpdate       *ggt.MethodDescriptor
+	methodRemove       *ggt.MethodDescriptor
 }
 
 // NewRPCControllerDescriptor describe a *RPCController
@@ -256,6 +304,13 @@ func NewRPCControllerDescriptor(about *RPCController) *RPCControllerDescriptor {
 		Methods: []string{"GET"},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetByID)
+	ret.methodSimilarColor = &ggt.MethodDescriptor{
+		Name:    "SimilarColor",
+		Handler: about.SimilarColor,
+		Route:   "/similar/color/{color}",
+		Methods: []string{"GET"},
+	}
+	ret.TypeDescriptor.Register(ret.methodSimilarColor)
 	ret.methodCreate = &ggt.MethodDescriptor{
 		Name:    "Create",
 		Handler: about.Create,
@@ -282,6 +337,9 @@ func NewRPCControllerDescriptor(about *RPCController) *RPCControllerDescriptor {
 
 // GetByID returns a MethodDescriptor
 func (t *RPCControllerDescriptor) GetByID() *ggt.MethodDescriptor { return t.methodGetByID }
+
+// SimilarColor returns a MethodDescriptor
+func (t *RPCControllerDescriptor) SimilarColor() *ggt.MethodDescriptor { return t.methodSimilarColor }
 
 // Create returns a MethodDescriptor
 func (t *RPCControllerDescriptor) Create() *ggt.MethodDescriptor { return t.methodCreate }

@@ -76,6 +76,45 @@ func (t RestClient) GetByID(routeID string) (jsonResBody *Tomate, err error) {
 	return jsonResBody, err
 }
 
+// SimilarColor constructs a request to /similar/color/{color}
+func (t RestClient) SimilarColor(routeColor string, getSensitive *bool) (jsonResBody []string, err error) {
+	sReqURL := "/similar/color/{color}"
+	sReqURL = strings.Replace(sReqURL, "{color}", fmt.Sprintf("%v", routeColor), 1)
+	reqURL, URLerr := url.ParseRequestURI(sReqURL)
+	if URLerr != nil {
+		return []string{}, errors.New("todo")
+	}
+	var xxgetSensitive string
+	xxgetSensitive = "false"
+	if getSensitive != nil && *getSensitive {
+		xxgetSensitive = "true"
+	}
+
+	reqURL.Query().Add("sensitive", xxgetSensitive)
+
+	finalURL := reqURL.String()
+
+	req, reqErr := http.NewRequest("GET", finalURL, nil)
+	if reqErr != nil {
+		return []string{}, errors.New("todo")
+	}
+
+	{
+		res, resErr := t.client.Do(req)
+		if resErr != nil {
+			return []string{}, errors.New("todo")
+		}
+
+		decErr := json.NewDecoder(res.Body).Decode(jsonResBody)
+		if decErr != nil {
+			return []string{}, errors.New("todo")
+		}
+
+	}
+
+	return jsonResBody, err
+}
+
 // Create constructs a request to /create
 func (t RestClient) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	sReqURL := "/create"
