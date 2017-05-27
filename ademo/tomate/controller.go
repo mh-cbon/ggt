@@ -45,19 +45,16 @@ func (t Controller) SimilarColor(routeColor string, getSensitive *bool) (jsonRes
 		rVal = strings.ToLower(rVal)
 	}
 	jsonResBody = NewSimilarTomates()
-	t.backend.Transact(func(backend *Tomates) {
-		backend.Map(func(t *Tomate) *Tomate {
-			lVal := t.Color
-			if sensitive == false {
-				lVal = strings.ToLower(lVal)
-			}
-			res := levenshtein.Similarity(lVal, rVal, p)
-			if res > 0.1 {
-				jsonResBody.Push(&SimilarTomate{*t, res})
-
-			}
-			return t
-		})
+	t.backend.Map(func(t *Tomate) *Tomate {
+		lVal := t.Color
+		if sensitive == false {
+			lVal = strings.ToLower(lVal)
+		}
+		res := levenshtein.Similarity(lVal, rVal, p)
+		if res > 0.1 {
+			jsonResBody.Push(&SimilarTomate{*t, res})
+		}
+		return t
 	})
 	return jsonResBody, err
 }
