@@ -20,3 +20,6 @@ package capable
 
 //go:generate ggt -mode route http-provider Error:RestError
 //go:generate ggt -mode rpc http-provider Error:RPCError
+
+//go:generate ggt -mode route http-provider Cookie:RestCookie
+//go:generate ggt -mode rpc http-provider Cookie:RPCCookie
