@@ -520,11 +520,14 @@ func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(stri
 
 	} else if astutil.GetUnpointedType(toType) == "bool" {
 		if astutil.IsAPointedType(toType) {
-			return fmt.Sprintf(`%v = *%v=="true"
-	`, toVarName, fromStrVarName)
+			return fmt.Sprintf(`{
+				xxTmp := %v=="true"
+					%v = &xxTmp
+			}
+	`, fromStrVarName, toVarName)
 		}
 		return fmt.Sprintf(`%v = %v=="true"
-	`, toVarName, fromStrVarName)
+`, fromStrVarName, toVarName)
 
 	} else if astutil.GetUnpointedType(toType) == "int" {
 		if astutil.IsAPointedType(toType) {
