@@ -1,3 +1,4 @@
+// Package capable demonstratres ggt's capabilities
 package capable
 
 //go:generate ggt -mode route http-provider Get:RestGet
