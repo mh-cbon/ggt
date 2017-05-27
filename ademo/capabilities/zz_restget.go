@@ -18,15 +18,17 @@ var xx3f4c105077c339d0dfc6ad93f77b6c4bdda1d4f0 = http.StatusOK
 // RestGet is an httper of Get.
 // Get ...
 type RestGet struct {
-	embed Get
-	Log   ggt.HTTPLogger
+	embed   Get
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRestGet constructs an httper of Get
 func NewRestGet(embed Get) *RestGet {
 	ret := &RestGet{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestGet")
 	return ret

@@ -19,15 +19,17 @@ var xxafd96cb0b6a582f43bb5bb685964cbe68c65a47a = http.StatusOK
 // RestReq is an httper of Req.
 // Req is a merge of route, url, form
 type RestReq struct {
-	embed Req
-	Log   ggt.HTTPLogger
+	embed   Req
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRestReq constructs an httper of Req
 func NewRestReq(embed Req) *RestReq {
 	ret := &RestReq{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestReq")
 	return ret

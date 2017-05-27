@@ -19,15 +19,17 @@ var xx311af88f99f154b2659e5478d5663c515febcae5 = http.StatusOK
 // RPCPost is an httper of Post.
 // Post ...
 type RPCPost struct {
-	embed Post
-	Log   ggt.HTTPLogger
+	embed   Post
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRPCPost constructs an httper of Post
 func NewRPCPost(embed Post) *RPCPost {
 	ret := &RPCPost{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCPost")
 	return ret

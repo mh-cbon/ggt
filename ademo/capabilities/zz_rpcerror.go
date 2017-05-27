@@ -19,15 +19,17 @@ var xxdd4c23991e2ccabab6f9ca2621445d8cc42d9020 = http.StatusOK
 // RPCError is an httper of Error.
 // Error ...
 type RPCError struct {
-	embed Error
-	Log   ggt.HTTPLogger
+	embed   Error
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRPCError constructs an httper of Error
 func NewRPCError(embed Error) *RPCError {
 	ret := &RPCError{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCError")
 	return ret

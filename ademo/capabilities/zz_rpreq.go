@@ -19,15 +19,17 @@ var xx182b08c3e322e698beff04017c453e2bc56bc601 = http.StatusOK
 // RPReq is an httper of Req.
 // Req is a merge of route, url, form
 type RPReq struct {
-	embed Req
-	Log   ggt.HTTPLogger
+	embed   Req
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRPReq constructs an httper of Req
 func NewRPReq(embed Req) *RPReq {
 	ret := &RPReq{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPReq")
 	return ret

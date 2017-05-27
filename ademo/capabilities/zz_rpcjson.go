@@ -19,15 +19,17 @@ var xxa0ff83a6bdd0b4cbeee232916a203d81132d06c8 = http.StatusOK
 // RPCJSON is an httper of JSON.
 // JSON ...
 type RPCJSON struct {
-	embed JSON
-	Log   ggt.HTTPLogger
+	embed   JSON
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRPCJSON constructs an httper of JSON
 func NewRPCJSON(embed JSON) *RPCJSON {
 	ret := &RPCJSON{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCJSON")
 	return ret

@@ -20,15 +20,17 @@ var xx0921489b227b5f67966848e3dde3a344935f476d = http.StatusOK
 // RPCController is an httper of Controller.
 // Controller of tomatoes.
 type RPCController struct {
-	embed Controller
-	Log   ggt.HTTPLogger
+	embed   Controller
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRPCController constructs an httper of Controller
 func NewRPCController(embed Controller) *RPCController {
 	ret := &RPCController{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCController")
 	return ret

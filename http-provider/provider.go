@@ -166,6 +166,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	fmt.Fprintf(dest, `type %v struct{
 	embed %v
 	Log ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 		`, destName, srcNameFq)
 
@@ -177,6 +178,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	ret := &%v{
 		embed: embed,
 		Log: &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	%v
   return ret
@@ -494,6 +496,33 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				} else if paramName == "cookieValues" && paramType == "[]*http.Cookie" {
 					bodyFunc += fmt.Sprintf(`%v := r.Cookies()
 					`, paramName)
+
+				} else if strings.HasPrefix(paramName, "session") {
+					k := strings.ToLower(paramName[7:])
+					bodyFunc += fmt.Sprintf(`var %v %v
+					`, paramName, paramType)
+					bodyFunc += fmt.Sprintf(`{
+					`)
+					bodyFunc += fmt.Sprintf(`
+						store%v, storeErr := t.Session.Get(r, %q)
+						%v
+					`, paramName, k, errHandler("storeErr", "session", "store", "get", "error", paramName))
+					bodyFunc += fmt.Sprintf(`
+						defer func() {
+							saveErr := store%v.Save(r,w)
+							%v
+						}()
+					`, paramName, errHandler("saveErr", "session", "save", "error", paramName))
+					bodyFunc += fmt.Sprintf(`
+						val%v, getErr := store%v.Get()
+						%v
+					`, paramName, paramName, errHandler("getErr", "session", "read", "error", paramName))
+					bodyFunc += fmt.Sprintf(`
+						%v = val%v
+					`, paramName, paramName)
+					bodyFunc += fmt.Sprintf(`
+					}
+					`)
 
 				} else if strings.HasPrefix(paramName, "get") {
 					k := strings.ToLower(paramName[3:])

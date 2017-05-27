@@ -19,15 +19,17 @@ var xxb47dda5b25301614e990ea2bc6deb11aaab869c4 = http.StatusOK
 // RestRoute is an httper of Route.
 // Route ...
 type RestRoute struct {
-	embed Route
-	Log   ggt.HTTPLogger
+	embed   Route
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRestRoute constructs an httper of Route
 func NewRestRoute(embed Route) *RestRoute {
 	ret := &RestRoute{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestRoute")
 	return ret

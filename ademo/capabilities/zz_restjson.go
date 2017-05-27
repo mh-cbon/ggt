@@ -19,15 +19,17 @@ var xx3352309dc29aed32c4e6fd341cb3fe5cf192a78c = http.StatusOK
 // RestJSON is an httper of JSON.
 // JSON ...
 type RestJSON struct {
-	embed JSON
-	Log   ggt.HTTPLogger
+	embed   JSON
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRestJSON constructs an httper of JSON
 func NewRestJSON(embed JSON) *RestJSON {
 	ret := &RestJSON{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestJSON")
 	return ret

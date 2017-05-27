@@ -24,3 +24,6 @@ package capable
 
 //go:generate ggt -mode route http-provider Cookie:RestCookie
 //go:generate ggt -mode rpc http-provider Cookie:RPCCookie
+
+//go:generate ggt -mode route http-provider Session:RestSession
+//go:generate ggt -mode rpc http-provider Session:RPCSession

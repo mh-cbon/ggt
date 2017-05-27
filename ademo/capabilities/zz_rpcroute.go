@@ -19,15 +19,17 @@ var xx481e43390eea17d2be9267c3a6b7f018b078d86c = http.StatusOK
 // RPCRoute is an httper of Route.
 // Route ...
 type RPCRoute struct {
-	embed Route
-	Log   ggt.HTTPLogger
+	embed   Route
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRPCRoute constructs an httper of Route
 func NewRPCRoute(embed Route) *RPCRoute {
 	ret := &RPCRoute{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCRoute")
 	return ret

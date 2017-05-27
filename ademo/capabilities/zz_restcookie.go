@@ -19,15 +19,17 @@ var xx77a3b78ea2f772886b53ea6b1e988ad6bf4c61d1 = http.StatusOK
 // RestCookie is an httper of Cookie.
 // Cookie ...
 type RestCookie struct {
-	embed Cookie
-	Log   ggt.HTTPLogger
+	embed   Cookie
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRestCookie constructs an httper of Cookie
 func NewRestCookie(embed Cookie) *RestCookie {
 	ret := &RestCookie{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestCookie")
 	return ret

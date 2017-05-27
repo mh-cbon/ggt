@@ -20,15 +20,17 @@ var xx7e0969c31e2f47ea72d3163afcb81877de90b448 = http.StatusOK
 // RPCCookie is an httper of Cookie.
 // Cookie ...
 type RPCCookie struct {
-	embed Cookie
-	Log   ggt.HTTPLogger
+	embed   Cookie
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRPCCookie constructs an httper of Cookie
 func NewRPCCookie(embed Cookie) *RPCCookie {
 	ret := &RPCCookie{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCCookie")
 	return ret

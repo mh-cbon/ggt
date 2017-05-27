@@ -18,15 +18,17 @@ var xxa9084b1cb52bccaf3c147589a64c8e13b2211509 = http.StatusOK
 // RestPost is an httper of Post.
 // Post ...
 type RestPost struct {
-	embed Post
-	Log   ggt.HTTPLogger
+	embed   Post
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRestPost constructs an httper of Post
 func NewRestPost(embed Post) *RestPost {
 	ret := &RestPost{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestPost")
 	return ret

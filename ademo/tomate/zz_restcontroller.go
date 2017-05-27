@@ -20,15 +20,17 @@ var xx50b52bbd0311cf9ec8e406218f58ce92f00e2679 = http.StatusOK
 // RestController is an httper of Controller.
 // Controller of tomatoes.
 type RestController struct {
-	embed Controller
-	Log   ggt.HTTPLogger
+	embed   Controller
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRestController constructs an httper of Controller
 func NewRestController(embed Controller) *RestController {
 	ret := &RestController{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestController")
 	return ret

@@ -19,15 +19,17 @@ var xx80436437e20876c92d63a3643d16330ada7afaea = http.StatusOK
 // RPCGet is an httper of Get.
 // Get ...
 type RPCGet struct {
-	embed Get
-	Log   ggt.HTTPLogger
+	embed   Get
+	Log     ggt.HTTPLogger
+	Session ggt.SessionStoreProvider
 }
 
 // NewRPCGet constructs an httper of Get
 func NewRPCGet(embed Get) *RPCGet {
 	ret := &RPCGet{
-		embed: embed,
-		Log:   &ggt.VoidLog{},
+		embed:   embed,
+		Log:     &ggt.VoidLog{},
+		Session: &ggt.VoidSession{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCGet")
 	return ret
