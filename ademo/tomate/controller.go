@@ -22,10 +22,9 @@ func NewController(backend TomatesContract) Controller {
 //
 // @route /read/{id:[0-9]+}
 func (t Controller) GetByID(routeID string) (jsonResBody *Tomate, err error) {
+	byRouteID := FilterTomates.ByID(routeID)
 	t.backend.Transact(func(backend *Tomates) {
-		jsonResBody = backend.
-			Filter(FilterTomates.ByID(routeID)).
-			First()
+		jsonResBody = backend.Filter(byRouteID).First()
 	})
 	if jsonResBody == nil {
 		err = &NotFoundError{errors.New("Tomate not found")}
@@ -45,8 +44,9 @@ func (t Controller) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	if color == "" {
 		return nil, &UserInputError{errors.New("color must not be empty")}
 	}
+	byPostColor := FilterTomates.ByColor(color)
 	t.backend.Transact(func(backend *Tomates) {
-		if !backend.Filter(FilterTomates.ByColor(color)).Empty() {
+		if !backend.Filter(byPostColor).Empty() {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
@@ -65,18 +65,21 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 	if jsonReqBody.Color == "" {
 		return nil, &UserInputError{errors.New("color must not be empty")}
 	}
+	byRouteID := FilterTomates.ByID(routeID)
+	notRouteID := FilterTomates.NotID(routeID)
+	byBodyColor := FilterTomates.ByColor(jsonReqBody.Color)
+	updateColor := SetterTomates.SetColor(jsonReqBody.Color)
 	t.backend.Transact(func(backend *Tomates) {
-		byID := backend.Filter(FilterTomates.ByID(routeID))
+		byID := backend.Filter(byRouteID)
 		if byID.Empty() {
 			err = &NotFoundError{errors.New("ID does not exists")}
 			return
 		}
-		byColor := backend.Filter(FilterTomates.ByColor(jsonReqBody.Color), FilterTomates.ByID(routeID))
-		if !byColor.Empty() {
+		if !backend.Filter(byBodyColor, notRouteID).Empty() {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
-		jsonResBody = byID.Map(SetterTomates.SetColor(jsonReqBody.Color)).First()
+		jsonResBody = byID.Map(updateColor).First()
 	})
 	if jsonResBody == nil && err == nil {
 		err = &NotFoundError{errors.New("Tomate not found")}
@@ -89,8 +92,9 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 // @route /remove/{id:[0-9]+}
 // @methods POST
 func (t Controller) Remove(ctx context.Context, routeID string) (jsonResBody bool, err error) {
+	byRouteID := FilterTomates.ByID(routeID)
 	t.backend.Transact(func(backend *Tomates) {
-		byID := backend.Filter(FilterTomates.ByID(routeID))
+		byID := backend.Filter(byRouteID)
 		if byID.Empty() {
 			err = &NotFoundError{errors.New("ID does not exists")}
 			return

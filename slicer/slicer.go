@@ -576,8 +576,10 @@ func processFilter(todo utils.TransformArg, fileOut *utils.FileOut) error {
 		propType := prop["type"]
 		if !astutil.IsArrayType(propType) {
 			propName := prop["name"]
-			newStructProps += fmt.Sprintf("By%v func(%v) func (%v) bool", propName, propType, srcNameFq)
-			newStructProps += "\n"
+			newStructProps += fmt.Sprintf(`By%v func(...%v) func (%v) bool
+			`, propName, propType, srcNameFq)
+			newStructProps += fmt.Sprintf(`Not%v func(...%v) func (%v) bool
+			`, propName, propType, srcNameFq)
 			if strings.Index(prop["type"], ".") > 0 {
 				pType := strings.Split(prop["type"], ".")[0]
 				path := astutil.GetImportPath(pkg, pType)
@@ -601,12 +603,28 @@ func processFilter(todo utils.TransformArg, fileOut *utils.FileOut) error {
 			propType := prop["type"]
 			if !astutil.IsArrayType(propType) {
 				propName := prop["name"]
-				fmt.Fprintf(dest, `By%v: func(v %v) func(%v) bool {`, propName, propType, srcNameFq)
-				fmt.Fprintf(dest, `	return func(o %v) bool {`, srcNameFq)
-				fmt.Fprintf(dest, `	return o.%v==v`, propName)
-				fmt.Fprintf(dest, `	}`)
-				fmt.Fprintf(dest, `},`)
-				fmt.Fprintln(dest, "")
+				fmt.Fprintf(dest, `By%v: func(all ...%v) func(%v) bool {
+					return func(o %v) bool {
+						for _, v := range all {
+							if o.%v==v {
+								return true
+							}
+						}
+						return false
+					}
+				},
+					`, propName, propType, srcNameFq, srcNameFq, propName)
+				fmt.Fprintf(dest, `Not%v: func(all ...%v) func(%v) bool {
+					return func(o %v) bool {
+						for _, v := range all {
+							if o.%v==v {
+								return false
+							}
+						}
+						return true
+					}
+				},
+					`, propName, propType, srcNameFq, srcNameFq, propName)
 			}
 		}
 		fmt.Fprintln(dest)

@@ -133,10 +133,9 @@ func NewController(backend TomatesContract) Controller {
 //
 // @route /read/{id:[0-9]+}
 func (t Controller) GetByID(routeID string) (jsonResBody *Tomate, err error) {
+	byRouteID := FilterTomates.ByID(routeID)
 	t.backend.Transact(func(backend *Tomates) {
-		jsonResBody = backend.
-			Filter(FilterTomates.ByID(routeID)).
-			First()
+		jsonResBody = backend.Filter(byRouteID).First()
 	})
 	if jsonResBody == nil {
 		err = &NotFoundError{errors.New("Tomate not found")}
@@ -156,8 +155,9 @@ func (t Controller) Create(postColor *string) (jsonResBody *Tomate, err error) {
 	if color == "" {
 		return nil, &UserInputError{errors.New("color must not be empty")}
 	}
+	byPostColor := FilterTomates.ByColor(color)
 	t.backend.Transact(func(backend *Tomates) {
-		if !backend.Filter(FilterTomates.ByColor(color)).Empty() {
+		if !backend.Filter(byPostColor).Empty() {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
@@ -176,18 +176,21 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 	if jsonReqBody.Color == "" {
 		return nil, &UserInputError{errors.New("color must not be empty")}
 	}
+	byRouteID := FilterTomates.ByID(routeID)
+	notRouteID := FilterTomates.NotID(routeID)
+	byBodyColor := FilterTomates.ByColor(jsonReqBody.Color)
+	updateColor := SetterTomates.SetColor(jsonReqBody.Color)
 	t.backend.Transact(func(backend *Tomates) {
-		byID := backend.Filter(FilterTomates.ByID(routeID))
+		byID := backend.Filter(byRouteID)
 		if byID.Empty() {
 			err = &NotFoundError{errors.New("ID does not exists")}
 			return
 		}
-		byColor := backend.Filter(FilterTomates.ByColor(jsonReqBody.Color), FilterTomates.ByID(routeID))
-		if !byColor.Empty() {
+		if !backend.Filter(byBodyColor, notRouteID).Empty() {
 			err = &UserInputError{errors.New("color must be unique")}
 			return
 		}
-		jsonResBody = byID.Map(SetterTomates.SetColor(jsonReqBody.Color)).First()
+		jsonResBody = byID.Map(updateColor).First()
 	})
 	if jsonResBody == nil && err == nil {
 		err = &NotFoundError{errors.New("Tomate not found")}
@@ -200,8 +203,9 @@ func (t Controller) Update(routeID string, jsonReqBody *Tomate) (jsonResBody *To
 // @route /remove/{id:[0-9]+}
 // @methods POST
 func (t Controller) Remove(ctx context.Context, routeID string) (jsonResBody bool, err error) {
+	byRouteID := FilterTomates.ByID(routeID)
 	t.backend.Transact(func(backend *Tomates) {
-		byID := backend.Filter(FilterTomates.ByID(routeID))
+		byID := backend.Filter(byRouteID)
 		if byID.Empty() {
 			err = &NotFoundError{errors.New("ID does not exists")}
 			return
@@ -275,119 +279,119 @@ package tomate
 + sleep 1
 + go run main.go
 + curl -s -D - http://localhost:8080/read/0
-2017/05/26 22:25:45 handling  GetByID /read/{id:[0-9]+}
-2017-05-26 22:25:45.125574103 +0200 CEST [begin RestController GetByID] <nil>
-2017-05-26 22:25:45.125758588 +0200 CEST [end RestController GetByID] <nil>
+2017/05/27 11:42:46 handling  GetByID /read/{id:[0-9]+}
+2017-05-27 11:42:46.790383991 +0200 CEST [begin RestController GetByID] <nil>
+2017-05-27 11:42:46.790579831 +0200 CEST [end RestController GetByID] <nil>
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 25
 
 {"ID":"0","Color":"Red"}
 + curl -s -D - http://localhost:8080/read/10
-2017/05/26 22:25:45 handling  GetByID /read/{id:[0-9]+}
-2017-05-26 22:25:45.141957543 +0200 CEST [begin RestController GetByID] <nil>
-2017-05-26 22:25:45.142044898 +0200 CEST [business error RestController GetByID] Tomate not found
+2017/05/27 11:42:46 handling  GetByID /read/{id:[0-9]+}
+2017-05-27 11:42:46.80424655 +0200 CEST [begin RestController GetByID] <nil>
+2017-05-27 11:42:46.804340511 +0200 CEST [business error RestController GetByID] Tomate not found
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 17
 
 Tomate not found
 + curl -s -D - --data color=blue http://localhost:8080/create
-2017/05/26 22:25:45 handling  Create /create
-2017-05-26 22:25:45.154717536 +0200 CEST [begin RestController Create] <nil>
-2017-05-26 22:25:45.154805922 +0200 CEST [end RestController Create] <nil>
+2017/05/27 11:42:46 handling  Create /create
+2017-05-27 11:42:46.815155987 +0200 CEST [begin RestController Create] <nil>
+2017-05-27 11:42:46.815275042 +0200 CEST [end RestController Create] <nil>
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 26
 
 {"ID":"1","Color":"blue"}
 + curl -s -D - --data color=blue http://localhost:8080/create
-2017/05/26 22:25:45 handling  Create /create
-2017-05-26 22:25:45.169131996 +0200 CEST [begin RestController Create] <nil>
-2017-05-26 22:25:45.169306016 +0200 CEST [business error RestController Create] color must be unique
+2017/05/27 11:42:46 handling  Create /create
+2017-05-27 11:42:46.830305005 +0200 CEST [begin RestController Create] <nil>
+2017-05-27 11:42:46.830416404 +0200 CEST [business error RestController Create] color must be unique
 HTTP/1.1 400 Bad Request
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 21
 
 color must be unique
 + curl -s -D - --data color= http://localhost:8080/create
-2017/05/26 22:25:45 handling  Create /create
-2017-05-26 22:25:45.182812876 +0200 CEST [begin RestController Create] <nil>
-2017-05-26 22:25:45.18292737 +0200 CEST [business error RestController Create] color must not be empty
+2017/05/27 11:42:46 handling  Create /create
+2017-05-27 11:42:46.843657996 +0200 CEST [begin RestController Create] <nil>
+2017-05-27 11:42:46.84378816 +0200 CEST [business error RestController Create] color must not be empty
 HTTP/1.1 400 Bad Request
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 24
 
 color must not be empty
 + curl -s -D - --data color=green http://localhost:8080/create
-2017/05/26 22:25:45 handling  Create /create
-2017-05-26 22:25:45.196080863 +0200 CEST [begin RestController Create] <nil>
-2017-05-26 22:25:45.196266846 +0200 CEST [end RestController Create] <nil>
+2017/05/27 11:42:46 handling  Create /create
+2017-05-27 11:42:46.862151182 +0200 CEST [begin RestController Create] <nil>
+2017-05-27 11:42:46.862306032 +0200 CEST [end RestController Create] <nil>
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 27
 
 {"ID":"2","Color":"green"}
 + curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
-2017/05/26 22:25:45 handling  Update /write/{id:[0-9]+}
-2017-05-26 22:25:45.209960071 +0200 CEST [begin RestController Update] <nil>
-2017-05-26 22:25:45.210189234 +0200 CEST [end RestController Update] <nil>
+2017/05/27 11:42:46 handling  Update /write/{id:[0-9]+}
+2017-05-27 11:42:46.876340683 +0200 CEST [begin RestController Update] <nil>
+2017-05-27 11:42:46.876490618 +0200 CEST [end RestController Update] <nil>
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 28
 
 {"ID":"1","Color":"yellow"}
 + curl -s -D - http://localhost:8080/read/1
-2017/05/26 22:25:45 handling  GetByID /read/{id:[0-9]+}
-2017-05-26 22:25:45.225925467 +0200 CEST [begin RestController GetByID] <nil>
-2017-05-26 22:25:45.226034667 +0200 CEST [end RestController GetByID] <nil>
+2017/05/27 11:42:46 handling  GetByID /read/{id:[0-9]+}
+2017-05-27 11:42:46.889986451 +0200 CEST [begin RestController GetByID] <nil>
+2017-05-27 11:42:46.890123229 +0200 CEST [end RestController GetByID] <nil>
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 28
 
 {"ID":"1","Color":"yellow"}
 + curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/0
-2017/05/26 22:25:45 handling  Update /write/{id:[0-9]+}
-2017-05-26 22:25:45.240938224 +0200 CEST [begin RestController Update] <nil>
-2017-05-26 22:25:45.241126272 +0200 CEST [end RestController Update] <nil>
-HTTP/1.1 200 OK
-Content-Type: application/json
-Date: Fri, 26 May 2017 20:25:45 GMT
-Content-Length: 28
-
-{"ID":"0","Color":"yellow"}
-+ curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
-2017/05/26 22:25:45 handling  Update /write/{id:[0-9]+}
-2017-05-26 22:25:45.251461279 +0200 CEST [begin RestController Update] <nil>
-2017-05-26 22:25:45.251596079 +0200 CEST [business error RestController Update] color must be unique
+2017/05/27 11:42:46 handling  Update /write/{id:[0-9]+}
+2017-05-27 11:42:46.903624413 +0200 CEST [begin RestController Update] <nil>
+2017-05-27 11:42:46.903752446 +0200 CEST [business error RestController Update] color must be unique
 HTTP/1.1 400 Bad Request
 Content-Type: text/plain; charset=utf-8
 X-Content-Type-Options: nosniff
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 21
 
 color must be unique
-+ curl -s -D - http://localhost:8080/read/0
-2017/05/26 22:25:45 handling  GetByID /read/{id:[0-9]+}
-2017-05-26 22:25:45.268388752 +0200 CEST [begin RestController GetByID] <nil>
-2017-05-26 22:25:45.268488931 +0200 CEST [end RestController GetByID] <nil>
++ curl -s -D - -H 'Content-Type: application/json' -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
+2017/05/27 11:42:46 handling  Update /write/{id:[0-9]+}
+2017-05-27 11:42:46.920442393 +0200 CEST [begin RestController Update] <nil>
+2017-05-27 11:42:46.920634839 +0200 CEST [end RestController Update] <nil>
 HTTP/1.1 200 OK
 Content-Type: application/json
-Date: Fri, 26 May 2017 20:25:45 GMT
+Date: Sat, 27 May 2017 09:42:46 GMT
 Content-Length: 28
 
-{"ID":"0","Color":"yellow"}
+{"ID":"1","Color":"yellow"}
++ curl -s -D - http://localhost:8080/read/0
+2017/05/27 11:42:46 handling  GetByID /read/{id:[0-9]+}
+2017-05-27 11:42:46.931175422 +0200 CEST [begin RestController GetByID] <nil>
+2017-05-27 11:42:46.931278382 +0200 CEST [end RestController GetByID] <nil>
+HTTP/1.1 200 OK
+Content-Type: application/json
+Date: Sat, 27 May 2017 09:42:46 GMT
+Content-Length: 25
+
+{"ID":"0","Color":"Red"}
 + killall main
 signal: terminated
 ```

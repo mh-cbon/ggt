@@ -261,11 +261,51 @@ type TomatesContract interface {
 
 // FilterTomates provides filters for a struct.
 var FilterTomates = struct {
-	ByID    func(string) func(*Tomate) bool
-	ByColor func(string) func(*Tomate) bool
+	ByID     func(...string) func(*Tomate) bool
+	NotID    func(...string) func(*Tomate) bool
+	ByColor  func(...string) func(*Tomate) bool
+	NotColor func(...string) func(*Tomate) bool
 }{
-	ByID:    func(v string) func(*Tomate) bool { return func(o *Tomate) bool { return o.ID == v } },
-	ByColor: func(v string) func(*Tomate) bool { return func(o *Tomate) bool { return o.Color == v } },
+	ByID: func(all ...string) func(*Tomate) bool {
+		return func(o *Tomate) bool {
+			for _, v := range all {
+				if o.ID == v {
+					return true
+				}
+			}
+			return false
+		}
+	},
+	NotID: func(all ...string) func(*Tomate) bool {
+		return func(o *Tomate) bool {
+			for _, v := range all {
+				if o.ID == v {
+					return false
+				}
+			}
+			return true
+		}
+	},
+	ByColor: func(all ...string) func(*Tomate) bool {
+		return func(o *Tomate) bool {
+			for _, v := range all {
+				if o.Color == v {
+					return true
+				}
+			}
+			return false
+		}
+	},
+	NotColor: func(all ...string) func(*Tomate) bool {
+		return func(o *Tomate) bool {
+			for _, v := range all {
+				if o.Color == v {
+					return false
+				}
+			}
+			return true
+		}
+	},
 }
 
 // SetterTomates provides sets properties.
