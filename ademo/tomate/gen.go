@@ -1,6 +1,7 @@
 package tomate
 
 //go:generate ggt -c slicer *Tomate:Tomates
+//go:generate ggt -c slicer *SimilarTomate:SimilarTomates
 //go:generate ggt chaner Tomates:TomatesSync
 
 //go:generate ggt -mode route http-provider Controller:RestController

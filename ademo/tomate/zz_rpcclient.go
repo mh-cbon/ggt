@@ -75,7 +75,7 @@ func (t RPCClient) GetByID(routeID string) (*Tomate, error) {
 }
 
 // SimilarColor constructs a request to SimilarColor
-func (t RPCClient) SimilarColor(routeColor string, getSensitive *bool) ([]string, error) {
+func (t RPCClient) SimilarColor(routeColor string, getSensitive *bool) (*SimilarTomates, error) {
 	var reqBody bytes.Buffer
 
 	{
@@ -88,29 +88,29 @@ func (t RPCClient) SimilarColor(routeColor string, getSensitive *bool) ([]string
 		}
 		encErr := json.NewEncoder(&reqBody).Encode(&input)
 		if encErr != nil {
-			return []string{}, errors.New("todo")
+			return nil, errors.New("todo")
 		}
 
 	}
 	finalURL := "/SimilarColor"
 	req, reqErr := http.NewRequest("POST", finalURL, &reqBody)
 	if reqErr != nil {
-		return []string{}, errors.New("todo")
+		return nil, errors.New("todo")
 	}
 
 	res, resErr := t.client.Do(req)
 	if resErr != nil {
-		return []string{}, errors.New("todo")
+		return nil, errors.New("todo")
 	}
 
 	output := struct {
-		Arg0 []string
+		Arg0 *SimilarTomates
 		Arg1 error
 	}{}
 	{
 		decErr := json.NewDecoder(res.Body).Decode(&output)
 		if decErr != nil {
-			return []string{}, errors.New("todo")
+			return nil, errors.New("todo")
 		}
 
 	}

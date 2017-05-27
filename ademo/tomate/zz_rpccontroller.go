@@ -102,7 +102,7 @@ func (t *RPCController) SimilarColor(w http.ResponseWriter, r *http.Request) {
 
 	jsonResBody, err := t.embed.SimilarColor(input.Arg0, input.Arg1)
 	output := struct {
-		Arg0 []string
+		Arg0 *SimilarTomates
 		Arg1 error
 	}{
 		Arg0: jsonResBody,

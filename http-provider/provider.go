@@ -133,7 +133,13 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			subjects = append(subjects, destName)
 			s = ""
 			for _, sub := range subjects {
-				s += fmt.Sprintf(`%q, `, sub)
+				if len(sub) > 0 {
+					if strings.HasPrefix(sub, "!") {
+						s += fmt.Sprintf(`%v, `, sub[1:])
+					} else {
+						s += fmt.Sprintf(`%q, `, sub)
+					}
+				}
 			}
 			s = s[:len(s)-2]
 		}
@@ -206,7 +212,13 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				subjects = append(subjects, destName, methodName)
 				s = ""
 				for _, sub := range subjects {
-					s += fmt.Sprintf(`%q, `, sub)
+					if len(sub) > 0 {
+						if strings.HasPrefix(sub, "!") {
+							s += fmt.Sprintf(`%v, `, sub[1:])
+						} else {
+							s += fmt.Sprintf(`%q, `, sub)
+						}
+					}
 				}
 				s = s[:len(s)-2]
 			}
@@ -303,8 +315,11 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							if _, ok := xxURLValues[%q]; ok {
 								xxTmp%v := xxURLValues.Get(%q)
 								%v
+								%v
 							}
-						`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, destName, methodName, "get"))
+						`, k, paramName, k,
+						addlog("t", "nil", "input", "get", k, "!xxTmp"+paramName),
+						convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, destName, methodName, "get"))
 
 				} else if strings.HasPrefix(paramName, "post") {
 					k := strings.ToLower(paramName[4:])
@@ -313,8 +328,11 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							if _, ok := r.Form[%q]; ok {
 								xxTmp%v := r.FormValue(%q)
 								%v
+								%v
 							}
-						`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "post"))
+						`, k, paramName, k,
+						addlog("t", "nil", "input", "form", k, "!xxTmp"+paramName),
+						convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "post"))
 
 				} else if strings.HasPrefix(paramName, "route") {
 					k := strings.ToLower(paramName[5:])
@@ -323,8 +341,11 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							if _, ok := xxRouteVars[%q]; ok {
 								xxTmp%v := xxRouteVars[%q]
 								%v
+								%v
 							}
-						`, k, paramName, k, convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "route"))
+						`, k, paramName, k,
+						addlog("t", "nil", "input", "route", k, "!xxTmp"+paramName),
+						convertStrTo("xxTmp"+paramName, paramName, paramType, errHandler, "route"))
 
 				} else if strings.HasPrefix(paramName, "url") {
 					k := strings.ToLower(paramName[3:])

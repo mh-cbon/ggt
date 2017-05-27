@@ -37,21 +37,26 @@ func (t Controller) GetByID(routeID string) (jsonResBody *Tomate, err error) {
 // SimilarColor returns colors similar to the given input
 //
 // @route /similar/color/{color}
-func (t Controller) SimilarColor(routeColor string, getSensitive *bool) (jsonResBody []string, err error) {
+func (t Controller) SimilarColor(routeColor string, getSensitive *bool) (jsonResBody *SimilarTomates, err error) {
+	sensitive := getSensitive != nil && *getSensitive != false
+	rVal := routeColor
+	p := levenshtein.NewParams()
+	if sensitive == false {
+		rVal = strings.ToLower(rVal)
+	}
+	jsonResBody = NewSimilarTomates()
 	t.backend.Transact(func(backend *Tomates) {
-		p := levenshtein.NewParams()
-		backend.Filter(func(t *Tomate) bool {
-			from := routeColor
-			to := t.Color
-			if getSensitive == nil || *getSensitive == false {
-				from = strings.ToLower(from)
-				to = strings.ToLower(to)
+		backend.Map(func(t *Tomate) *Tomate {
+			lVal := t.Color
+			if sensitive == false {
+				lVal = strings.ToLower(lVal)
 			}
-			res := levenshtein.Similarity(from, to, p)
-			if res > 0 {
-				jsonResBody = append(jsonResBody, t.Color)
+			res := levenshtein.Similarity(lVal, rVal, p)
+			if res > 0.1 {
+				jsonResBody.Push(&SimilarTomate{*t, res})
+
 			}
-			return true
+			return t
 		})
 	})
 	return jsonResBody, err

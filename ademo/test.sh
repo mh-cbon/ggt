@@ -21,6 +21,6 @@ $CURL http://localhost:8080/read/1
 $CURL -H "Content-Type: application/json" -X POST -d '{"color":"yellow"}' http://localhost:8080/write/0
 $CURL -H "Content-Type: application/json" -X POST -d '{"color":"yellow"}' http://localhost:8080/write/1
 $CURL http://localhost:8080/read/0
-$CURL http://localhost:8080/similar/color/r
+$CURL http://localhost:8080/similar/color/r?sensitive=false
 $CURL http://localhost:8080/similar/color/ll
 killall main

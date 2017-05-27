@@ -45,6 +45,7 @@ func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
 	var routeID string
 	if _, ok := xxRouteVars["id"]; ok {
 		xxTmprouteID := xxRouteVars["id"]
+		t.Log.Handle(w, r, nil, "input", "route", "id", xxTmprouteID, "RestController", "GetByID")
 		routeID = xxTmprouteID
 	}
 
@@ -89,11 +90,13 @@ func (t *RestController) SimilarColor(w http.ResponseWriter, r *http.Request) {
 	var routeColor string
 	if _, ok := xxRouteVars["color"]; ok {
 		xxTmprouteColor := xxRouteVars["color"]
+		t.Log.Handle(w, r, nil, "input", "route", "color", xxTmprouteColor, "RestController", "SimilarColor")
 		routeColor = xxTmprouteColor
 	}
 	var getSensitive *bool
 	if _, ok := xxURLValues["sensitive"]; ok {
 		xxTmpgetSensitive := xxURLValues.Get("sensitive")
+		t.Log.Handle(w, r, nil, "input", "get", "sensitive", xxTmpgetSensitive, "RestController", "SimilarColor")
 		{
 			xxTmp := xxTmpgetSensitive == "true"
 			getSensitive = &xxTmp
@@ -152,6 +155,7 @@ func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 	var postColor *string
 	if _, ok := r.Form["color"]; ok {
 		xxTmppostColor := r.FormValue("color")
+		t.Log.Handle(w, r, nil, "input", "form", "color", xxTmppostColor, "RestController", "Create")
 		postColor = &xxTmppostColor
 	}
 
@@ -195,6 +199,7 @@ func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
 	var routeID string
 	if _, ok := xxRouteVars["id"]; ok {
 		xxTmprouteID := xxRouteVars["id"]
+		t.Log.Handle(w, r, nil, "input", "route", "id", xxTmprouteID, "RestController", "Update")
 		routeID = xxTmprouteID
 	}
 	var jsonReqBody *Tomate
@@ -254,6 +259,7 @@ func (t *RestController) Remove(w http.ResponseWriter, r *http.Request) {
 	var routeID string
 	if _, ok := xxRouteVars["id"]; ok {
 		xxTmprouteID := xxRouteVars["id"]
+		t.Log.Handle(w, r, nil, "input", "route", "id", xxTmprouteID, "RestController", "Remove")
 		routeID = xxTmprouteID
 	}
 

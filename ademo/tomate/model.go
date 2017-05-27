@@ -10,3 +10,9 @@ type Tomate struct {
 func (t Tomate) GetID() string {
 	return t.ID
 }
+
+// SimilarTomate indiicates tomate similarity to a value
+type SimilarTomate struct {
+	Tomate
+	Similarity float64
+}
