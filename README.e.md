@@ -1,5 +1,7 @@
 # {{.Name}}
 
+{{template "badge/godoc" .}}
+
 {{pkgdoc}}
 
 Check the demo [here](https://github.com/mh-cbon/ggt/tree/master/ademo)

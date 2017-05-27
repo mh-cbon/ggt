@@ -1,5 +1,7 @@
 # A demo
 
+{{template "badge/godoc" .}}
+
 {{pkgdoc}}
 
 # {{toc 5}}

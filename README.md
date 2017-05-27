@@ -1,5 +1,7 @@
 # ggt
 
+[![GoDoc](https://godoc.org/github.com/mh-cbon/ggt?status.svg)](http://godoc.org/github.com/mh-cbon/ggt)
+
 ggt's generator toolbox
 
 
