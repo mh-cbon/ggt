@@ -5,7 +5,7 @@ package capable
 // do not edit
 
 import (
-	json "encoding/json"
+	"encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
 	"io"
 	"net/http"
@@ -41,20 +41,26 @@ func NewRPCRoute(embed Route) *RPCRoute {
 // GetAll values from the route.
 func (t *RPCRoute) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCRoute", "GetAll")
-	input := struct {
-		Arg0 map[string]string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var routeValues map[string]string
+	{
+		input := struct {
+			routeValues map[string]string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCRoute", "GetAll")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCRoute", "GetAll")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		routeValues = input.routeValues
 	}
 
-	t.embed.GetAll(input.Arg0)
+	t.embed.GetAll(routeValues)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCRoute", "GetAll")
 }
@@ -63,20 +69,26 @@ func (t *RPCRoute) GetAll(w http.ResponseWriter, r *http.Request) {
 // GetOne value from the route.
 func (t *RPCRoute) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCRoute", "GetOne")
-	input := struct {
-		Arg0 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var routeArg1 string
+	{
+		input := struct {
+			routeArg1 string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCRoute", "GetOne")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCRoute", "GetOne")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		routeArg1 = input.routeArg1
 	}
 
-	t.embed.GetOne(input.Arg0)
+	t.embed.GetOne(routeArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCRoute", "GetOne")
 }
@@ -85,21 +97,29 @@ func (t *RPCRoute) GetOne(w http.ResponseWriter, r *http.Request) {
 // GetMany values from the route.
 func (t *RPCRoute) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCRoute", "GetMany")
-	input := struct {
-		Arg0 string
-		Arg1 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var routeArg1 string
+	var routeArg2 string
+	{
+		input := struct {
+			routeArg1 string
+			routeArg2 string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCRoute", "GetMany")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCRoute", "GetMany")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		routeArg1 = input.routeArg1
+		routeArg2 = input.routeArg2
 	}
 
-	t.embed.GetMany(input.Arg0, input.Arg1)
+	t.embed.GetMany(routeArg1, routeArg2)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCRoute", "GetMany")
 }
@@ -108,20 +128,26 @@ func (t *RPCRoute) GetMany(w http.ResponseWriter, r *http.Request) {
 // ConvertToInt an arg from the route.
 func (t *RPCRoute) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCRoute", "ConvertToInt")
-	input := struct {
-		Arg0 int
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var routeArg1 int
+	{
+		input := struct {
+			routeArg1 int
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCRoute", "ConvertToInt")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCRoute", "ConvertToInt")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		routeArg1 = input.routeArg1
 	}
 
-	t.embed.ConvertToInt(input.Arg0)
+	t.embed.ConvertToInt(routeArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCRoute", "ConvertToInt")
 }
@@ -130,20 +156,26 @@ func (t *RPCRoute) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 // ConvertToBool an arg from the route.
 func (t *RPCRoute) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCRoute", "ConvertToBool")
-	input := struct {
-		Arg0 bool
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var routeArg1 bool
+	{
+		input := struct {
+			routeArg1 bool
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCRoute", "ConvertToBool")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCRoute", "ConvertToBool")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		routeArg1 = input.routeArg1
 	}
 
-	t.embed.ConvertToBool(input.Arg0)
+	t.embed.ConvertToBool(routeArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCRoute", "ConvertToBool")
 }
@@ -152,20 +184,26 @@ func (t *RPCRoute) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 // MaybeGet an arg from the route if it exists.
 func (t *RPCRoute) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCRoute", "MaybeGet")
-	input := struct {
-		Arg0 *string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var routeArg1 *string
+	{
+		input := struct {
+			routeArg1 *string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCRoute", "MaybeGet")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCRoute", "MaybeGet")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		routeArg1 = input.routeArg1
 	}
 
-	t.embed.MaybeGet(input.Arg0)
+	t.embed.MaybeGet(routeArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCRoute", "MaybeGet")
 }

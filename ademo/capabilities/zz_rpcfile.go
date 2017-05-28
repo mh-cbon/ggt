@@ -5,9 +5,9 @@ package capable
 // do not edit
 
 import (
-	json "encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 )
@@ -41,43 +41,30 @@ func NewRPCFile(embed File) *RPCFile {
 // ReadOneFile ...
 func (t *RPCFile) ReadOneFile(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCFile", "ReadOneFile")
-
+	var fileName io.Reader
 	{
-		err := r.ParseForm()
+		if fheaders, ok := r.MultipartForm.File["name"]; ok {
+			for _, hdr := range fheaders {
+				var infile multipart.File
+				infile, uploadErr := hdr.Open()
 
-		if err != nil {
+				if uploadErr != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RPCFile", "ReadOneFile")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+					t.Log.Handle(w, r, uploadErr, "req", "file", "open", "error", "RPCFile", "ReadOneFile")
+					http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
 
-			return
+					return
+				}
+
+				defer infile.Close()
+				fileName = infile.(io.Reader)
+				break
+			}
 		}
-
-		uploadErr := t.Upload.Check(r, w)
-
-		if uploadErr != nil {
-
-			t.Log.Handle(w, r, uploadErr, "max-size", "error", "RPCFile", "ReadOneFile")
-			http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
-
-			return
-		}
-
-	}
-	input := struct {
-		Arg0 io.Reader
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
-
-	if decErr != nil {
-
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCFile", "ReadOneFile")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
-
-		return
 	}
 
-	t.embed.ReadOneFile(input.Arg0)
+	t.embed.ReadOneFile(fileName)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadOneFile")
 }
@@ -86,43 +73,23 @@ func (t *RPCFile) ReadOneFile(w http.ResponseWriter, r *http.Request) {
 // ReadOneTmpFile ...
 func (t *RPCFile) ReadOneTmpFile(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCFile", "ReadOneTmpFile")
-
+	var fileName ggt.File
 	{
-		err := r.ParseForm()
-
-		if err != nil {
-
-			t.Log.Handle(w, r, err, "parseform", "error", "RPCFile", "ReadOneTmpFile")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-
-			return
-		}
-
-		uploadErr := t.Upload.Check(r, w)
+		f, uploadErr := t.Upload.Get(r, w, "name")
 
 		if uploadErr != nil {
 
-			t.Log.Handle(w, r, uploadErr, "max-size", "error", "RPCFile", "ReadOneTmpFile")
+			t.Log.Handle(w, r, uploadErr, "req", "file", "open", "error", "RPCFile", "ReadOneTmpFile")
 			http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
 
 			return
 		}
 
-	}
-	input := struct {
-		Arg0 ggt.File
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
-
-	if decErr != nil {
-
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCFile", "ReadOneTmpFile")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
-
-		return
+		fileName = f
 	}
 
-	t.embed.ReadOneTmpFile(input.Arg0)
+	t.embed.ReadOneTmpFile(fileName)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadOneTmpFile")
 }
@@ -131,44 +98,37 @@ func (t *RPCFile) ReadOneTmpFile(w http.ResponseWriter, r *http.Request) {
 // ReadMany ...
 func (t *RPCFile) ReadMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCFile", "ReadMany")
-
+	var fileName ggt.File
 	{
-		err := r.ParseForm()
-
-		if err != nil {
-
-			t.Log.Handle(w, r, err, "parseform", "error", "RPCFile", "ReadMany")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-
-			return
-		}
-
-		uploadErr := t.Upload.Check(r, w)
+		f, uploadErr := t.Upload.Get(r, w, "name")
 
 		if uploadErr != nil {
 
-			t.Log.Handle(w, r, uploadErr, "max-size", "error", "RPCFile", "ReadMany")
+			t.Log.Handle(w, r, uploadErr, "req", "file", "open", "error", "RPCFile", "ReadMany")
 			http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
 
 			return
 		}
 
+		fileName = f
 	}
-	input := struct {
-		Arg0 ggt.File
-		Arg1 ggt.File
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var fileName2 ggt.File
+	{
+		f, uploadErr := t.Upload.Get(r, w, "name2")
 
-	if decErr != nil {
+		if uploadErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCFile", "ReadMany")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, uploadErr, "req", "file", "open", "error", "RPCFile", "ReadMany")
+			http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		fileName2 = f
 	}
 
-	t.embed.ReadMany(input.Arg0, input.Arg1)
+	t.embed.ReadMany(fileName, fileName2)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadMany")
 }
@@ -177,44 +137,43 @@ func (t *RPCFile) ReadMany(w http.ResponseWriter, r *http.Request) {
 // ReadSlice ...
 func (t *RPCFile) ReadSlice(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCFile", "ReadSlice")
-
+	var fileName []io.Reader
 	{
-		err := r.ParseForm()
+		if fheaders, ok := r.MultipartForm.File["name"]; ok {
+			for _, hdr := range fheaders {
+				var infile multipart.File
+				infile, uploadErr := hdr.Open()
 
-		if err != nil {
+				if uploadErr != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RPCFile", "ReadSlice")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+					t.Log.Handle(w, r, uploadErr, "req", "file", "open", "error", "RPCFile", "ReadSlice")
+					http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
 
-			return
+					return
+				}
+
+				defer infile.Close()
+				fileName = append(fileName, infile.(io.Reader))
+			}
 		}
-
-		uploadErr := t.Upload.Check(r, w)
+	}
+	var fileName2 []ggt.File
+	{
+		f, uploadErr := t.Upload.GetSlice(r, w, "name2")
 
 		if uploadErr != nil {
 
-			t.Log.Handle(w, r, uploadErr, "max-size", "error", "RPCFile", "ReadSlice")
+			t.Log.Handle(w, r, uploadErr, "req", "file", "open", "error", "RPCFile", "ReadSlice")
 			http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
 
 			return
 		}
 
-	}
-	input := struct {
-		Arg0 []io.Reader
-		Arg1 []ggt.File
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
-
-	if decErr != nil {
-
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCFile", "ReadSlice")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
-
-		return
+		fileName2 = f
 	}
 
-	t.embed.ReadSlice(input.Arg0, input.Arg1)
+	t.embed.ReadSlice(fileName, fileName2)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadSlice")
 }
@@ -223,43 +182,29 @@ func (t *RPCFile) ReadSlice(w http.ResponseWriter, r *http.Request) {
 // ReadAll ...
 func (t *RPCFile) ReadAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCFile", "ReadAll")
-
+	var fileValues []io.Reader
 	{
-		err := r.ParseForm()
+		for _, fheaders := range r.MultipartForm.File {
+			for _, hdr := range fheaders {
+				var upload multipart.File
+				upload, uploadErr := hdr.Open()
 
-		if err != nil {
+				if uploadErr != nil {
 
-			t.Log.Handle(w, r, err, "parseform", "error", "RPCFile", "ReadAll")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+					t.Log.Handle(w, r, uploadErr, "req", "file", "open", "error", "RPCFile", "ReadAll")
+					http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
 
-			return
+					return
+				}
+
+				defer upload.Close()
+				fileValues = append(fileValues, upload.(io.Reader))
+			}
 		}
-
-		uploadErr := t.Upload.Check(r, w)
-
-		if uploadErr != nil {
-
-			t.Log.Handle(w, r, uploadErr, "max-size", "error", "RPCFile", "ReadAll")
-			http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
-
-			return
-		}
-
-	}
-	input := struct {
-		Arg0 []io.Reader
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
-
-	if decErr != nil {
-
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCFile", "ReadAll")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
-
-		return
 	}
 
-	t.embed.ReadAll(input.Arg0)
+	t.embed.ReadAll(fileValues)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadAll")
 }
@@ -268,45 +213,142 @@ func (t *RPCFile) ReadAll(w http.ResponseWriter, r *http.Request) {
 // ReadAll2 ...
 func (t *RPCFile) ReadAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCFile", "ReadAll2")
-
+	var fileValues []ggt.File
 	{
-		err := r.ParseForm()
-
-		if err != nil {
-
-			t.Log.Handle(w, r, err, "parseform", "error", "RPCFile", "ReadAll2")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-
-			return
-		}
-
-		uploadErr := t.Upload.Check(r, w)
+		f, uploadErr := t.Upload.GetAll(r, w)
 
 		if uploadErr != nil {
 
-			t.Log.Handle(w, r, uploadErr, "max-size", "error", "RPCFile", "ReadAll2")
+			t.Log.Handle(w, r, uploadErr, "req", "file", "open", "error", "RPCFile", "ReadAll2")
 			http.Error(w, uploadErr.Error(), http.StatusInternalServerError)
 
 			return
 		}
 
+		fileValues = f
 	}
-	input := struct {
-		Arg0 []ggt.File
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+	t.embed.ReadAll2(fileValues)
+	w.WriteHeader(200)
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCFile", "ReadAll2")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadAll2")
+}
+
+// WriteFile invoke File.WriteFile using the request body as a json payload.
+// WriteFile ...
+func (t *RPCFile) WriteFile(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCFile", "WriteFile")
+
+	fileResBody, fileResName, fileResContentType := t.embed.WriteFile()
+
+	w.Header().Set("Content-Disposition", "attachment; filename="+fileResName)
+
+	w.Header().Set("Content-Type", fileResContentType)
+
+	defer func() {
+		if x, ok := fileResBody.(io.Closer); ok {
+			closeErr := x.Close()
+
+			if closeErr != nil {
+
+				t.Log.Handle(w, r, closeErr, "res", "file", "error", "RPCFile", "WriteFile")
+				http.Error(w, closeErr.Error(), http.StatusInternalServerError)
+
+				return
+			}
+
+		}
+	}()
+
+	_, copyErr := io.Copy(w, fileResBody)
+
+	if copyErr != nil {
+
+		t.Log.Handle(w, r, copyErr, "res", "file", "error", "RPCFile", "WriteFile")
+		http.Error(w, copyErr.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	t.embed.ReadAll2(input.Arg0)
+	t.Log.Handle(w, r, nil, "end", "RPCFile", "WriteFile")
+}
 
-	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadAll2")
+// WriteFile2 invoke File.WriteFile2 using the request body as a json payload.
+// WriteFile2 ...
+func (t *RPCFile) WriteFile2(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCFile", "WriteFile2")
+
+	fileResBody := t.embed.WriteFile2()
+
+	if fileResBody != nil {
+
+		w.Header().Set("Content-Disposition", "attachment; filename="+fileResBody.AttachmentName())
+
+		w.Header().Set("Content-Type", fileResBody.ContentType())
+
+		defer func() {
+			closeErr := fileResBody.Close()
+
+			if closeErr != nil {
+
+				t.Log.Handle(w, r, closeErr, "res", "file", "error", "RPCFile", "WriteFile2")
+				http.Error(w, closeErr.Error(), http.StatusInternalServerError)
+
+				return
+			}
+
+		}()
+
+		_, copyErr := io.Copy(w, fileResBody.Fd())
+
+		if copyErr != nil {
+
+			t.Log.Handle(w, r, copyErr, "res", "file", "error", "RPCFile", "WriteFile2")
+			http.Error(w, copyErr.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}
+
+	t.Log.Handle(w, r, nil, "end", "RPCFile", "WriteFile2")
+}
+
+// WriteFile3 invoke File.WriteFile3 using the request body as a json payload.
+// WriteFile3 ...
+func (t *RPCFile) WriteFile3(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RPCFile", "WriteFile3")
+
+	fileResBody := t.embed.WriteFile3()
+
+	w.Header().Set("Content-Disposition", "attachment; filename="+fileResBody.AttachmentName())
+
+	w.Header().Set("Content-Type", fileResBody.ContentType())
+
+	defer func() {
+		closeErr := fileResBody.Close()
+
+		if closeErr != nil {
+
+			t.Log.Handle(w, r, closeErr, "res", "file", "error", "RPCFile", "WriteFile3")
+			http.Error(w, closeErr.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}()
+
+	_, copyErr := io.Copy(w, fileResBody.Fd())
+
+	if copyErr != nil {
+
+		t.Log.Handle(w, r, copyErr, "res", "file", "error", "RPCFile", "WriteFile3")
+		http.Error(w, copyErr.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	t.Log.Handle(w, r, nil, "end", "RPCFile", "WriteFile3")
 }
 
 // RPCFileDescriptor describe a *RPCFile
@@ -319,6 +361,9 @@ type RPCFileDescriptor struct {
 	methodReadSlice      *ggt.MethodDescriptor
 	methodReadAll        *ggt.MethodDescriptor
 	methodReadAll2       *ggt.MethodDescriptor
+	methodWriteFile      *ggt.MethodDescriptor
+	methodWriteFile2     *ggt.MethodDescriptor
+	methodWriteFile3     *ggt.MethodDescriptor
 }
 
 // NewRPCFileDescriptor describe a *RPCFile
@@ -366,6 +411,27 @@ func NewRPCFileDescriptor(about *RPCFile) *RPCFileDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodReadAll2)
+	ret.methodWriteFile = &ggt.MethodDescriptor{
+		Name:    "WriteFile",
+		Handler: about.WriteFile,
+		Route:   "WriteFile",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodWriteFile)
+	ret.methodWriteFile2 = &ggt.MethodDescriptor{
+		Name:    "WriteFile2",
+		Handler: about.WriteFile2,
+		Route:   "WriteFile2",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodWriteFile2)
+	ret.methodWriteFile3 = &ggt.MethodDescriptor{
+		Name:    "WriteFile3",
+		Handler: about.WriteFile3,
+		Route:   "WriteFile3",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodWriteFile3)
 	return ret
 }
 
@@ -386,3 +452,12 @@ func (t *RPCFileDescriptor) ReadAll() *ggt.MethodDescriptor { return t.methodRea
 
 // ReadAll2 returns a MethodDescriptor
 func (t *RPCFileDescriptor) ReadAll2() *ggt.MethodDescriptor { return t.methodReadAll2 }
+
+// WriteFile returns a MethodDescriptor
+func (t *RPCFileDescriptor) WriteFile() *ggt.MethodDescriptor { return t.methodWriteFile }
+
+// WriteFile2 returns a MethodDescriptor
+func (t *RPCFileDescriptor) WriteFile2() *ggt.MethodDescriptor { return t.methodWriteFile2 }
+
+// WriteFile3 returns a MethodDescriptor
+func (t *RPCFileDescriptor) WriteFile3() *ggt.MethodDescriptor { return t.methodWriteFile3 }

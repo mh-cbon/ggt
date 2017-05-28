@@ -5,7 +5,6 @@ package capable
 // do not edit
 
 import (
-	json "encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
 	"io"
 	"net/http"
@@ -41,20 +40,48 @@ func NewRPCSession(embed Session) *RPCSession {
 // GetAll return a map
 func (t *RPCSession) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCSession", "GetAll")
-	input := struct {
-		Arg0 map[interface{}]interface{}
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var sessionName map[interface{}]interface{}
+	{
 
-	if decErr != nil {
+		storesessionName, storeErr := t.Session.Get(r, "name")
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCSession", "GetAll")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+		if storeErr != nil {
 
-		return
+			t.Log.Handle(w, r, storeErr, "session", "store", "get", "error", "sessionName", "error", "RPCSession", "GetAll")
+			http.Error(w, storeErr.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+		defer func() {
+			saveErr := storesessionName.Save(r, w)
+
+			if saveErr != nil {
+
+				t.Log.Handle(w, r, saveErr, "session", "save", "error", "sessionName", "error", "RPCSession", "GetAll")
+				http.Error(w, saveErr.Error(), http.StatusInternalServerError)
+
+				return
+			}
+
+		}()
+
+		valsessionName, getErr := storesessionName.Get()
+
+		if getErr != nil {
+
+			t.Log.Handle(w, r, getErr, "session", "read", "error", "sessionName", "error", "RPCSession", "GetAll")
+			http.Error(w, getErr.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+		sessionName = valsessionName
+
 	}
 
-	t.embed.GetAll(input.Arg0)
+	t.embed.GetAll(sessionName)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCSession", "GetAll")
 }

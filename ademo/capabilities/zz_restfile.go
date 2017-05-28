@@ -372,6 +372,123 @@ func (t *RestFile) ReadAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "end", "RestFile", "ReadAll2")
 }
 
+// WriteFile invoke File.WriteFile using the request body as a json payload.
+// WriteFile ...
+func (t *RestFile) WriteFile(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestFile", "WriteFile")
+
+	fileResBody, fileResName, fileResContentType := t.embed.WriteFile()
+
+	w.Header().Set("Content-Disposition", "attachment; filename="+fileResName)
+
+	w.Header().Set("Content-Type", fileResContentType)
+
+	defer func() {
+		if x, ok := fileResBody.(io.Closer); ok {
+			closeErr := x.Close()
+
+			if closeErr != nil {
+
+				t.Log.Handle(w, r, closeErr, "res", "file", "error", "RestFile", "WriteFile")
+				http.Error(w, closeErr.Error(), http.StatusInternalServerError)
+
+				return
+			}
+
+		}
+	}()
+
+	_, copyErr := io.Copy(w, fileResBody)
+
+	if copyErr != nil {
+
+		t.Log.Handle(w, r, copyErr, "res", "file", "error", "RestFile", "WriteFile")
+		http.Error(w, copyErr.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	t.Log.Handle(w, r, nil, "end", "RestFile", "WriteFile")
+}
+
+// WriteFile2 invoke File.WriteFile2 using the request body as a json payload.
+// WriteFile2 ...
+func (t *RestFile) WriteFile2(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestFile", "WriteFile2")
+
+	fileResBody := t.embed.WriteFile2()
+
+	if fileResBody != nil {
+
+		w.Header().Set("Content-Disposition", "attachment; filename="+fileResBody.AttachmentName())
+
+		w.Header().Set("Content-Type", fileResBody.ContentType())
+
+		defer func() {
+			closeErr := fileResBody.Close()
+
+			if closeErr != nil {
+
+				t.Log.Handle(w, r, closeErr, "res", "file", "error", "RestFile", "WriteFile2")
+				http.Error(w, closeErr.Error(), http.StatusInternalServerError)
+
+				return
+			}
+
+		}()
+
+		_, copyErr := io.Copy(w, fileResBody.Fd())
+
+		if copyErr != nil {
+
+			t.Log.Handle(w, r, copyErr, "res", "file", "error", "RestFile", "WriteFile2")
+			http.Error(w, copyErr.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}
+
+	t.Log.Handle(w, r, nil, "end", "RestFile", "WriteFile2")
+}
+
+// WriteFile3 invoke File.WriteFile3 using the request body as a json payload.
+// WriteFile3 ...
+func (t *RestFile) WriteFile3(w http.ResponseWriter, r *http.Request) {
+	t.Log.Handle(w, r, nil, "begin", "RestFile", "WriteFile3")
+
+	fileResBody := t.embed.WriteFile3()
+
+	w.Header().Set("Content-Disposition", "attachment; filename="+fileResBody.AttachmentName())
+
+	w.Header().Set("Content-Type", fileResBody.ContentType())
+
+	defer func() {
+		closeErr := fileResBody.Close()
+
+		if closeErr != nil {
+
+			t.Log.Handle(w, r, closeErr, "res", "file", "error", "RestFile", "WriteFile3")
+			http.Error(w, closeErr.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+	}()
+
+	_, copyErr := io.Copy(w, fileResBody.Fd())
+
+	if copyErr != nil {
+
+		t.Log.Handle(w, r, copyErr, "res", "file", "error", "RestFile", "WriteFile3")
+		http.Error(w, copyErr.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	t.Log.Handle(w, r, nil, "end", "RestFile", "WriteFile3")
+}
+
 // RestFileDescriptor describe a *RestFile
 type RestFileDescriptor struct {
 	ggt.TypeDescriptor
@@ -382,6 +499,9 @@ type RestFileDescriptor struct {
 	methodReadSlice      *ggt.MethodDescriptor
 	methodReadAll        *ggt.MethodDescriptor
 	methodReadAll2       *ggt.MethodDescriptor
+	methodWriteFile      *ggt.MethodDescriptor
+	methodWriteFile2     *ggt.MethodDescriptor
+	methodWriteFile3     *ggt.MethodDescriptor
 }
 
 // NewRestFileDescriptor describe a *RestFile
@@ -429,6 +549,27 @@ func NewRestFileDescriptor(about *RestFile) *RestFileDescriptor {
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodReadAll2)
+	ret.methodWriteFile = &ggt.MethodDescriptor{
+		Name:    "WriteFile",
+		Handler: about.WriteFile,
+		Route:   "WriteFile",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodWriteFile)
+	ret.methodWriteFile2 = &ggt.MethodDescriptor{
+		Name:    "WriteFile2",
+		Handler: about.WriteFile2,
+		Route:   "WriteFile2",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodWriteFile2)
+	ret.methodWriteFile3 = &ggt.MethodDescriptor{
+		Name:    "WriteFile3",
+		Handler: about.WriteFile3,
+		Route:   "WriteFile3",
+		Methods: []string{},
+	}
+	ret.TypeDescriptor.Register(ret.methodWriteFile3)
 	return ret
 }
 
@@ -449,3 +590,12 @@ func (t *RestFileDescriptor) ReadAll() *ggt.MethodDescriptor { return t.methodRe
 
 // ReadAll2 returns a MethodDescriptor
 func (t *RestFileDescriptor) ReadAll2() *ggt.MethodDescriptor { return t.methodReadAll2 }
+
+// WriteFile returns a MethodDescriptor
+func (t *RestFileDescriptor) WriteFile() *ggt.MethodDescriptor { return t.methodWriteFile }
+
+// WriteFile2 returns a MethodDescriptor
+func (t *RestFileDescriptor) WriteFile2() *ggt.MethodDescriptor { return t.methodWriteFile2 }
+
+// WriteFile3 returns a MethodDescriptor
+func (t *RestFileDescriptor) WriteFile3() *ggt.MethodDescriptor { return t.methodWriteFile3 }

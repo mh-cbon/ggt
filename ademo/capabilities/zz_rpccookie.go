@@ -5,7 +5,6 @@ package capable
 // do not edit
 
 import (
-	json "encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
 	"io"
 	"net/http"
@@ -42,20 +41,15 @@ func NewRPCCookie(embed Cookie) *RPCCookie {
 // GetAll values in cookies
 func (t *RPCCookie) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "GetAll")
-	input := struct {
-		Arg0 map[string]string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
-
-	if decErr != nil {
-
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCCookie", "GetAll")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
-
-		return
+	var cookieValues map[string]string
+	{
+		for _, v := range r.Cookies() {
+			cookieValues[v.Name] = v.Value
+		}
 	}
 
-	t.embed.GetAll(input.Arg0)
+	t.embed.GetAll(cookieValues)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "GetAll")
 }
@@ -64,20 +58,10 @@ func (t *RPCCookie) GetAll(w http.ResponseWriter, r *http.Request) {
 // GetAllRaw  cookies
 func (t *RPCCookie) GetAllRaw(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "GetAllRaw")
-	input := struct {
-		Arg0 []*http.Cookie
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	cookieValues := r.Cookies()
 
-	if decErr != nil {
-
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCCookie", "GetAllRaw")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
-
-		return
-	}
-
-	t.embed.GetAllRaw(input.Arg0)
+	t.embed.GetAllRaw(cookieValues)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "GetAllRaw")
 }
@@ -86,20 +70,25 @@ func (t *RPCCookie) GetAllRaw(w http.ResponseWriter, r *http.Request) {
 // GetOne value form cookies
 func (t *RPCCookie) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "GetOne")
-	input := struct {
-		Arg0 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var cookieWhatever string
+	{
+		c, cookieErr := r.Cookie("whatever")
 
-	if decErr != nil {
+		if cookieErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCCookie", "GetOne")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, cookieErr, "req", "cookie", "error", "error", "RPCCookie", "GetOne")
+			http.Error(w, cookieErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		if c != nil {
+			cookieWhatever = c.Value
+		}
 	}
 
-	t.embed.GetOne(input.Arg0)
+	t.embed.GetOne(cookieWhatever)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "GetOne")
 }
@@ -108,20 +97,25 @@ func (t *RPCCookie) GetOne(w http.ResponseWriter, r *http.Request) {
 // GetOneRaw cookie
 func (t *RPCCookie) GetOneRaw(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "GetOneRaw")
-	input := struct {
-		Arg0 http.Cookie
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var cookieWhatever http.Cookie
+	{
+		c, cookieErr := r.Cookie("whatever")
 
-	if decErr != nil {
+		if cookieErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCCookie", "GetOneRaw")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, cookieErr, "req", "cookie", "error", "error", "RPCCookie", "GetOneRaw")
+			http.Error(w, cookieErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		if c != nil {
+			cookieWhatever = *c
+		}
 	}
 
-	t.embed.GetOneRaw(input.Arg0)
+	t.embed.GetOneRaw(cookieWhatever)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "GetOneRaw")
 }
@@ -130,20 +124,23 @@ func (t *RPCCookie) GetOneRaw(w http.ResponseWriter, r *http.Request) {
 // MaybeGetOneRaw cookie
 func (t *RPCCookie) MaybeGetOneRaw(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "MaybeGetOneRaw")
-	input := struct {
-		Arg0 *http.Cookie
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var cookieWhatever *http.Cookie
+	{
+		c, cookieErr := r.Cookie("whatever")
 
-	if decErr != nil {
+		if cookieErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCCookie", "MaybeGetOneRaw")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, cookieErr, "req", "cookie", "error", "error", "RPCCookie", "MaybeGetOneRaw")
+			http.Error(w, cookieErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		cookieWhatever = c
 	}
 
-	t.embed.MaybeGetOneRaw(input.Arg0)
+	t.embed.MaybeGetOneRaw(cookieWhatever)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "MaybeGetOneRaw")
 }
@@ -154,26 +151,6 @@ func (t *RPCCookie) Write(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "Write")
 
 	cookieWhatever := t.embed.Write()
-	output := struct {
-		Arg0 http.Cookie
-	}{
-		Arg0: cookieWhatever,
-	}
-
-	{
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		encErr := json.NewEncoder(w).Encode(output)
-
-		if encErr != nil {
-
-			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RPCCookie", "Write")
-			http.Error(w, encErr.Error(), http.StatusInternalServerError)
-
-			return
-		}
-
-	}
 	http.SetCookie(w, &cookieWhatever)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "Write")
@@ -185,26 +162,6 @@ func (t *RPCCookie) MaybeDelete(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "MaybeDelete")
 
 	cookieWhatever := t.embed.MaybeDelete()
-	output := struct {
-		Arg0 *http.Cookie
-	}{
-		Arg0: cookieWhatever,
-	}
-
-	{
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		encErr := json.NewEncoder(w).Encode(output)
-
-		if encErr != nil {
-
-			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RPCCookie", "MaybeDelete")
-			http.Error(w, encErr.Error(), http.StatusInternalServerError)
-
-			return
-		}
-
-	}
 
 	if cookieWhatever == nil {
 		http.SetCookie(w, &http.Cookie{
@@ -224,26 +181,6 @@ func (t *RPCCookie) Delete(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "Delete")
 
 	cookieWhatever := t.embed.Delete()
-	output := struct {
-		Arg0 *http.Cookie
-	}{
-		Arg0: cookieWhatever,
-	}
-
-	{
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		encErr := json.NewEncoder(w).Encode(output)
-
-		if encErr != nil {
-
-			t.Log.Handle(w, r, encErr, "res", "json", "encode", "error", "RPCCookie", "Delete")
-			http.Error(w, encErr.Error(), http.StatusInternalServerError)
-
-			return
-		}
-
-	}
 
 	if cookieWhatever == nil {
 		http.SetCookie(w, &http.Cookie{
@@ -261,21 +198,41 @@ func (t *RPCCookie) Delete(w http.ResponseWriter, r *http.Request) {
 // GetMany args from url query
 func (t *RPCCookie) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "GetMany")
-	input := struct {
-		Arg0 string
-		Arg1 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var cookieArg1 string
+	{
+		c, cookieErr := r.Cookie("arg1")
 
-	if decErr != nil {
+		if cookieErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCCookie", "GetMany")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, cookieErr, "req", "cookie", "error", "error", "RPCCookie", "GetMany")
+			http.Error(w, cookieErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		if c != nil {
+			cookieArg1 = c.Value
+		}
+	}
+	var cookieArg2 string
+	{
+		c, cookieErr := r.Cookie("arg2")
+
+		if cookieErr != nil {
+
+			t.Log.Handle(w, r, cookieErr, "req", "cookie", "error", "error", "RPCCookie", "GetMany")
+			http.Error(w, cookieErr.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+		if c != nil {
+			cookieArg2 = c.Value
+		}
 	}
 
-	t.embed.GetMany(input.Arg0, input.Arg1)
+	t.embed.GetMany(cookieArg1, cookieArg2)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "GetMany")
 }
@@ -284,20 +241,38 @@ func (t *RPCCookie) GetMany(w http.ResponseWriter, r *http.Request) {
 // ConvertToInt an arg from url query
 func (t *RPCCookie) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "ConvertToInt")
-	input := struct {
-		Arg0 int
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var cookieArg1 int
+	{
+		c, cookieErr := r.Cookie("arg1")
 
-	if decErr != nil {
+		if cookieErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCCookie", "ConvertToInt")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, cookieErr, "req", "cookie", "error", "error", "RPCCookie", "ConvertToInt")
+			http.Error(w, cookieErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		if c != nil {
+			{
+				var err error
+				cookieArg1, err = strconv.Atoi(c.Value)
+
+				if err != nil {
+
+					t.Log.Handle(w, r, err, "route", "error", "RPCCookie", "ConvertToInt")
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+
+					return
+				}
+
+			}
+
+		}
 	}
 
-	t.embed.ConvertToInt(input.Arg0)
+	t.embed.ConvertToInt(cookieArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "ConvertToInt")
 }
@@ -306,20 +281,38 @@ func (t *RPCCookie) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 // ConvertToBool an arg from url query
 func (t *RPCCookie) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "ConvertToBool")
-	input := struct {
-		Arg0 bool
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var cookieArg1 bool
+	{
+		c, cookieErr := r.Cookie("arg1")
 
-	if decErr != nil {
+		if cookieErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCCookie", "ConvertToBool")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, cookieErr, "req", "cookie", "error", "error", "RPCCookie", "ConvertToBool")
+			http.Error(w, cookieErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		if c != nil {
+			{
+				var err error
+				cookieArg1, err = strconv.ParseBool(c.Value)
+
+				if err != nil {
+
+					t.Log.Handle(w, r, err, "route", "error", "RPCCookie", "ConvertToBool")
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+
+					return
+				}
+
+			}
+
+		}
 	}
 
-	t.embed.ConvertToBool(input.Arg0)
+	t.embed.ConvertToBool(cookieArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "ConvertToBool")
 }
@@ -328,20 +321,25 @@ func (t *RPCCookie) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 // MaybeGet an arg if it exists in url query.
 func (t *RPCCookie) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "MaybeGet")
-	input := struct {
-		Arg0 *string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var cookieArg1 *string
+	{
+		c, cookieErr := r.Cookie("arg1")
 
-	if decErr != nil {
+		if cookieErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCCookie", "MaybeGet")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, cookieErr, "req", "cookie", "error", "error", "RPCCookie", "MaybeGet")
+			http.Error(w, cookieErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		if c != nil {
+			cookieArg1 = &c.Value
+		}
 	}
 
-	t.embed.MaybeGet(input.Arg0)
+	t.embed.MaybeGet(cookieArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCookie", "MaybeGet")
 }

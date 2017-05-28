@@ -49,3 +49,28 @@ func (c File) ReadAll2(fileValues []ggt.File) {
 	fmt.Printf(`fileName %v
     `, fileValues)
 }
+
+// WriteFile ...
+func (c File) WriteFile() (fileResBody io.Reader, fileResName string, fileResContentType string) {
+	fmt.Printf(`fileResBody %v
+    `, fileResBody)
+	fmt.Printf(`fileResName %v
+    `, fileResName)
+	fmt.Printf(`fileResContentType %v
+    `, fileResContentType)
+	return
+}
+
+// WriteFile2 ...
+func (c File) WriteFile2() (fileResBody *ggt.File) {
+	fmt.Printf(`fileResBody %v
+    `, fileResBody)
+	return
+}
+
+// WriteFile3 ...
+func (c File) WriteFile3() (fileResBody ggt.File) {
+	fmt.Printf(`fileResBody %v
+    `, fileResBody)
+	return
+}

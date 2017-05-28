@@ -50,6 +50,7 @@ func (t *RestURL) GetAll(w http.ResponseWriter, r *http.Request) {
 	{
 		urlValues = map[string][]string{}
 		xxTempValue := urlValues
+
 		for k, v := range xxRouteVars {
 			if _, ok := xxTempValue[k]; ok {
 				xxTempValue[k] = append(xxTempValue[k], v)
@@ -57,6 +58,7 @@ func (t *RestURL) GetAll(w http.ResponseWriter, r *http.Request) {
 				xxTempValue[k] = []string{v}
 			}
 		}
+
 		for k, v := range xxURLValues {
 			if _, ok := xxTempValue[k]; ok {
 				xxTempValue[k] = append(xxTempValue[k], v...)
@@ -85,11 +87,13 @@ func (t *RestURL) GetAll2(w http.ResponseWriter, r *http.Request) {
 	{
 		urlValues = map[string]string{}
 		xxTempValue := urlValues
+
 		for k, v := range xxRouteVars {
 			if len(v) > 0 {
 				xxTempValue[k] = v
 			}
 		}
+
 		for k, v := range xxURLValues {
 			if len(v) > 0 {
 				if _, ok := xxTempValue[k]; ok {
@@ -126,7 +130,8 @@ func (t *RestURL) GetOne(w http.ResponseWriter, r *http.Request) {
 
 	xxURLValues := r.URL.Query()
 	var urlArg1 string
-	if _, ok := xxRouteVars["arg1"]; ok {
+	if false {
+	} else if _, ok := xxRouteVars["arg1"]; ok {
 		xxTmpurlArg1 := xxRouteVars["arg1"]
 		urlArg1 = xxTmpurlArg1
 	} else if _, ok := xxURLValues["arg1"]; ok {
@@ -149,7 +154,8 @@ func (t *RestURL) GetMany(w http.ResponseWriter, r *http.Request) {
 
 	xxURLValues := r.URL.Query()
 	var urlArg1 string
-	if _, ok := xxRouteVars["arg1"]; ok {
+	if false {
+	} else if _, ok := xxRouteVars["arg1"]; ok {
 		xxTmpurlArg1 := xxRouteVars["arg1"]
 		urlArg1 = xxTmpurlArg1
 	} else if _, ok := xxURLValues["arg1"]; ok {
@@ -157,7 +163,8 @@ func (t *RestURL) GetMany(w http.ResponseWriter, r *http.Request) {
 		urlArg1 = xxTmpurlArg1
 	}
 	var urlArg2 string
-	if _, ok := xxRouteVars["arg2"]; ok {
+	if false {
+	} else if _, ok := xxRouteVars["arg2"]; ok {
 		xxTmpurlArg2 := xxRouteVars["arg2"]
 		urlArg2 = xxTmpurlArg2
 	} else if _, ok := xxURLValues["arg2"]; ok {
@@ -180,7 +187,8 @@ func (t *RestURL) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 
 	xxURLValues := r.URL.Query()
 	var urlArg1 int
-	if _, ok := xxRouteVars["arg1"]; ok {
+	if false {
+	} else if _, ok := xxRouteVars["arg1"]; ok {
 		xxTmpurlArg1 := xxRouteVars["arg1"]
 		{
 			var err error
@@ -229,7 +237,8 @@ func (t *RestURL) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 
 	xxURLValues := r.URL.Query()
 	var urlArg1 bool
-	if _, ok := xxRouteVars["arg1"]; ok {
+	if false {
+	} else if _, ok := xxRouteVars["arg1"]; ok {
 		xxTmpurlArg1 := xxRouteVars["arg1"]
 		{
 			var err error
@@ -278,7 +287,8 @@ func (t *RestURL) MaybeGet(w http.ResponseWriter, r *http.Request) {
 
 	xxURLValues := r.URL.Query()
 	var urlArg1 *string
-	if _, ok := xxRouteVars["arg1"]; ok {
+	if false {
+	} else if _, ok := xxRouteVars["arg1"]; ok {
 		xxTmpurlArg1 := xxRouteVars["arg1"]
 		urlArg1 = &xxTmpurlArg1
 	} else if _, ok := xxURLValues["arg1"]; ok {

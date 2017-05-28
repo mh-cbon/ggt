@@ -5,7 +5,7 @@ package capable
 // do not edit
 
 import (
-	json "encoding/json"
+	"encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
 	"io"
 	"net/http"
@@ -41,20 +41,26 @@ func NewRPCJSON(embed JSON) *RPCJSON {
 // ReadJSONBody ...
 func (t *RPCJSON) ReadJSONBody(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCJSON", "ReadJSONBody")
-	input := struct {
-		Arg0 Whatever
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var jsonReqBody Whatever
+	{
+		input := struct {
+			jsonReqBody Whatever
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCJSON", "ReadJSONBody")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCJSON", "ReadJSONBody")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		jsonReqBody = input.jsonReqBody
 	}
 
-	t.embed.ReadJSONBody(input.Arg0)
+	t.embed.ReadJSONBody(jsonReqBody)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCJSON", "ReadJSONBody")
 }

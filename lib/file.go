@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"errors"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -11,13 +12,55 @@ import (
 
 // File is descriptor
 type File struct {
-	PhysicalFile *os.File
+	PhysicalFile io.ReadCloser
+	PhysicalPath string
 	Name         string
 	Index        int
-	FilePath     string
+	Filename     string
 	PathExt      string
 	MimeType     string
 	Written      int64
+}
+
+// Fd ...
+func (f *File) Fd() io.Reader {
+	return f.PhysicalFile
+}
+
+type multiError struct {
+	error
+	errors []error
+}
+
+func (m multiError) set(e ...error) error {
+	if len(e) == 0 {
+		return nil
+	}
+	m.errors = e
+	msg := ""
+	for _, err := range e {
+		msg += err.Error() + ":"
+	}
+	m.error = errors.New("multiple errors:" + msg[:len(msg)-1])
+	return m
+}
+
+// Close ...
+func (f *File) Close() error {
+	return multiError{}.set(
+		f.PhysicalFile.Close(),
+		os.Remove(f.PhysicalPath),
+	)
+}
+
+// AttachmentName ...
+func (f *File) AttachmentName() string {
+	return f.Filename
+}
+
+// ContentType ...
+func (f *File) ContentType() string {
+	return f.MimeType
 }
 
 // Uploader ...
@@ -37,7 +80,8 @@ type FileProvider struct {
 // NewFileProvider ...
 func NewFileProvider() *FileProvider {
 	return &FileProvider{
-		MaxSize: (1 << 10) * 24,
+		MaxSize:    (1 << 10) * 24,
+		UploadPath: os.TempDir(),
 	}
 }
 
@@ -54,28 +98,33 @@ func (f *FileProvider) makeFile(hdr *multipart.FileHeader, name string, index in
 	if infile, err = hdr.Open(); nil != err {
 		return ret, err
 	}
-	defer infile.Close()
 
 	var tmp *os.File
 	if tmp, err = ioutil.TempFile(f.UploadPath, "up-"); nil != err {
 		return ret, err
 	}
-	defer tmp.Close()
+	var written int64
+	if written, err = io.Copy(tmp, infile); nil != err {
+		return ret, err
+	}
+	if err = infile.Close(); nil != err {
+		return ret, err
+	}
+	if err = infile.Close(); nil != err {
+		return ret, err
+	}
 
 	ret = File{
 		PhysicalFile: tmp,
+		PhysicalPath: filepath.Join(f.UploadPath, filepath.Base(tmp.Name())),
+		Written:      written,
 		Name:         name,
 		Index:        index,
-		FilePath:     hdr.Filename,
+		Filename:     hdr.Filename,
 		PathExt:      filepath.Ext(hdr.Filename),
 		MimeType:     "",
 	}
 
-	var written int64
-	if written, err = io.Copy(ret.PhysicalFile, infile); nil != err {
-		return ret, err
-	}
-	ret.Written = written
 	return ret, nil
 }
 

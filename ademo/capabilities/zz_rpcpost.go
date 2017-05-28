@@ -5,7 +5,7 @@ package capable
 // do not edit
 
 import (
-	json "encoding/json"
+	"encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
 	"io"
 	"net/http"
@@ -54,20 +54,26 @@ func (t *RPCPost) GetAll(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	input := struct {
-		Arg0 map[string][]string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var postValues map[string][]string
+	{
+		input := struct {
+			postValues map[string][]string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "GetAll")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCPost", "GetAll")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		postValues = input.postValues
 	}
 
-	t.embed.GetAll(input.Arg0)
+	t.embed.GetAll(postValues)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetAll")
 }
@@ -89,20 +95,26 @@ func (t *RPCPost) GetAll2(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	input := struct {
-		Arg0 map[string]string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var postValues map[string]string
+	{
+		input := struct {
+			postValues map[string]string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "GetAll2")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCPost", "GetAll2")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		postValues = input.postValues
 	}
 
-	t.embed.GetAll2(input.Arg0)
+	t.embed.GetAll2(postValues)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetAll2")
 }
@@ -124,20 +136,26 @@ func (t *RPCPost) GetOne(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	input := struct {
-		Arg0 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var postArg1 string
+	{
+		input := struct {
+			postArg1 string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "GetOne")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCPost", "GetOne")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		postArg1 = input.postArg1
 	}
 
-	t.embed.GetOne(input.Arg0)
+	t.embed.GetOne(postArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetOne")
 }
@@ -159,21 +177,29 @@ func (t *RPCPost) GetMany(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	input := struct {
-		Arg0 string
-		Arg1 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var postArg1 string
+	var postArg2 string
+	{
+		input := struct {
+			postArg1 string
+			postArg2 string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "GetMany")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCPost", "GetMany")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		postArg1 = input.postArg1
+		postArg2 = input.postArg2
 	}
 
-	t.embed.GetMany(input.Arg0, input.Arg1)
+	t.embed.GetMany(postArg1, postArg2)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetMany")
 }
@@ -195,20 +221,26 @@ func (t *RPCPost) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	input := struct {
-		Arg0 int
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var postArg1 int
+	{
+		input := struct {
+			postArg1 int
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "ConvertToInt")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCPost", "ConvertToInt")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		postArg1 = input.postArg1
 	}
 
-	t.embed.ConvertToInt(input.Arg0)
+	t.embed.ConvertToInt(postArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "ConvertToInt")
 }
@@ -230,20 +262,26 @@ func (t *RPCPost) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	input := struct {
-		Arg0 bool
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var postArg1 bool
+	{
+		input := struct {
+			postArg1 bool
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "ConvertToBool")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCPost", "ConvertToBool")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		postArg1 = input.postArg1
 	}
 
-	t.embed.ConvertToBool(input.Arg0)
+	t.embed.ConvertToBool(postArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "ConvertToBool")
 }
@@ -265,20 +303,26 @@ func (t *RPCPost) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	input := struct {
-		Arg0 []bool
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var postArg1 []bool
+	{
+		input := struct {
+			postArg1 []bool
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "ConvertToSlice")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCPost", "ConvertToSlice")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		postArg1 = input.postArg1
 	}
 
-	t.embed.ConvertToSlice(input.Arg0)
+	t.embed.ConvertToSlice(postArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "ConvertToSlice")
 }
@@ -300,20 +344,26 @@ func (t *RPCPost) MaybeGet(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	input := struct {
-		Arg0 *string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var postArg1 *string
+	{
+		input := struct {
+			postArg1 *string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCPost", "MaybeGet")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCPost", "MaybeGet")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		postArg1 = input.postArg1
 	}
 
-	t.embed.MaybeGet(input.Arg0)
+	t.embed.MaybeGet(postArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "MaybeGet")
 }

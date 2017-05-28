@@ -5,7 +5,7 @@ package capable
 // do not edit
 
 import (
-	json "encoding/json"
+	"encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
 	"io"
 	"net/http"
@@ -41,20 +41,26 @@ func NewRPCGet(embed Get) *RPCGet {
 // GetAll values in url query as a map of values
 func (t *RPCGet) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetAll")
-	input := struct {
-		Arg0 map[string][]string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var getValues map[string][]string
+	{
+		input := struct {
+			getValues map[string][]string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetAll")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCGet", "GetAll")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		getValues = input.getValues
 	}
 
-	t.embed.GetAll(input.Arg0)
+	t.embed.GetAll(getValues)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetAll")
 }
@@ -63,20 +69,26 @@ func (t *RPCGet) GetAll(w http.ResponseWriter, r *http.Request) {
 // GetAll2 values in url query as a map of value
 func (t *RPCGet) GetAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetAll2")
-	input := struct {
-		Arg0 map[string]string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var getValues map[string]string
+	{
+		input := struct {
+			getValues map[string]string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetAll2")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCGet", "GetAll2")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		getValues = input.getValues
 	}
 
-	t.embed.GetAll2(input.Arg0)
+	t.embed.GetAll2(getValues)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetAll2")
 }
@@ -85,20 +97,26 @@ func (t *RPCGet) GetAll2(w http.ResponseWriter, r *http.Request) {
 // GetOne arg from url query
 func (t *RPCGet) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetOne")
-	input := struct {
-		Arg0 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var getArg1 string
+	{
+		input := struct {
+			getArg1 string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetOne")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCGet", "GetOne")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		getArg1 = input.getArg1
 	}
 
-	t.embed.GetOne(input.Arg0)
+	t.embed.GetOne(getArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetOne")
 }
@@ -107,21 +125,29 @@ func (t *RPCGet) GetOne(w http.ResponseWriter, r *http.Request) {
 // GetMany args from url query
 func (t *RPCGet) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "GetMany")
-	input := struct {
-		Arg0 string
-		Arg1 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var getArg1 string
+	var getArg2 string
+	{
+		input := struct {
+			getArg1 string
+			getArg2 string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "GetMany")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCGet", "GetMany")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		getArg1 = input.getArg1
+		getArg2 = input.getArg2
 	}
 
-	t.embed.GetMany(input.Arg0, input.Arg1)
+	t.embed.GetMany(getArg1, getArg2)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetMany")
 }
@@ -130,20 +156,26 @@ func (t *RPCGet) GetMany(w http.ResponseWriter, r *http.Request) {
 // ConvertToInt an arg from url query
 func (t *RPCGet) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "ConvertToInt")
-	input := struct {
-		Arg0 int
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var getArg1 int
+	{
+		input := struct {
+			getArg1 int
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "ConvertToInt")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCGet", "ConvertToInt")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		getArg1 = input.getArg1
 	}
 
-	t.embed.ConvertToInt(input.Arg0)
+	t.embed.ConvertToInt(getArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "ConvertToInt")
 }
@@ -152,20 +184,26 @@ func (t *RPCGet) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 // ConvertToBool an arg from url query
 func (t *RPCGet) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "ConvertToBool")
-	input := struct {
-		Arg0 bool
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var getArg1 bool
+	{
+		input := struct {
+			getArg1 bool
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "ConvertToBool")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCGet", "ConvertToBool")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		getArg1 = input.getArg1
 	}
 
-	t.embed.ConvertToBool(input.Arg0)
+	t.embed.ConvertToBool(getArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "ConvertToBool")
 }
@@ -174,20 +212,26 @@ func (t *RPCGet) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 // ConvertToSlice an arg from url query
 func (t *RPCGet) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "ConvertToSlice")
-	input := struct {
-		Arg0 []bool
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var getArg1 []bool
+	{
+		input := struct {
+			getArg1 []bool
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "ConvertToSlice")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCGet", "ConvertToSlice")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		getArg1 = input.getArg1
 	}
 
-	t.embed.ConvertToSlice(input.Arg0)
+	t.embed.ConvertToSlice(getArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "ConvertToSlice")
 }
@@ -196,20 +240,26 @@ func (t *RPCGet) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
 // MaybeGet an arg if it exists in url query.
 func (t *RPCGet) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCGet", "MaybeGet")
-	input := struct {
-		Arg0 *string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var getArg1 *string
+	{
+		input := struct {
+			getArg1 *string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCGet", "MaybeGet")
-		http.Error(w, decErr.Error(), http.StatusInternalServerError)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCGet", "MaybeGet")
+			http.Error(w, decErr.Error(), http.StatusInternalServerError)
 
-		return
+			return
+		}
+
+		getArg1 = input.getArg1
 	}
 
-	t.embed.MaybeGet(input.Arg0)
+	t.embed.MaybeGet(getArg1)
+	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "MaybeGet")
 }
