@@ -21,6 +21,7 @@ type RestGet struct {
 	embed   Get
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRestGet constructs an httper of Get
@@ -29,6 +30,7 @@ func NewRestGet(embed Get) *RestGet {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestGet")
 	return ret

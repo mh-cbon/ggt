@@ -22,6 +22,7 @@ type RPCURL struct {
 	embed   URL
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRPCURL constructs an httper of URL
@@ -30,6 +31,7 @@ func NewRPCURL(embed URL) *RPCURL {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCURL")
 	return ret

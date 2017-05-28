@@ -23,6 +23,7 @@ type RPCCookie struct {
 	embed   Cookie
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRPCCookie constructs an httper of Cookie
@@ -31,6 +32,7 @@ func NewRPCCookie(embed Cookie) *RPCCookie {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCCookie")
 	return ret

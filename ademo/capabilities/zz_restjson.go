@@ -22,6 +22,7 @@ type RestJSON struct {
 	embed   JSON
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRestJSON constructs an httper of JSON
@@ -30,6 +31,7 @@ func NewRestJSON(embed JSON) *RestJSON {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestJSON")
 	return ret

@@ -22,6 +22,7 @@ type RPCRoute struct {
 	embed   Route
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRPCRoute constructs an httper of Route
@@ -30,6 +31,7 @@ func NewRPCRoute(embed Route) *RPCRoute {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCRoute")
 	return ret

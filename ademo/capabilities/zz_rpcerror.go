@@ -22,6 +22,7 @@ type RPCError struct {
 	embed   Error
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRPCError constructs an httper of Error
@@ -30,6 +31,7 @@ func NewRPCError(embed Error) *RPCError {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCError")
 	return ret

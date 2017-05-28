@@ -22,6 +22,7 @@ type RPCJSON struct {
 	embed   JSON
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRPCJSON constructs an httper of JSON
@@ -30,6 +31,7 @@ func NewRPCJSON(embed JSON) *RPCJSON {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCJSON")
 	return ret

@@ -22,6 +22,7 @@ type RPCGet struct {
 	embed   Get
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRPCGet constructs an httper of Get
@@ -30,6 +31,7 @@ func NewRPCGet(embed Get) *RPCGet {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCGet")
 	return ret

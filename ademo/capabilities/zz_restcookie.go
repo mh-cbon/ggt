@@ -22,6 +22,7 @@ type RestCookie struct {
 	embed   Cookie
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRestCookie constructs an httper of Cookie
@@ -30,6 +31,7 @@ func NewRestCookie(embed Cookie) *RestCookie {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestCookie")
 	return ret

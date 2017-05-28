@@ -22,6 +22,7 @@ type RPReq struct {
 	embed   Req
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRPReq constructs an httper of Req
@@ -30,6 +31,7 @@ func NewRPReq(embed Req) *RPReq {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPReq")
 	return ret

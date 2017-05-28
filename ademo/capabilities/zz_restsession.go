@@ -21,6 +21,7 @@ type RestSession struct {
 	embed   Session
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRestSession constructs an httper of Session
@@ -29,6 +30,7 @@ func NewRestSession(embed Session) *RestSession {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestSession")
 	return ret

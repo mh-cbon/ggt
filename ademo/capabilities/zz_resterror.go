@@ -21,6 +21,7 @@ type RestError struct {
 	embed   Error
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRestError constructs an httper of Error
@@ -29,6 +30,7 @@ func NewRestError(embed Error) *RestError {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestError")
 	return ret

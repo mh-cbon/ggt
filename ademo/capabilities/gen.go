@@ -27,3 +27,6 @@ package capable
 
 //go:generate ggt -mode route http-provider Session:RestSession
 //go:generate ggt -mode rpc http-provider Session:RPCSession
+
+//go:generate ggt -mode route http-provider File:RestFile
+//go:generate ggt -mode rpc http-provider File:RPCFile

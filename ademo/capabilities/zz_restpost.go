@@ -21,6 +21,7 @@ type RestPost struct {
 	embed   Post
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRestPost constructs an httper of Post
@@ -29,6 +30,7 @@ func NewRestPost(embed Post) *RestPost {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestPost")
 	return ret

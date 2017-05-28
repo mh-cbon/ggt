@@ -167,6 +167,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	embed %v
 	Log ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload ggt.Uploader
 }
 		`, destName, srcNameFq)
 
@@ -179,6 +180,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		embed: embed,
 		Log: &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload: &ggt.FileProvider{},
 	}
 	%v
   return ret
@@ -279,6 +281,17 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				%v
 			}
 			`, errHandler("err", "parseform"))
+		}
+
+		if hasFileParam(lParamNames) {
+			bodyFunc += fmt.Sprintf(`
+			{
+				err := r.ParseForm()
+				%v
+				uploadErr := t.Upload.Check(r,w)
+				%v
+			}
+			`, errHandler("err", "parseform"), errHandler("uploadErr", "max-size"))
 		}
 
 		if mode == "route" {
@@ -497,6 +510,34 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					bodyFunc += fmt.Sprintf(`%v := r.Cookies()
 					`, paramName)
 
+				} else if paramName == "fileValues" && paramType == "[]io.Reader" {
+					bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
+					fileOut.AddImport("mime/multipart", "")
+					bodyFunc += fmt.Sprintf(`
+						{
+							for _, fheaders := range r.MultipartForm.File {
+								for _, hdr := range fheaders {
+									var upload multipart.File
+									upload, uploadErr := hdr.Open()
+									%v
+									defer upload.Close()
+									%v = append(%v, upload.(io.Reader))
+								}
+							}
+						}
+						`, errHandler("uploadErr", "req", "file", "open"), paramName, paramName)
+
+				} else if paramName == "fileValues" && paramType == "[]ggt.File" {
+					bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
+
+					bodyFunc += fmt.Sprintf(`
+						{
+							f, uploadErr := t.Upload.GetAll(r, w)
+							%v
+							%v = f
+						}
+						`, errHandler("uploadErr", "req", "file", "open"), paramName)
+
 				} else if strings.HasPrefix(paramName, "session") {
 					k := strings.ToLower(paramName[7:])
 					bodyFunc += fmt.Sprintf(`var %v %v
@@ -659,6 +700,62 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 								}
 							}
 							`, k, errHandler("cookieErr", "req", "cookie", "error"), convertStrTo("c.Value", paramName, paramType, errHandler, "route"))
+					}
+
+				} else if strings.HasPrefix(paramName, "file") {
+					k := strings.ToLower(paramName[4:])
+					bodyFunc += fmt.Sprintf("var %v %v", paramName, paramType)
+
+					if paramType == "io.Reader" {
+						fileOut.AddImport("mime/multipart", "")
+						bodyFunc += fmt.Sprintf(`
+							{
+								if fheaders, ok := r.MultipartForm.File[%q]; ok {
+									for _, hdr := range fheaders {
+										var infile multipart.File
+										infile, uploadErr := hdr.Open()
+										%v
+										defer infile.Close()
+										%v = infile.(io.Reader)
+										break
+									}
+								}
+							}
+							`, k, errHandler("uploadErr", "req", "file", "open"), paramName)
+
+					} else if paramType == "[]io.Reader" {
+						fileOut.AddImport("mime/multipart", "")
+						bodyFunc += fmt.Sprintf(`
+							{
+								if fheaders, ok := r.MultipartForm.File[%q]; ok {
+									for _, hdr := range fheaders {
+										var infile multipart.File
+										infile, uploadErr := hdr.Open()
+										%v
+										defer infile.Close()
+										%v = append(%v, infile.(io.Reader))
+									}
+								}
+							}
+							`, k, errHandler("uploadErr", "req", "file", "open"), paramName, paramName)
+
+					} else if paramType == "ggt.File" {
+						bodyFunc += fmt.Sprintf(`
+							{
+								f, uploadErr := t.Upload.Get(r, w, %q)
+								%v
+								%v = f
+							}
+							`, k, errHandler("uploadErr", "req", "file", "open"), paramName)
+
+					} else if paramType == "[]ggt.File" {
+						bodyFunc += fmt.Sprintf(`
+							{
+								f, uploadErr := t.Upload.GetSlice(r, w, %q)
+								%v
+								%v = f
+							}
+							`, k, errHandler("uploadErr", "req", "file", "open"), paramName)
 					}
 
 				} else if paramName == "jsonReqBody" {
@@ -978,6 +1075,15 @@ func hasPostParam(paramNames []string) bool {
 		if strings.HasPrefix(paramName, "post") {
 			return true
 		} else if strings.HasPrefix(paramName, "req") {
+			return true
+		}
+	}
+	return false
+}
+
+func hasFileParam(paramNames []string) bool {
+	for _, paramName := range paramNames {
+		if strings.HasPrefix(paramName, "file") {
 			return true
 		}
 	}

@@ -22,6 +22,7 @@ type RPCPost struct {
 	embed   Post
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRPCPost constructs an httper of Post
@@ -30,6 +31,7 @@ func NewRPCPost(embed Post) *RPCPost {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCPost")
 	return ret

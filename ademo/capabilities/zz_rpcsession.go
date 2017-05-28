@@ -22,6 +22,7 @@ type RPCSession struct {
 	embed   Session
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRPCSession constructs an httper of Session
@@ -30,6 +31,7 @@ func NewRPCSession(embed Session) *RPCSession {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCSession")
 	return ret

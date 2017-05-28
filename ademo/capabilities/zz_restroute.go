@@ -22,6 +22,7 @@ type RestRoute struct {
 	embed   Route
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRestRoute constructs an httper of Route
@@ -30,6 +31,7 @@ func NewRestRoute(embed Route) *RestRoute {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestRoute")
 	return ret

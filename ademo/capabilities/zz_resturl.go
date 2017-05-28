@@ -22,6 +22,7 @@ type RestURL struct {
 	embed   URL
 	Log     ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
+	Upload  ggt.Uploader
 }
 
 // NewRestURL constructs an httper of URL
@@ -30,6 +31,7 @@ func NewRestURL(embed URL) *RestURL {
 		embed:   embed,
 		Log:     &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
+		Upload:  &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestURL")
 	return ret
