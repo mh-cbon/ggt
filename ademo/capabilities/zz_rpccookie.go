@@ -6,6 +6,7 @@ package capable
 
 import (
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -19,19 +20,21 @@ var xx7e0969c31e2f47ea72d3163afcb81877de90b448 = http.StatusOK
 // RPCCookie is an httper of Cookie.
 // Cookie ...
 type RPCCookie struct {
-	embed   Cookie
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    Cookie
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRPCCookie constructs an httper of Cookie
 func NewRPCCookie(embed Cookie) *RPCCookie {
 	ret := &RPCCookie{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCCookie")
 	return ret
@@ -97,9 +100,10 @@ func (t *RPCCookie) GetOne(w http.ResponseWriter, r *http.Request) {
 // GetOneRaw cookie
 func (t *RPCCookie) GetOneRaw(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "GetOneRaw")
+
 	var cookieWhatever http.Cookie
 	{
-		c, cookieErr := r.Cookie("whatever")
+		c, cookieErr := r.Cookie("cookieWhatever")
 
 		if cookieErr != nil {
 
@@ -109,9 +113,7 @@ func (t *RPCCookie) GetOneRaw(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if c != nil {
-			cookieWhatever = *c
-		}
+		cookieWhatever = *c
 	}
 
 	t.embed.GetOneRaw(cookieWhatever)
@@ -124,9 +126,10 @@ func (t *RPCCookie) GetOneRaw(w http.ResponseWriter, r *http.Request) {
 // MaybeGetOneRaw cookie
 func (t *RPCCookie) MaybeGetOneRaw(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCookie", "MaybeGetOneRaw")
+
 	var cookieWhatever *http.Cookie
 	{
-		c, cookieErr := r.Cookie("whatever")
+		c, cookieErr := r.Cookie("cookieWhatever")
 
 		if cookieErr != nil {
 

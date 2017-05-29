@@ -7,6 +7,7 @@ package capable
 import (
 	json "encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -19,19 +20,21 @@ var xxdd4c23991e2ccabab6f9ca2621445d8cc42d9020 = http.StatusOK
 // RPCError is an httper of Error.
 // Error ...
 type RPCError struct {
-	embed   Error
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    Error
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRPCError constructs an httper of Error
 func NewRPCError(embed Error) *RPCError {
 	ret := &RPCError{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCError")
 	return ret

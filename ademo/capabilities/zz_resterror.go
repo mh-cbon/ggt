@@ -6,6 +6,7 @@ package capable
 
 import (
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -18,19 +19,21 @@ var xxc7840b50abe1844351cb21a3e77009c3343ead3b = http.StatusOK
 // RestError is an httper of Error.
 // Error ...
 type RestError struct {
-	embed   Error
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    Error
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRestError constructs an httper of Error
 func NewRestError(embed Error) *RestError {
 	ret := &RestError{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestError")
 	return ret

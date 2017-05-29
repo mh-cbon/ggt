@@ -7,6 +7,7 @@ package capable
 import (
 	"encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -19,19 +20,21 @@ var xxd52c045e402fb2d4669649eac947db0b10904609 = http.StatusOK
 // RPCURL is an httper of URL.
 // URL is a merge of route, url
 type RPCURL struct {
-	embed   URL
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    URL
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRPCURL constructs an httper of URL
 func NewRPCURL(embed URL) *RPCURL {
 	ret := &RPCURL{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCURL")
 	return ret

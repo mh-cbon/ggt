@@ -7,6 +7,7 @@ package capable
 import (
 	"github.com/gorilla/mux"
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -19,19 +20,21 @@ var xxafd96cb0b6a582f43bb5bb685964cbe68c65a47a = http.StatusOK
 // RestReq is an httper of Req.
 // Req is a merge of route, url, form
 type RestReq struct {
-	embed   Req
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    Req
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRestReq constructs an httper of Req
 func NewRestReq(embed Req) *RestReq {
 	ret := &RestReq{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestReq")
 	return ret

@@ -7,6 +7,7 @@ package capable
 import (
 	"encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -19,19 +20,21 @@ var xxa0ff83a6bdd0b4cbeee232916a203d81132d06c8 = http.StatusOK
 // RPCJSON is an httper of JSON.
 // JSON ...
 type RPCJSON struct {
-	embed   JSON
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    JSON
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRPCJSON constructs an httper of JSON
 func NewRPCJSON(embed JSON) *RPCJSON {
 	ret := &RPCJSON{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCJSON")
 	return ret

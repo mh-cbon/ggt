@@ -6,6 +6,7 @@ package capable
 
 import (
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -19,19 +20,21 @@ var xx77a3b78ea2f772886b53ea6b1e988ad6bf4c61d1 = http.StatusOK
 // RestCookie is an httper of Cookie.
 // Cookie ...
 type RestCookie struct {
-	embed   Cookie
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    Cookie
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRestCookie constructs an httper of Cookie
 func NewRestCookie(embed Cookie) *RestCookie {
 	ret := &RestCookie{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestCookie")
 	return ret
@@ -97,9 +100,10 @@ func (t *RestCookie) GetOne(w http.ResponseWriter, r *http.Request) {
 // GetOneRaw cookie
 func (t *RestCookie) GetOneRaw(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestCookie", "GetOneRaw")
+
 	var cookieWhatever http.Cookie
 	{
-		c, cookieErr := r.Cookie("whatever")
+		c, cookieErr := r.Cookie("cookieWhatever")
 
 		if cookieErr != nil {
 
@@ -109,9 +113,7 @@ func (t *RestCookie) GetOneRaw(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if c != nil {
-			cookieWhatever = *c
-		}
+		cookieWhatever = *c
 	}
 
 	t.embed.GetOneRaw(cookieWhatever)
@@ -124,9 +126,10 @@ func (t *RestCookie) GetOneRaw(w http.ResponseWriter, r *http.Request) {
 // MaybeGetOneRaw cookie
 func (t *RestCookie) MaybeGetOneRaw(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestCookie", "MaybeGetOneRaw")
+
 	var cookieWhatever *http.Cookie
 	{
-		c, cookieErr := r.Cookie("whatever")
+		c, cookieErr := r.Cookie("cookieWhatever")
 
 		if cookieErr != nil {
 

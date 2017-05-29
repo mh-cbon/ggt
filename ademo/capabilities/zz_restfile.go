@@ -6,6 +6,7 @@ package capable
 
 import (
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -19,19 +20,21 @@ var xxffee6461fa1d325cd1982864f557156c3a9168fb = http.StatusOK
 // RestFile is an httper of File.
 // File ...
 type RestFile struct {
-	embed   File
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    File
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRestFile constructs an httper of File
 func NewRestFile(embed File) *RestFile {
 	ret := &RestFile{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestFile")
 	return ret

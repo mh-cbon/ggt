@@ -1,8 +1,16 @@
 // Package capable demonstratres ggt's capabilities
 package capable
 
+//go:generate ggt -mode route http-provider Ctx:RestCtx
+//go:generate ggt -mode rpc http-provider Ctx:RPCCtx
+
+//go:generate ggt -mode route http-provider Svc:RestSvc
+//go:generate ggt -mode rpc http-provider Svc:RPCSvc
+
 //go:generate ggt -mode route http-provider Get:RestGet
 //go:generate ggt -mode rpc http-provider Get:RPCGet
+
+//go:generate ggt -mode route http-consumer Get:RestClientGet
 
 //go:generate ggt -mode route http-provider Post:RestPost
 //go:generate ggt -mode rpc http-provider Post:RPCPost

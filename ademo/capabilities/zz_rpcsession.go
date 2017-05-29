@@ -6,6 +6,7 @@ package capable
 
 import (
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -18,19 +19,21 @@ var xx043baa2f2638ea5b3c11ecda5a07b342bec9450a = http.StatusOK
 // RPCSession is an httper of Session.
 // Session provide access to the session
 type RPCSession struct {
-	embed   Session
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    Session
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRPCSession constructs an httper of Session
 func NewRPCSession(embed Session) *RPCSession {
 	ret := &RPCSession{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCSession")
 	return ret

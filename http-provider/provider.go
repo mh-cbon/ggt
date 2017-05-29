@@ -149,6 +149,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	fileOut.AddImport("net/http", "")
 	fileOut.AddImport("strconv", "")
 	fileOut.AddImport("github.com/mh-cbon/ggt/lib", "ggt")
+	fileOut.AddImport("github.com/mh-cbon/service-finder", "finder")
 
 	// cheat.
 	for _, x := range []string{"strconv.Atoi", "io.Copy", "http.StatusOK"} {
@@ -163,6 +164,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		`, destName, srcName, structComment)
 	fmt.Fprintf(dest, `type %v struct{
 	embed %v
+	Services finder.ServiceFinder
 	Log ggt.HTTPLogger
 	Session ggt.SessionStoreProvider
 	Upload ggt.Uploader
@@ -176,6 +178,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	fmt.Fprintf(dest, `func New%v(embed %v) *%v {
 	ret := &%v{
 		embed: embed,
+		Services: finder.New(),
 		Log: &ggt.VoidLog{},
 		Session: &ggt.VoidSession{},
 		Upload: &ggt.FileProvider{},
@@ -249,11 +252,11 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			}
 			if ret != "" {
 				ret = fmt.Sprintf(`
-				if %v != nil {
-					%v
-					return
-				}
-				`, errName, ret)
+					if %v != nil {
+						%v
+						return
+					}
+					`, errName, ret)
 			}
 			return ret
 		}
@@ -308,6 +311,12 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			}
 		}
 
+		if hasCtxParam(lParamNames) {
+			bodyFunc += fmt.Sprintf(`
+				reqCtx := r.Context()
+			`)
+		}
+
 		for i, paramName := range lParamNames {
 			paramType := lParamTypes[i]
 
@@ -351,6 +360,75 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							%v = f
 						}
 						`, errHandler("uploadErr", "req", "file", "open"), paramName)
+
+			} else if paramName == headersValueName {
+				bodyFunc += fmt.Sprintf("%v := r.Header\n", paramName)
+
+			} else if paramType == "finder.ServiceFinder" {
+				bodyFunc += fmt.Sprintf(`
+					var %v %v
+					%v = t.Services
+					`, paramName, paramType, paramName)
+
+			} else if paramType == "*"+httpCookie {
+				bodyFunc += fmt.Sprintf("")
+				bodyFunc += fmt.Sprintf(`
+						var %v %v
+						{
+							c, cookieErr := r.Cookie(%q)
+							%v
+							%v = c
+						}
+						`, paramName, paramType,
+					paramName, errHandler("cookieErr", "req", "cookie", "error"), paramName)
+
+			} else if paramType == httpCookie {
+				bodyFunc += fmt.Sprintf("")
+				bodyFunc += fmt.Sprintf(`
+						var %v %v
+						{
+							c, cookieErr := r.Cookie(%q)
+							%v
+							%v = *c
+						}
+						`, paramName, paramType,
+					paramName, errHandler("cookieErr", "req", "cookie", "error"), paramName)
+
+			} else if paramType == httpRequest && paramName != "r" {
+				bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "r")
+
+			} else if paramType == httpResponse && paramName != "w" {
+				bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "w")
+
+			} else if paramType == ctxCtx {
+				bodyFunc += fmt.Sprintf("%v := %v.Context()\n", paramName, "r")
+
+			} else if strings.HasPrefix(paramName, "svc") {
+				k := strings.ToLower(paramName[3:])
+
+				bodyFunc += fmt.Sprintf(`var %v %v
+					`, paramName, paramType)
+
+				bodyFunc += fmt.Sprintf(`
+					if t.Services.Get(%v)==false {
+						%v
+					}
+					`, paramName, addlog("t", "nil", "service", "notfound", k))
+
+			} else if strings.HasPrefix(paramName, "ctx") {
+				k := strings.ToLower(paramName[3:])
+
+				bodyFunc += fmt.Sprintf(`var %v %v
+					`, paramName, paramType)
+				bodyFunc += fmt.Sprintf(`{
+						ctxVal := reqCtx.Value(%q)
+						if ctxVal != nil {
+							if x, ok := ctxVal.(%v); ok {
+								%v = x
+							}
+						}
+				}
+					`, "ggt."+k, paramType, paramName)
 
 			} else if strings.HasPrefix(paramName, "session") {
 				k := strings.ToLower(paramName[7:])
@@ -467,46 +545,6 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							}
 							`, k, errHandler("uploadErr", "req", "file", "open"), paramName)
 				}
-
-			} else if paramName == headersValueName {
-				bodyFunc += fmt.Sprintf("%v := r.Header\n", paramName)
-
-			} else if paramType == "*"+httpCookie {
-				bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "r")
-
-				bodyFunc += fmt.Sprintf("")
-				bodyFunc += fmt.Sprintf(`
-						var %v %v
-						{
-							c, cookieErr := r.Cookie(%q)
-							%v
-							%v = c
-						}
-						`, paramName, paramType,
-					paramName, errHandler("cookieErr", "req", "cookie", "error"), paramName)
-
-			} else if paramType == httpCookie {
-				bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "r")
-
-				bodyFunc += fmt.Sprintf("")
-				bodyFunc += fmt.Sprintf(`
-						var %v %v
-						{
-							c, cookieErr := r.Cookie(%q)
-							%v
-							%v = *c
-						}
-						`, paramName, paramType,
-					paramName, errHandler("cookieErr", "req", "cookie", "error"), paramName)
-
-			} else if paramType == httpRequest && paramName != "r" {
-				bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "r")
-
-			} else if paramType == httpResponse && paramName != "w" {
-				bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "w")
-
-			} else if paramType == ctxCtx {
-				bodyFunc += fmt.Sprintf("%v := %v.Context()\n", paramName, "r")
 
 			}
 		}
@@ -831,8 +869,11 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				if strings.HasPrefix(paramName, "session") ||
 					strings.HasPrefix(paramName, "cookie") ||
 					strings.HasPrefix(paramName, "file") ||
+					strings.HasPrefix(paramName, "ctx") ||
+					strings.HasPrefix(paramName, "svc") ||
 					paramName == headersValueName ||
 					paramType == "*"+httpCookie ||
+					paramType == "finder.ServiceFinder" ||
 					paramType == httpCookie ||
 					paramType == httpRequest ||
 					paramType == httpResponse ||
@@ -954,6 +995,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					if strings.HasPrefix(retVar, "session") ||
 						strings.HasPrefix(retVar, "cookie") ||
 						strings.HasPrefix(retVar, "file") ||
+						strings.HasPrefix(retVar, "ctx") ||
 						retVar == headersValueName ||
 						retVarType == "*"+httpCookie ||
 						retVarType == httpCookie ||
@@ -989,9 +1031,9 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					`, errHandler("encErr", "res", "json", "encode"))
 				} else {
 					//?
-					log.Println(methodName)
-					log.Println(retVars)
-					log.Println(retTypes)
+					// log.Println(methodName)
+					// log.Println(retVars)
+					// log.Println(retTypes)
 				}
 			}
 		} else {
@@ -1029,7 +1071,14 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			}
 		}
 
+		if !hasCtxParam(lParamNames) && hasCtxParam(retVars) {
+			bodyFunc += fmt.Sprintf(`
+				reqCtx := r.Context()
+			`)
+		}
+
 		for i, retVar := range retVars {
+
 			if strings.HasPrefix(retVar, "header") {
 				k := strings.ToLower(retVar[5:])
 				bodyFunc += fmt.Sprintf(`
@@ -1052,6 +1101,65 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			} else if retTypes[i] == httpCookie {
 				bodyFunc += fmt.Sprintf(`http.SetCookie(w, &%v)
 			`, retVar)
+
+			} else if retVar == "fileResBody" {
+
+				if retTypes[i] == ggtFile {
+					bodyFunc += fmt.Sprintf(`
+								w.Header().Set("Content-Disposition", "attachment; filename="+ %v.AttachmentName())
+							`, retVar)
+					bodyFunc += fmt.Sprintf(`
+							w.Header().Set("Content-Type", %v.ContentType())
+						`, retVar)
+					bodyFunc += fmt.Sprintf(`
+							defer func(){
+								closeErr := %v.Close()
+								%v
+							}()
+						`, retVar, errHandler("closeErr", "res", "file"))
+					bodyFunc += fmt.Sprintf(`
+							_, copyErr := io.Copy(w, %v.Fd())
+							%v
+						`, retVar, errHandler("copyErr", "res", "file"))
+
+				} else if retTypes[i] == "*"+ggtFile {
+					bodyFunc += fmt.Sprintf(`
+						if %v != nil {
+					`, retVar)
+					bodyFunc += fmt.Sprintf(`
+						w.Header().Set("Content-Disposition", "attachment; filename="+ %v.AttachmentName())
+					`, retVar)
+					bodyFunc += fmt.Sprintf(`
+						w.Header().Set("Content-Type", %v.ContentType())
+					`, retVar)
+					bodyFunc += fmt.Sprintf(`
+						defer func(){
+							closeErr := %v.Close()
+							%v
+						}()
+					`, retVar, errHandler("closeErr", "res", "file"))
+					bodyFunc += fmt.Sprintf(`
+						_, copyErr := io.Copy(w, %v.Fd())
+						%v
+					`, retVar, errHandler("copyErr", "res", "file"))
+					bodyFunc += fmt.Sprintf(`
+					}
+					`)
+
+				} else {
+					bodyFunc += fmt.Sprintf(`
+						defer func(){
+						if x, ok := %v.(io.Closer); ok {
+							closeErr := x.Close()
+							%v
+						}
+						}()
+					`, retVar, errHandler("closeErr", "res", "file"))
+					bodyFunc += fmt.Sprintf(`
+						_, copyErr := io.Copy(w, %v)
+						%v
+					`, retVar, errHandler("copyErr", "res", "file"))
+				}
 
 			} else if strings.HasPrefix(retVar, "cookie") {
 				bodyFunc += fmt.Sprintf(`
@@ -1120,65 +1228,19 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					`, retVar, errHandler("copyErr", "res", "file"))
 				}
 
-			} else if retVar == "fileResBody" {
+			} else if strings.HasPrefix(retVar, "ctx") {
+				k := strings.ToLower(retVar[3:])
+				fileOut.AddImport("context", "")
+				bodyFunc += fmt.Sprintf(`reqCtx = context.WithValue(reqCtx, %q, %v)
+					`, "ggt."+k, retVar)
 
-				if retTypes[i] == ggtFile {
-					bodyFunc += fmt.Sprintf(`
-								w.Header().Set("Content-Disposition", "attachment; filename="+ %v.AttachmentName())
-							`, retVar)
-					bodyFunc += fmt.Sprintf(`
-							w.Header().Set("Content-Type", %v.ContentType())
-						`, retVar)
-					bodyFunc += fmt.Sprintf(`
-							defer func(){
-								closeErr := %v.Close()
-								%v
-							}()
-						`, retVar, errHandler("closeErr", "res", "file"))
-					bodyFunc += fmt.Sprintf(`
-							_, copyErr := io.Copy(w, %v.Fd())
-							%v
-						`, retVar, errHandler("copyErr", "res", "file"))
-
-				} else if retTypes[i] == "*"+ggtFile {
-					bodyFunc += fmt.Sprintf(`
-						if %v != nil {
-					`, retVar)
-					bodyFunc += fmt.Sprintf(`
-						w.Header().Set("Content-Disposition", "attachment; filename="+ %v.AttachmentName())
-					`, retVar)
-					bodyFunc += fmt.Sprintf(`
-						w.Header().Set("Content-Type", %v.ContentType())
-					`, retVar)
-					bodyFunc += fmt.Sprintf(`
-						defer func(){
-							closeErr := %v.Close()
-							%v
-						}()
-					`, retVar, errHandler("closeErr", "res", "file"))
-					bodyFunc += fmt.Sprintf(`
-						_, copyErr := io.Copy(w, %v.Fd())
-						%v
-					`, retVar, errHandler("copyErr", "res", "file"))
-					bodyFunc += fmt.Sprintf(`
-					}
-					`)
-
-				} else {
-					bodyFunc += fmt.Sprintf(`
-						defer func(){
-						if x, ok := %v.(io.Closer); ok {
-							closeErr := x.Close()
-							%v
-						}
-						}()
-					`, retVar, errHandler("closeErr", "res", "file"))
-					bodyFunc += fmt.Sprintf(`
-						_, copyErr := io.Copy(w, %v)
-						%v
-					`, retVar, errHandler("copyErr", "res", "file"))
-				}
 			}
+		}
+
+		if hasCtxParam(retVars) {
+			bodyFunc += fmt.Sprintf(`
+				r = r.WithContext(reqCtx)
+			`)
 		}
 
 		fmt.Fprintf(dest, `// %v invoke %v.%v using the request body as a json payload.
@@ -1362,6 +1424,15 @@ func hasGetParam(paramNames []string) bool {
 		} else if strings.HasPrefix(paramName, "url") {
 			return true
 		} else if strings.HasPrefix(paramName, "req") {
+			return true
+		}
+	}
+	return false
+}
+
+func hasCtxParam(paramNames []string) bool {
+	for _, paramName := range paramNames {
+		if strings.HasPrefix(paramName, "ctx") {
 			return true
 		}
 	}

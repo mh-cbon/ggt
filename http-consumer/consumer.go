@@ -360,33 +360,70 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 
 			// - look for url/req/post params, not already managed by the route params
 			for paramIndex, paramName := range lParamNames {
-				if paramName == reqBodyVarName {
-					continue
-				}
 				paramType := paramTypes[paramIndex]
 
 				if !managedParamNames.Contains(paramName) {
 
-					if strings.HasPrefix(paramName, "get") || strings.HasPrefix(paramName, "url") || strings.HasPrefix(paramName, "req") {
+					if paramName == "getValues" && paramType == mapStringString {
+
+						getParams += fmt.Sprintf(`
+							for k, v := range %v {
+								reqURL.Query().Add(k,v)
+							}
+							`, paramName)
+
+					} else if paramName == "getValues" && paramType == mapStringSliceString {
+
+						getParams += fmt.Sprintf(`
+							for k, vv := range %v {
+								for _, v := range vv {
+									reqURL.Query().Add(k,v)
+								}
+							}
+							`, paramName)
+
+					} else if strings.HasPrefix(paramName, "get") || strings.HasPrefix(paramName, "url") || strings.HasPrefix(paramName, "req") {
 						k := strings.ToLower(paramName[3:])
 
-						getParams += fmt.Sprintf(`var xx%v string
-							%v
-							reqURL.Query().Add(%q, xx%v)
-							`, paramName, convertToStr(paramName, "xx"+paramName, paramType, handleErr, destName, methodName, "get"), k, paramName)
+						if astutil.IsArrayType(paramType) {
+							getParams += fmt.Sprintf(`
+								for _, item%v := range %v {
+									var xx%v string
+									%v
+									reqURL.Query().Add(%q, xx%v)
+								}
+								`, paramName, paramName, paramName,
+								convertToStr("item"+paramName, "xx"+paramName, astutil.GetUnslicedType(paramType), handleErr, destName, methodName, "get"),
+								k, paramName)
 
-						managedParamNames.Push(paramName)
+						} else if astutil.IsAPointedType(paramType) {
+							getParams += fmt.Sprintf(`
+								if %v != nil {
+									var xx%v string
+									%v
+									reqURL.Query().Add(%q, xx%v)
+								}
+								`, paramName, paramName,
+								convertToStr(paramName, "xx"+paramName, paramType, handleErr, destName, methodName, "get"),
+								k, paramName)
+
+						} else {
+							getParams += fmt.Sprintf(`var xx%v string
+								%v
+								reqURL.Query().Add(%q, xx%v)
+								`, paramName, convertToStr(paramName, "xx"+paramName, paramType, handleErr, destName, methodName, "get"), k, paramName)
+						}
 
 					} else if strings.HasPrefix(paramName, "post") {
 						k := strings.ToLower(paramName[4:])
-						if astutil.IsAPointedType(paramTypes[paramIndex]) {
+
+						if astutil.IsAPointedType(paramType) {
 							postParams += fmt.Sprintf(`form.Add(%q, *%v)
 							`, k, paramName)
 						} else {
 							postParams += fmt.Sprintf(`form.Add(%q, %v)
 							`, k, paramName)
 						}
-						managedParamNames.Push(paramName)
 					}
 				}
 			}
@@ -546,7 +583,7 @@ func convertStrTo(fromStrVarName, toVarName, toType string, errHandler func(stri
 func convertToStr(fromVarName, toStrVarName, fromType string, errHandler func(string, ...string) string, subjects ...string) string {
 	if astutil.GetUnpointedType(fromType) == "string" {
 		if astutil.IsAPointedType(fromType) {
-			return fmt.Sprintf("%v = &%v", toStrVarName, fromVarName)
+			return fmt.Sprintf("%v = *%v", toStrVarName, fromVarName)
 		}
 		return fmt.Sprintf("%v = %v", toStrVarName, fromVarName)
 
@@ -565,12 +602,27 @@ func convertToStr(fromVarName, toStrVarName, fromType string, errHandler func(st
 	`, toStrVarName, fromVarName, toStrVarName)
 
 	} else if astutil.GetUnpointedType(fromType) == "int" {
-		return fmt.Sprintf(`%v := fmt.Sprintf("%%v", %v)
+		return fmt.Sprintf(`%v = fmt.Sprintf("%%v", %v)
 	`, toStrVarName, fromVarName)
+
 	}
 	return fmt.Sprintf(`// conversion not handled  %v to string
 	`, fromType)
 }
+
+var headersValueName = "headers"
+var ctxCtx = "context.Context"
+var httpRequest = "*http.Request"
+var httpResponse = "http.ResponseWriter"
+var httpCookie = "http.Cookie"
+var ggtFile = "ggt.File"
+var fileValues = "fileValues"
+var cookieValues = "cookieValues"
+var ioReader = "io.Reader"
+var mapStringString = "map[string]string"
+var mapStringSliceString = "map[string][]string"
+var rpcMode = "rpc"
+var routeMode = "route"
 
 func getMethodParamForRouteParam(mode string,
 	methodParamNames []string,
@@ -745,10 +797,6 @@ func getRouteParamNamesFromRoute(mode, route string) []string {
 	}
 	return ret
 }
-
-var routeMode = "route"
-var stdMode = "std"
-var reqBodyVarName = "reqBody"
 
 func getPreferredMethod(annotations map[string]string) string {
 	preferedMethod := "GET"

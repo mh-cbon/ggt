@@ -6,6 +6,7 @@ package capable
 
 import (
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -18,19 +19,21 @@ var xx3f4c105077c339d0dfc6ad93f77b6c4bdda1d4f0 = http.StatusOK
 // RestGet is an httper of Get.
 // Get ...
 type RestGet struct {
-	embed   Get
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
-	Upload  ggt.Uploader
+	embed    Get
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRestGet constructs an httper of Get
 func NewRestGet(embed Get) *RestGet {
 	ret := &RestGet{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
-		Upload:  &ggt.FileProvider{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestGet")
 	return ret
@@ -38,6 +41,7 @@ func NewRestGet(embed Get) *RestGet {
 
 // GetAll invoke Get.GetAll using the request body as a json payload.
 // GetAll values in url query as a map of values
+// @route getall
 func (t *RestGet) GetAll(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestGet", "GetAll")
 
@@ -52,6 +56,7 @@ func (t *RestGet) GetAll(w http.ResponseWriter, r *http.Request) {
 
 // GetAll2 invoke Get.GetAll2 using the request body as a json payload.
 // GetAll2 values in url query as a map of value
+// @route getall2
 func (t *RestGet) GetAll2(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestGet", "GetAll2")
 
@@ -73,6 +78,7 @@ func (t *RestGet) GetAll2(w http.ResponseWriter, r *http.Request) {
 
 // GetOne invoke Get.GetOne using the request body as a json payload.
 // GetOne arg from url query
+// @route getone
 func (t *RestGet) GetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestGet", "GetOne")
 
@@ -92,6 +98,7 @@ func (t *RestGet) GetOne(w http.ResponseWriter, r *http.Request) {
 
 // GetMany invoke Get.GetMany using the request body as a json payload.
 // GetMany args from url query
+// @route getmany
 func (t *RestGet) GetMany(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestGet", "GetMany")
 
@@ -117,6 +124,7 @@ func (t *RestGet) GetMany(w http.ResponseWriter, r *http.Request) {
 
 // ConvertToInt invoke Get.ConvertToInt using the request body as a json payload.
 // ConvertToInt an arg from url query
+// @route converttoint
 func (t *RestGet) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestGet", "ConvertToInt")
 
@@ -149,6 +157,7 @@ func (t *RestGet) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 
 // ConvertToBool invoke Get.ConvertToBool using the request body as a json payload.
 // ConvertToBool an arg from url query
+// @route converttobool
 func (t *RestGet) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestGet", "ConvertToBool")
 
@@ -181,6 +190,7 @@ func (t *RestGet) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 
 // ConvertToSlice invoke Get.ConvertToSlice using the request body as a json payload.
 // ConvertToSlice an arg from url query
+// @route converttoslice
 func (t *RestGet) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestGet", "ConvertToSlice")
 
@@ -219,6 +229,7 @@ func (t *RestGet) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
 
 // MaybeGet invoke Get.MaybeGet using the request body as a json payload.
 // MaybeGet an arg if it exists in url query.
+// @route maybeget
 func (t *RestGet) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestGet", "MaybeGet")
 
@@ -256,56 +267,56 @@ func NewRestGetDescriptor(about *RestGet) *RestGetDescriptor {
 	ret.methodGetAll = &ggt.MethodDescriptor{
 		Name:    "GetAll",
 		Handler: about.GetAll,
-		Route:   "GetAll",
+		Route:   "getall",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetAll)
 	ret.methodGetAll2 = &ggt.MethodDescriptor{
 		Name:    "GetAll2",
 		Handler: about.GetAll2,
-		Route:   "GetAll2",
+		Route:   "getall2",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetAll2)
 	ret.methodGetOne = &ggt.MethodDescriptor{
 		Name:    "GetOne",
 		Handler: about.GetOne,
-		Route:   "GetOne",
+		Route:   "getone",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetOne)
 	ret.methodGetMany = &ggt.MethodDescriptor{
 		Name:    "GetMany",
 		Handler: about.GetMany,
-		Route:   "GetMany",
+		Route:   "getmany",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodGetMany)
 	ret.methodConvertToInt = &ggt.MethodDescriptor{
 		Name:    "ConvertToInt",
 		Handler: about.ConvertToInt,
-		Route:   "ConvertToInt",
+		Route:   "converttoint",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodConvertToInt)
 	ret.methodConvertToBool = &ggt.MethodDescriptor{
 		Name:    "ConvertToBool",
 		Handler: about.ConvertToBool,
-		Route:   "ConvertToBool",
+		Route:   "converttobool",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodConvertToBool)
 	ret.methodConvertToSlice = &ggt.MethodDescriptor{
 		Name:    "ConvertToSlice",
 		Handler: about.ConvertToSlice,
-		Route:   "ConvertToSlice",
+		Route:   "converttoslice",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodConvertToSlice)
 	ret.methodMaybeGet = &ggt.MethodDescriptor{
 		Name:    "MaybeGet",
 		Handler: about.MaybeGet,
-		Route:   "MaybeGet",
+		Route:   "maybeget",
 		Methods: []string{},
 	}
 	ret.TypeDescriptor.Register(ret.methodMaybeGet)
