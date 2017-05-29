@@ -84,13 +84,16 @@ func (t RestClient) SimilarColor(routeColor string, getSensitive *bool) (jsonRes
 	if URLerr != nil {
 		return nil, errors.New("todo")
 	}
-	var xxgetSensitive string
-	xxgetSensitive = "false"
-	if getSensitive != nil && *getSensitive {
-		xxgetSensitive = "true"
-	}
 
-	reqURL.Query().Add("sensitive", xxgetSensitive)
+	if getSensitive != nil {
+		var xxgetSensitive string
+		xxgetSensitive = "false"
+		if getSensitive != nil && *getSensitive {
+			xxgetSensitive = "true"
+		}
+
+		reqURL.Query().Add("sensitive", xxgetSensitive)
+	}
 
 	finalURL := reqURL.String()
 

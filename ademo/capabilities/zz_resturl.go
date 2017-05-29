@@ -72,9 +72,11 @@ func (t *RestURL) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll(urlValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestURL", "GetAll")
+
 }
 
 // GetAll2 invoke URL.GetAll2 using the request body as a json payload.
@@ -119,9 +121,11 @@ func (t *RestURL) GetAll2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll2(urlValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestURL", "GetAll2")
+
 }
 
 // GetOne invoke URL.GetOne using the request body as a json payload.
@@ -143,9 +147,11 @@ func (t *RestURL) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(urlArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestURL", "GetOne")
+
 }
 
 // GetMany invoke URL.GetMany using the request body as a json payload.
@@ -176,9 +182,11 @@ func (t *RestURL) GetMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetMany(urlArg1, urlArg2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestURL", "GetMany")
+
 }
 
 // ConvertToInt invoke URL.ConvertToInt using the request body as a json payload.
@@ -226,9 +234,11 @@ func (t *RestURL) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToInt(urlArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestURL", "ConvertToInt")
+
 }
 
 // ConvertToBool invoke URL.ConvertToBool using the request body as a json payload.
@@ -276,9 +286,11 @@ func (t *RestURL) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToBool(urlArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestURL", "ConvertToBool")
+
 }
 
 // MaybeGet invoke URL.MaybeGet using the request body as a json payload.
@@ -300,9 +312,11 @@ func (t *RestURL) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGet(urlArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestURL", "MaybeGet")
+
 }
 
 // RestURLDescriptor describe a *RestURL

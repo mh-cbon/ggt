@@ -49,9 +49,11 @@ func (t *RestSvc) Get(w http.ResponseWriter, r *http.Request) {
 	provider = t.Services
 
 	t.embed.Get(provider)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestSvc", "Get")
+
 }
 
 // GetOne invoke Svc.GetOne using the request body as a json payload.
@@ -66,9 +68,11 @@ func (t *RestSvc) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(svcMail)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestSvc", "GetOne")
+
 }
 
 // RestSvcDescriptor describe a *RestSvc

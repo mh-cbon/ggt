@@ -80,7 +80,7 @@ generates http oriented implementation of given type.
 [options]
 
     -p        Force out package name
-    -mode     Generation mode (rpc|route).
+    -mode     Generation mode (rpc|route|mw).
 
 ...[FromTypeName:ToTypeName]
 
@@ -114,7 +114,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 	// todo: might do better to send only annotations or do other improvemenets.
 	structComment = makeCommentLines(structComment)
 	dstStar := astutil.GetPointedType(destName)
-	structAnnotations := astutil.GetAnnotations(structComment, "@")
+	// structAnnotations := astutil.GetAnnotations(structComment, "@")
 
 	srcIsPointer := astutil.IsAPointedType(srcName)
 	srcNameFq := srcName
@@ -265,6 +265,9 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			importIDs := astutil.GetSignatureImportIdentifiers(m)
 			for _, i := range importIDs {
 				path := astutil.GetImportPath(pkg, i)
+				if i == path {
+					i = ""
+				}
 				if path == "" {
 					log.Printf("package path not found. id:%q path:%q\n", i, path)
 				} else {
@@ -311,7 +314,10 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			}
 		}
 
-		if hasCtxParam(lParamNames) {
+		retTypes := astutil.MethodReturnTypes(m)
+		retVars := astutil.MethodReturnNamesNormalized(m)
+
+		if hasCtxParam(lParamNames) || hasCtxParamType(lParamTypes) || hasCtxParam(retVars) || hasCtxParamType(retVars) {
 			bodyFunc += fmt.Sprintf(`
 				reqCtx := r.Context()
 			`)
@@ -401,7 +407,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 				bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "w")
 
 			} else if paramType == ctxCtx {
-				bodyFunc += fmt.Sprintf("%v := %v.Context()\n", paramName, "r")
+				bodyFunc += fmt.Sprintf("%v := %v\n", paramName, "reqCtx")
 
 			} else if strings.HasPrefix(paramName, "svc") {
 				k := strings.ToLower(paramName[3:])
@@ -960,17 +966,20 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			}
 		}
 
-		retTypes := astutil.MethodReturnTypes(m)
-		retVars := astutil.MethodReturnNamesNormalized(m)
 		sRetVars := strings.TrimSpace(strings.Join(retVars, ", "))
 		// hasErr := astutil.MethodReturnError(m)
 
 		// proceed to the method call on embed
 		if sRetVars == "" {
+
 			bodyFunc += fmt.Sprintf(`
-						t.embed.%v(%v)
-						w.WriteHeader(200)
-					`, methodName, paramNames)
+				t.embed.%v(%v)
+			`, methodName, paramNames)
+			if mode != mwMode {
+				bodyFunc += fmt.Sprintf(`
+					w.WriteHeader(200)
+				`)
+			}
 
 		} else {
 			bodyFunc += fmt.Sprintf(`
@@ -1036,12 +1045,13 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 					// log.Println(retTypes)
 				}
 			}
+
 		} else {
 
 			if sRetVars != "" {
 				for _, retVar := range retVars {
-					if retVar == "jsonResBody" {
 
+					if retVar == "jsonResBody" {
 						fileOut.AddImport("encoding/json", "json")
 
 						bodyFunc += fmt.Sprintf(`
@@ -1059,6 +1069,7 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 		}
 
 		for _, retVar := range retVars {
+
 			if retVar == "fileResName" {
 				bodyFunc += fmt.Sprintf(`
 							w.Header().Set("Content-Disposition", "attachment; filename="+%v)
@@ -1069,12 +1080,6 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 							w.Header().Set("Content-Type", %v)
 						`, retVar)
 			}
-		}
-
-		if !hasCtxParam(lParamNames) && hasCtxParam(retVars) {
-			bodyFunc += fmt.Sprintf(`
-				reqCtx := r.Context()
-			`)
 		}
 
 		for i, retVar := range retVars {
@@ -1243,17 +1248,65 @@ func processType(mode string, todo utils.TransformArg, fileOut *utils.FileOut) e
 			`)
 		}
 
-		fmt.Fprintf(dest, `// %v invoke %v.%v using the request body as a json payload.
+		bodyFunc = fmt.Sprintf(`%v
 			%v
-		`, methodName, srcName, methodName, comment)
+			%v
+			`, addlog("t", "nil", "begin"), bodyFunc, addlog("t", "nil", "end"))
 
-		fmt.Fprintf(dest, `func (t %v) %v(w http.ResponseWriter, r *http.Request) {
-			%v
-		  %v
-			%v
+		if mode != mwMode {
+			fmt.Fprintf(dest, `// %v invoke %v.%v using the request body as a json payload.
+				%v
+			`, methodName, srcName, methodName, comment)
+			fmt.Fprintf(dest, `func (t %v) %v(w http.ResponseWriter, r *http.Request) {
+				%v
+			}
+			`, dstStar, methodName, bodyFunc)
+		} else {
+			fmt.Fprintf(dest, `// %v wraps %v.%v.
+				%v
+			`, methodName, srcName, methodName, comment)
+			fmt.Fprintf(dest, `func (t %v) %v(handler func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
+				return func(w http.ResponseWriter, r *http.Request) {
+				  %v
+				}
+			}
+			`, dstStar, methodName, bodyFunc)
 		}
+	}
 
-		`, dstStar, methodName, addlog("t", "nil", "begin"), bodyFunc, addlog("t", "nil", "end"))
+	if mode != mwMode {
+		processDescriptor(mode, todo, fileOut)
+	}
+	return nil
+}
+
+func processDescriptor(mode string, todo utils.TransformArg, fileOut *utils.FileOut) error {
+
+	dest := &fileOut.Body
+	srcName := todo.FromTypeName
+	destName := todo.ToTypeName
+
+	prog := astutil.GetProgramFast(todo.FromPkgPath)
+	pkg := prog.Package(todo.FromPkgPath)
+	foundMethods := astutil.FindMethods(pkg)
+
+	srcConcrete := astutil.GetUnpointedType(srcName)
+	// the json input must provide a key/value for each params.
+	structType := astutil.FindStruct(pkg, srcConcrete)
+	structComment := astutil.GetComment(prog, structType.Pos())
+	// todo: might do better to send only annotations or do other improvemenets.
+	structComment = makeCommentLines(structComment)
+	dstStar := astutil.GetPointedType(destName)
+	structAnnotations := astutil.GetAnnotations(structComment, "@")
+
+	// srcIsPointer := astutil.IsAPointedType(srcName)
+	// srcNameFq := srcName
+	if todo.FromPkgPath != todo.ToPkgPath && !astutil.IsBasic(todo.FromTypeName) {
+		// srcNameFq = fmt.Sprintf("%v.%v", filepath.Base(todo.FromPkgPath), srcConcrete)
+		// if srcIsPointer {
+		// 	srcNameFq = "*" + srcNameFq
+		// }
+		fileOut.AddImport(todo.FromPkgPath, todo.FromPkgID)
 	}
 
 	// write the method set for the binder
@@ -1364,6 +1417,7 @@ var mapStringString = "map[string]string"
 var mapStringSliceString = "map[string][]string"
 var rpcMode = "rpc"
 var routeMode = "route"
+var mwMode = "mw"
 
 func stringifyList(s string) string {
 	var ret []string
@@ -1433,6 +1487,15 @@ func hasGetParam(paramNames []string) bool {
 func hasCtxParam(paramNames []string) bool {
 	for _, paramName := range paramNames {
 		if strings.HasPrefix(paramName, "ctx") {
+			return true
+		}
+	}
+	return false
+}
+
+func hasCtxParamType(paramTypes []string) bool {
+	for _, paramType := range paramTypes {
+		if paramType == ctxCtx {
 			return true
 		}
 	}

@@ -8,6 +8,7 @@ import (
 	json "encoding/json"
 	"github.com/gorilla/mux"
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -20,17 +21,21 @@ var xx50b52bbd0311cf9ec8e406218f58ce92f00e2679 = http.StatusOK
 // RestController is an httper of Controller.
 // Controller of tomatoes.
 type RestController struct {
-	embed   Controller
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
+	embed    Controller
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRestController constructs an httper of Controller
 func NewRestController(embed Controller) *RestController {
 	ret := &RestController{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RestController")
 	return ret
@@ -77,6 +82,7 @@ func (t *RestController) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestController", "GetByID")
+
 }
 
 // SimilarColor invoke Controller.SimilarColor using the request body as a json payload.
@@ -89,12 +95,6 @@ func (t *RestController) SimilarColor(w http.ResponseWriter, r *http.Request) {
 	xxRouteVars := mux.Vars(r)
 
 	xxURLValues := r.URL.Query()
-	var routeColor string
-	if _, ok := xxRouteVars["color"]; ok {
-		xxTmprouteColor := xxRouteVars["color"]
-		t.Log.Handle(w, r, nil, "input", "route", "color", xxTmprouteColor, "RestController", "SimilarColor")
-		routeColor = xxTmprouteColor
-	}
 	var getSensitive *bool
 	if _, ok := xxURLValues["sensitive"]; ok {
 		xxTmpgetSensitive := xxURLValues.Get("sensitive")
@@ -113,6 +113,12 @@ func (t *RestController) SimilarColor(w http.ResponseWriter, r *http.Request) {
 			getSensitive = &xxTmpValue
 		}
 
+	}
+	var routeColor string
+	if _, ok := xxRouteVars["color"]; ok {
+		xxTmprouteColor := xxRouteVars["color"]
+		t.Log.Handle(w, r, nil, "input", "route", "color", xxTmprouteColor, "RestController", "SimilarColor")
+		routeColor = xxTmprouteColor
 	}
 
 	jsonResBody, err := t.embed.SimilarColor(routeColor, getSensitive)
@@ -141,6 +147,7 @@ func (t *RestController) SimilarColor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestController", "SimilarColor")
+
 }
 
 // Create invoke Controller.Create using the request body as a json payload.
@@ -196,6 +203,7 @@ func (t *RestController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestController", "Create")
+
 }
 
 // Update invoke Controller.Update using the request body as a json payload.
@@ -255,6 +263,7 @@ func (t *RestController) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestController", "Update")
+
 }
 
 // Remove invoke Controller.Remove using the request body as a json payload.
@@ -266,7 +275,9 @@ func (t *RestController) Remove(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestController", "Remove")
 
 	xxRouteVars := mux.Vars(r)
-	ctx := r.Context()
+
+	reqCtx := r.Context()
+	ctx := reqCtx
 	var routeID string
 	if _, ok := xxRouteVars["id"]; ok {
 		xxTmprouteID := xxRouteVars["id"]
@@ -300,6 +311,7 @@ func (t *RestController) Remove(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestController", "Remove")
+
 }
 
 // RestControllerDescriptor describe a *RestController

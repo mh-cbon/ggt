@@ -63,9 +63,11 @@ func (t *RPCJSON) ReadJSONBody(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadJSONBody(jsonReqBody)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCJSON", "ReadJSONBody")
+
 }
 
 // WriteJSONBody invoke JSON.WriteJSONBody using the request body as a json payload.
@@ -96,6 +98,7 @@ func (t *RPCJSON) WriteJSONBody(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCJSON", "WriteJSONBody")
+
 }
 
 // RPCJSONDescriptor describe a *RPCJSON

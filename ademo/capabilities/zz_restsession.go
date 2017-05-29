@@ -84,9 +84,11 @@ func (t *RestSession) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll(sessionName)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestSession", "GetAll")
+
 }
 
 // RestSessionDescriptor describe a *RestSession

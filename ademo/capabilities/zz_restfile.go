@@ -90,9 +90,11 @@ func (t *RestFile) ReadOneFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadOneFile(fileName)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestFile", "ReadOneFile")
+
 }
 
 // ReadOneTmpFile invoke File.ReadOneTmpFile using the request body as a json payload.
@@ -138,9 +140,11 @@ func (t *RestFile) ReadOneTmpFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadOneTmpFile(fileName)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestFile", "ReadOneTmpFile")
+
 }
 
 // ReadMany invoke File.ReadMany using the request body as a json payload.
@@ -200,9 +204,11 @@ func (t *RestFile) ReadMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadMany(fileName, fileName2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestFile", "ReadMany")
+
 }
 
 // ReadSlice invoke File.ReadSlice using the request body as a json payload.
@@ -268,9 +274,11 @@ func (t *RestFile) ReadSlice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadSlice(fileName, fileName2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestFile", "ReadSlice")
+
 }
 
 // ReadAll invoke File.ReadAll using the request body as a json payload.
@@ -322,9 +330,11 @@ func (t *RestFile) ReadAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadAll(fileValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestFile", "ReadAll")
+
 }
 
 // ReadAll2 invoke File.ReadAll2 using the request body as a json payload.
@@ -370,9 +380,11 @@ func (t *RestFile) ReadAll2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadAll2(fileValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestFile", "ReadAll2")
+
 }
 
 // WriteFile invoke File.WriteFile using the request body as a json payload.
@@ -412,6 +424,7 @@ func (t *RestFile) WriteFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestFile", "WriteFile")
+
 }
 
 // WriteFile2 invoke File.WriteFile2 using the request body as a json payload.
@@ -453,6 +466,7 @@ func (t *RestFile) WriteFile2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestFile", "WriteFile2")
+
 }
 
 // WriteFile3 invoke File.WriteFile3 using the request body as a json payload.
@@ -490,6 +504,7 @@ func (t *RestFile) WriteFile3(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestFile", "WriteFile3")
+
 }
 
 // RestFileDescriptor describe a *RestFile

@@ -67,9 +67,11 @@ func (t *RPCFile) ReadOneFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadOneFile(fileName)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadOneFile")
+
 }
 
 // ReadOneTmpFile invoke File.ReadOneTmpFile using the request body as a json payload.
@@ -92,9 +94,11 @@ func (t *RPCFile) ReadOneTmpFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadOneTmpFile(fileName)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadOneTmpFile")
+
 }
 
 // ReadMany invoke File.ReadMany using the request body as a json payload.
@@ -131,9 +135,11 @@ func (t *RPCFile) ReadMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadMany(fileName, fileName2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadMany")
+
 }
 
 // ReadSlice invoke File.ReadSlice using the request body as a json payload.
@@ -176,9 +182,11 @@ func (t *RPCFile) ReadSlice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadSlice(fileName, fileName2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadSlice")
+
 }
 
 // ReadAll invoke File.ReadAll using the request body as a json payload.
@@ -207,9 +215,11 @@ func (t *RPCFile) ReadAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadAll(fileValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadAll")
+
 }
 
 // ReadAll2 invoke File.ReadAll2 using the request body as a json payload.
@@ -232,9 +242,11 @@ func (t *RPCFile) ReadAll2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadAll2(fileValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "ReadAll2")
+
 }
 
 // WriteFile invoke File.WriteFile using the request body as a json payload.
@@ -274,6 +286,7 @@ func (t *RPCFile) WriteFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "WriteFile")
+
 }
 
 // WriteFile2 invoke File.WriteFile2 using the request body as a json payload.
@@ -315,6 +328,7 @@ func (t *RPCFile) WriteFile2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "WriteFile2")
+
 }
 
 // WriteFile3 invoke File.WriteFile3 using the request body as a json payload.
@@ -352,6 +366,7 @@ func (t *RPCFile) WriteFile3(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCFile", "WriteFile3")
+
 }
 
 // RPCFileDescriptor describe a *RPCFile

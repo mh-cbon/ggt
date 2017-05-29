@@ -76,9 +76,11 @@ func (t *RPReq) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll(reqValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPReq", "GetAll")
+
 }
 
 // GetAll2 invoke Req.GetAll2 using the request body as a json payload.
@@ -117,9 +119,11 @@ func (t *RPReq) GetAll2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll2(reqValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPReq", "GetAll2")
+
 }
 
 // GetOne invoke Req.GetOne using the request body as a json payload.
@@ -158,9 +162,11 @@ func (t *RPReq) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(reqArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPReq", "GetOne")
+
 }
 
 // GetMany invoke Req.GetMany using the request body as a json payload.
@@ -202,9 +208,11 @@ func (t *RPReq) GetMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetMany(reqArg1, reqArg2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPReq", "GetMany")
+
 }
 
 // ConvertToInt invoke Req.ConvertToInt using the request body as a json payload.
@@ -243,9 +251,11 @@ func (t *RPReq) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToInt(reqArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPReq", "ConvertToInt")
+
 }
 
 // ConvertToBool invoke Req.ConvertToBool using the request body as a json payload.
@@ -284,9 +294,11 @@ func (t *RPReq) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToBool(reqArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPReq", "ConvertToBool")
+
 }
 
 // MaybeGet invoke Req.MaybeGet using the request body as a json payload.
@@ -325,9 +337,11 @@ func (t *RPReq) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGet(reqArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPReq", "MaybeGet")
+
 }
 
 // RPReqDescriptor describe a *RPReq

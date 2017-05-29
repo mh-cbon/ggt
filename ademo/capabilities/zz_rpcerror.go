@@ -68,6 +68,7 @@ func (t *RPCError) TheMethod(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCError", "TheMethod")
+
 }
 
 // RPCErrorDescriptor describe a *RPCError

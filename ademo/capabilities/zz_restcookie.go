@@ -52,9 +52,11 @@ func (t *RestCookie) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll(cookieValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "GetAll")
+
 }
 
 // GetAllRaw invoke Cookie.GetAllRaw using the request body as a json payload.
@@ -64,9 +66,11 @@ func (t *RestCookie) GetAllRaw(w http.ResponseWriter, r *http.Request) {
 	cookieValues := r.Cookies()
 
 	t.embed.GetAllRaw(cookieValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "GetAllRaw")
+
 }
 
 // GetOne invoke Cookie.GetOne using the request body as a json payload.
@@ -91,9 +95,11 @@ func (t *RestCookie) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(cookieWhatever)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "GetOne")
+
 }
 
 // GetOneRaw invoke Cookie.GetOneRaw using the request body as a json payload.
@@ -117,9 +123,11 @@ func (t *RestCookie) GetOneRaw(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOneRaw(cookieWhatever)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "GetOneRaw")
+
 }
 
 // MaybeGetOneRaw invoke Cookie.MaybeGetOneRaw using the request body as a json payload.
@@ -143,9 +151,11 @@ func (t *RestCookie) MaybeGetOneRaw(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGetOneRaw(cookieWhatever)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "MaybeGetOneRaw")
+
 }
 
 // Write invoke Cookie.Write using the request body as a json payload.
@@ -157,6 +167,7 @@ func (t *RestCookie) Write(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &cookieWhatever)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "Write")
+
 }
 
 // MaybeDelete invoke Cookie.MaybeDelete using the request body as a json payload.
@@ -176,6 +187,7 @@ func (t *RestCookie) MaybeDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "MaybeDelete")
+
 }
 
 // Delete invoke Cookie.Delete using the request body as a json payload.
@@ -195,6 +207,7 @@ func (t *RestCookie) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "Delete")
+
 }
 
 // GetMany invoke Cookie.GetMany using the request body as a json payload.
@@ -235,9 +248,11 @@ func (t *RestCookie) GetMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetMany(cookieArg1, cookieArg2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "GetMany")
+
 }
 
 // ConvertToInt invoke Cookie.ConvertToInt using the request body as a json payload.
@@ -275,9 +290,11 @@ func (t *RestCookie) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToInt(cookieArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "ConvertToInt")
+
 }
 
 // ConvertToBool invoke Cookie.ConvertToBool using the request body as a json payload.
@@ -315,9 +332,11 @@ func (t *RestCookie) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToBool(cookieArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "ConvertToBool")
+
 }
 
 // MaybeGet invoke Cookie.MaybeGet using the request body as a json payload.
@@ -342,9 +361,11 @@ func (t *RestCookie) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGet(cookieArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCookie", "MaybeGet")
+
 }
 
 // RestCookieDescriptor describe a *RestCookie

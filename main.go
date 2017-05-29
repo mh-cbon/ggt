@@ -87,7 +87,7 @@ ggt's generator toolbox
     -help        Show help
     -version     Show version
     -vv          More verbose
-    -mode        Generator mode when suitable (rpc|route).
+    -mode        Generator mode when suitable (rpc|route|mw).
 
 [generator]
 

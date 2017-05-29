@@ -61,9 +61,11 @@ func (t *RestJSON) ReadJSONBody(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ReadJSONBody(jsonReqBody)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestJSON", "ReadJSONBody")
+
 }
 
 // WriteJSONBody invoke JSON.WriteJSONBody using the request body as a json payload.
@@ -89,6 +91,7 @@ func (t *RestJSON) WriteJSONBody(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestJSON", "WriteJSONBody")
+
 }
 
 // RestJSONDescriptor describe a *RestJSON

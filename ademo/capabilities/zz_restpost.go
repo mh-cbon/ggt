@@ -59,9 +59,11 @@ func (t *RestPost) GetAll(w http.ResponseWriter, r *http.Request) {
 	postValues := r.PostForm
 
 	t.embed.GetAll(postValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestPost", "GetAll")
+
 }
 
 // GetAll2 invoke Post.GetAll2 using the request body as a json payload.
@@ -91,9 +93,11 @@ func (t *RestPost) GetAll2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll2(postValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestPost", "GetAll2")
+
 }
 
 // GetOne invoke Post.GetOne using the request body as a json payload.
@@ -121,9 +125,11 @@ func (t *RestPost) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestPost", "GetOne")
+
 }
 
 // GetMany invoke Post.GetMany using the request body as a json payload.
@@ -157,9 +163,11 @@ func (t *RestPost) GetMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetMany(postArg1, postArg2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestPost", "GetMany")
+
 }
 
 // ConvertToInt invoke Post.ConvertToInt using the request body as a json payload.
@@ -200,9 +208,11 @@ func (t *RestPost) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToInt(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestPost", "ConvertToInt")
+
 }
 
 // ConvertToBool invoke Post.ConvertToBool using the request body as a json payload.
@@ -243,9 +253,11 @@ func (t *RestPost) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToBool(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestPost", "ConvertToBool")
+
 }
 
 // ConvertToSlice invoke Post.ConvertToSlice using the request body as a json payload.
@@ -292,9 +304,11 @@ func (t *RestPost) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToSlice(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestPost", "ConvertToSlice")
+
 }
 
 // MaybeGet invoke Post.MaybeGet using the request body as a json payload.
@@ -322,9 +336,11 @@ func (t *RestPost) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGet(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestPost", "MaybeGet")
+
 }
 
 // RestPostDescriptor describe a *RestPost

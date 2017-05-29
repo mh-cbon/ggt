@@ -1,6 +1,8 @@
 // Package capable demonstratres ggt's capabilities
 package capable
 
+//go:generate ggt -mode mw http-provider Mediator:MwMediator
+
 //go:generate ggt -mode route http-provider Ctx:RestCtx
 //go:generate ggt -mode rpc http-provider Ctx:RPCCtx
 

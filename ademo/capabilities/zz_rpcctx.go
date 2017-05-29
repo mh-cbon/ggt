@@ -5,7 +5,7 @@ package capable
 // do not edit
 
 import (
-	context "context"
+	"context"
 	ggt "github.com/mh-cbon/ggt/lib"
 	finder "github.com/mh-cbon/service-finder"
 	"io"
@@ -45,12 +45,16 @@ func NewRPCCtx(embed Ctx) *RPCCtx {
 // @route get
 func (t *RPCCtx) Get(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCtx", "Get")
-	whatever := r.Context()
+
+	reqCtx := r.Context()
+	whatever := reqCtx
 
 	t.embed.Get(whatever)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCtx", "Get")
+
 }
 
 // GetOne invoke Ctx.GetOne using the request body as a json payload.
@@ -71,9 +75,11 @@ func (t *RPCCtx) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(ctxArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCtx", "GetOne")
+
 }
 
 // MaybeGetOne invoke Ctx.MaybeGetOne using the request body as a json payload.
@@ -94,9 +100,11 @@ func (t *RPCCtx) MaybeGetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGetOne(ctxArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCtx", "MaybeGetOne")
+
 }
 
 // SetOne invoke Ctx.SetOne using the request body as a json payload.
@@ -105,14 +113,15 @@ func (t *RPCCtx) MaybeGetOne(w http.ResponseWriter, r *http.Request) {
 func (t *RPCCtx) SetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCtx", "SetOne")
 
-	ctxArg1 := t.embed.SetOne()
-
 	reqCtx := r.Context()
+
+	ctxArg1 := t.embed.SetOne()
 	reqCtx = context.WithValue(reqCtx, "ggt.arg1", ctxArg1)
 
 	r = r.WithContext(reqCtx)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCtx", "SetOne")
+
 }
 
 // MaybeSetOne invoke Ctx.MaybeSetOne using the request body as a json payload.
@@ -121,14 +130,15 @@ func (t *RPCCtx) SetOne(w http.ResponseWriter, r *http.Request) {
 func (t *RPCCtx) MaybeSetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCCtx", "MaybeSetOne")
 
-	ctxArg1 := t.embed.MaybeSetOne()
-
 	reqCtx := r.Context()
+
+	ctxArg1 := t.embed.MaybeSetOne()
 	reqCtx = context.WithValue(reqCtx, "ggt.arg1", ctxArg1)
 
 	r = r.WithContext(reqCtx)
 
 	t.Log.Handle(w, r, nil, "end", "RPCCtx", "MaybeSetOne")
+
 }
 
 // RPCCtxDescriptor describe a *RPCCtx

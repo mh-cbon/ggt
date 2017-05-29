@@ -55,6 +55,7 @@ func (t *RestError) TheMethod(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RestError", "TheMethod")
+
 }
 
 // RestErrorDescriptor describe a *RestError

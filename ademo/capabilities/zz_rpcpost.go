@@ -76,9 +76,11 @@ func (t *RPCPost) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll(postValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetAll")
+
 }
 
 // GetAll2 invoke Post.GetAll2 using the request body as a json payload.
@@ -117,9 +119,11 @@ func (t *RPCPost) GetAll2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll2(postValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetAll2")
+
 }
 
 // GetOne invoke Post.GetOne using the request body as a json payload.
@@ -158,9 +162,11 @@ func (t *RPCPost) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetOne")
+
 }
 
 // GetMany invoke Post.GetMany using the request body as a json payload.
@@ -202,9 +208,11 @@ func (t *RPCPost) GetMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetMany(postArg1, postArg2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "GetMany")
+
 }
 
 // ConvertToInt invoke Post.ConvertToInt using the request body as a json payload.
@@ -243,9 +251,11 @@ func (t *RPCPost) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToInt(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "ConvertToInt")
+
 }
 
 // ConvertToBool invoke Post.ConvertToBool using the request body as a json payload.
@@ -284,9 +294,11 @@ func (t *RPCPost) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToBool(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "ConvertToBool")
+
 }
 
 // ConvertToSlice invoke Post.ConvertToSlice using the request body as a json payload.
@@ -325,9 +337,11 @@ func (t *RPCPost) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToSlice(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "ConvertToSlice")
+
 }
 
 // MaybeGet invoke Post.MaybeGet using the request body as a json payload.
@@ -366,9 +380,11 @@ func (t *RPCPost) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGet(postArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCPost", "MaybeGet")
+
 }
 
 // RPCPostDescriptor describe a *RPCPost

@@ -45,12 +45,16 @@ func NewRestCtx(embed Ctx) *RestCtx {
 // @route get
 func (t *RestCtx) Get(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestCtx", "Get")
-	whatever := r.Context()
+
+	reqCtx := r.Context()
+	whatever := reqCtx
 
 	t.embed.Get(whatever)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCtx", "Get")
+
 }
 
 // GetOne invoke Ctx.GetOne using the request body as a json payload.
@@ -71,9 +75,11 @@ func (t *RestCtx) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(ctxArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCtx", "GetOne")
+
 }
 
 // MaybeGetOne invoke Ctx.MaybeGetOne using the request body as a json payload.
@@ -94,9 +100,11 @@ func (t *RestCtx) MaybeGetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGetOne(ctxArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestCtx", "MaybeGetOne")
+
 }
 
 // SetOne invoke Ctx.SetOne using the request body as a json payload.
@@ -105,14 +113,15 @@ func (t *RestCtx) MaybeGetOne(w http.ResponseWriter, r *http.Request) {
 func (t *RestCtx) SetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestCtx", "SetOne")
 
-	ctxArg1 := t.embed.SetOne()
-
 	reqCtx := r.Context()
+
+	ctxArg1 := t.embed.SetOne()
 	reqCtx = context.WithValue(reqCtx, "ggt.arg1", ctxArg1)
 
 	r = r.WithContext(reqCtx)
 
 	t.Log.Handle(w, r, nil, "end", "RestCtx", "SetOne")
+
 }
 
 // MaybeSetOne invoke Ctx.MaybeSetOne using the request body as a json payload.
@@ -121,14 +130,15 @@ func (t *RestCtx) SetOne(w http.ResponseWriter, r *http.Request) {
 func (t *RestCtx) MaybeSetOne(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RestCtx", "MaybeSetOne")
 
-	ctxArg1 := t.embed.MaybeSetOne()
-
 	reqCtx := r.Context()
+
+	ctxArg1 := t.embed.MaybeSetOne()
 	reqCtx = context.WithValue(reqCtx, "ggt.arg1", ctxArg1)
 
 	r = r.WithContext(reqCtx)
 
 	t.Log.Handle(w, r, nil, "end", "RestCtx", "MaybeSetOne")
+
 }
 
 // RestCtxDescriptor describe a *RestCtx

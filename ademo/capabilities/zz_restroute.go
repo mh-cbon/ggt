@@ -49,9 +49,11 @@ func (t *RestRoute) GetAll(w http.ResponseWriter, r *http.Request) {
 	routeValues := xxRouteVars
 
 	t.embed.GetAll(routeValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestRoute", "GetAll")
+
 }
 
 // GetOne invoke Route.GetOne using the request body as a json payload.
@@ -68,9 +70,11 @@ func (t *RestRoute) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(routeArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestRoute", "GetOne")
+
 }
 
 // GetMany invoke Route.GetMany using the request body as a json payload.
@@ -93,9 +97,11 @@ func (t *RestRoute) GetMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetMany(routeArg1, routeArg2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestRoute", "GetMany")
+
 }
 
 // ConvertToInt invoke Route.ConvertToInt using the request body as a json payload.
@@ -125,9 +131,11 @@ func (t *RestRoute) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToInt(routeArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestRoute", "ConvertToInt")
+
 }
 
 // ConvertToBool invoke Route.ConvertToBool using the request body as a json payload.
@@ -157,9 +165,11 @@ func (t *RestRoute) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToBool(routeArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestRoute", "ConvertToBool")
+
 }
 
 // MaybeGet invoke Route.MaybeGet using the request body as a json payload.
@@ -176,9 +186,11 @@ func (t *RestRoute) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGet(routeArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RestRoute", "MaybeGet")
+
 }
 
 // RestRouteDescriptor describe a *RestRoute

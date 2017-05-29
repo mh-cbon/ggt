@@ -64,9 +64,11 @@ func (t *RPCGet) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll(getValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetAll")
+
 }
 
 // GetAll2 invoke Get.GetAll2 using the request body as a json payload.
@@ -93,9 +95,11 @@ func (t *RPCGet) GetAll2(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetAll2(getValues)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetAll2")
+
 }
 
 // GetOne invoke Get.GetOne using the request body as a json payload.
@@ -122,9 +126,11 @@ func (t *RPCGet) GetOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetOne(getArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetOne")
+
 }
 
 // GetMany invoke Get.GetMany using the request body as a json payload.
@@ -154,9 +160,11 @@ func (t *RPCGet) GetMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.GetMany(getArg1, getArg2)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "GetMany")
+
 }
 
 // ConvertToInt invoke Get.ConvertToInt using the request body as a json payload.
@@ -183,9 +191,11 @@ func (t *RPCGet) ConvertToInt(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToInt(getArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "ConvertToInt")
+
 }
 
 // ConvertToBool invoke Get.ConvertToBool using the request body as a json payload.
@@ -212,9 +222,11 @@ func (t *RPCGet) ConvertToBool(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToBool(getArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "ConvertToBool")
+
 }
 
 // ConvertToSlice invoke Get.ConvertToSlice using the request body as a json payload.
@@ -241,9 +253,11 @@ func (t *RPCGet) ConvertToSlice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.ConvertToSlice(getArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "ConvertToSlice")
+
 }
 
 // MaybeGet invoke Get.MaybeGet using the request body as a json payload.
@@ -270,9 +284,11 @@ func (t *RPCGet) MaybeGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.embed.MaybeGet(getArg1)
+
 	w.WriteHeader(200)
 
 	t.Log.Handle(w, r, nil, "end", "RPCGet", "MaybeGet")
+
 }
 
 // RPCGetDescriptor describe a *RPCGet

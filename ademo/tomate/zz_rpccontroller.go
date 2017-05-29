@@ -5,9 +5,10 @@ package tomate
 // do not edit
 
 import (
-	context "context"
-	json "encoding/json"
+	"context"
+	"encoding/json"
 	ggt "github.com/mh-cbon/ggt/lib"
+	finder "github.com/mh-cbon/service-finder"
 	"io"
 	"net/http"
 	"strconv"
@@ -20,17 +21,21 @@ var xx0921489b227b5f67966848e3dde3a344935f476d = http.StatusOK
 // RPCController is an httper of Controller.
 // Controller of tomatoes.
 type RPCController struct {
-	embed   Controller
-	Log     ggt.HTTPLogger
-	Session ggt.SessionStoreProvider
+	embed    Controller
+	Services finder.ServiceFinder
+	Log      ggt.HTTPLogger
+	Session  ggt.SessionStoreProvider
+	Upload   ggt.Uploader
 }
 
 // NewRPCController constructs an httper of Controller
 func NewRPCController(embed Controller) *RPCController {
 	ret := &RPCController{
-		embed:   embed,
-		Log:     &ggt.VoidLog{},
-		Session: &ggt.VoidSession{},
+		embed:    embed,
+		Services: finder.New(),
+		Log:      &ggt.VoidLog{},
+		Session:  &ggt.VoidSession{},
+		Upload:   &ggt.FileProvider{},
 	}
 	ret.Log.Handle(nil, nil, nil, "constructor", "RPCController")
 	return ret
@@ -42,20 +47,25 @@ func NewRPCController(embed Controller) *RPCController {
 // @route /read/{id:[0-9]+}
 func (t *RPCController) GetByID(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCController", "GetByID")
-	input := struct {
-		Arg0 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var routeID string
+	{
+		input := struct {
+			routeID string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCController", "GetByID")
-		t.embed.Finalizer(w, r, decErr)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCController", "GetByID")
+			t.embed.Finalizer(w, r, decErr)
 
-		return
+			return
+		}
+
+		routeID = input.routeID
 	}
 
-	jsonResBody, err := t.embed.GetByID(input.Arg0)
+	jsonResBody, err := t.embed.GetByID(routeID)
 	output := struct {
 		Arg0 *Tomate
 		Arg1 error
@@ -80,6 +90,7 @@ func (t *RPCController) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCController", "GetByID")
+
 }
 
 // SimilarColor invoke Controller.SimilarColor using the request body as a json payload.
@@ -88,21 +99,28 @@ func (t *RPCController) GetByID(w http.ResponseWriter, r *http.Request) {
 // @route /similar/color/{color}
 func (t *RPCController) SimilarColor(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCController", "SimilarColor")
-	input := struct {
-		Arg0 string
-		Arg1 *bool
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var routeColor string
+	var getSensitive *bool
+	{
+		input := struct {
+			routeColor   string
+			getSensitive *bool
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCController", "SimilarColor")
-		t.embed.Finalizer(w, r, decErr)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCController", "SimilarColor")
+			t.embed.Finalizer(w, r, decErr)
 
-		return
+			return
+		}
+
+		routeColor = input.routeColor
+		getSensitive = input.getSensitive
 	}
 
-	jsonResBody, err := t.embed.SimilarColor(input.Arg0, input.Arg1)
+	jsonResBody, err := t.embed.SimilarColor(routeColor, getSensitive)
 	output := struct {
 		Arg0 *SimilarTomates
 		Arg1 error
@@ -127,6 +145,7 @@ func (t *RPCController) SimilarColor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCController", "SimilarColor")
+
 }
 
 // Create invoke Controller.Create using the request body as a json payload.
@@ -149,20 +168,25 @@ func (t *RPCController) Create(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-	input := struct {
-		Arg0 *string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var postColor *string
+	{
+		input := struct {
+			postColor *string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCController", "Create")
-		t.embed.Finalizer(w, r, decErr)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCController", "Create")
+			t.embed.Finalizer(w, r, decErr)
 
-		return
+			return
+		}
+
+		postColor = input.postColor
 	}
 
-	jsonResBody, err := t.embed.Create(input.Arg0)
+	jsonResBody, err := t.embed.Create(postColor)
 	output := struct {
 		Arg0 *Tomate
 		Arg1 error
@@ -187,6 +211,7 @@ func (t *RPCController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCController", "Create")
+
 }
 
 // Update invoke Controller.Update using the request body as a json payload.
@@ -196,21 +221,28 @@ func (t *RPCController) Create(w http.ResponseWriter, r *http.Request) {
 // @methods POST
 func (t *RPCController) Update(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCController", "Update")
-	input := struct {
-		Arg0 string
-		Arg1 *Tomate
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
+	var routeID string
+	var jsonReqBody *Tomate
+	{
+		input := struct {
+			routeID     string
+			jsonReqBody *Tomate
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+		if decErr != nil {
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCController", "Update")
-		t.embed.Finalizer(w, r, decErr)
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCController", "Update")
+			t.embed.Finalizer(w, r, decErr)
 
-		return
+			return
+		}
+
+		routeID = input.routeID
+		jsonReqBody = input.jsonReqBody
 	}
 
-	jsonResBody, err := t.embed.Update(input.Arg0, input.Arg1)
+	jsonResBody, err := t.embed.Update(routeID, jsonReqBody)
 	output := struct {
 		Arg0 *Tomate
 		Arg1 error
@@ -235,6 +267,7 @@ func (t *RPCController) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCController", "Update")
+
 }
 
 // Remove invoke Controller.Remove using the request body as a json payload.
@@ -244,21 +277,28 @@ func (t *RPCController) Update(w http.ResponseWriter, r *http.Request) {
 // @methods POST
 func (t *RPCController) Remove(w http.ResponseWriter, r *http.Request) {
 	t.Log.Handle(w, r, nil, "begin", "RPCController", "Remove")
-	input := struct {
-		Arg0 context.Context
-		Arg1 string
-	}{}
-	decErr := json.NewDecoder(r.Body).Decode(&input)
 
-	if decErr != nil {
+	reqCtx := r.Context()
+	ctx := reqCtx
+	var routeID string
+	{
+		input := struct {
+			routeID string
+		}{}
+		decErr := json.NewDecoder(r.Body).Decode(&input)
 
-		t.Log.Handle(w, r, decErr, "req", "json", "decode", "error", "RPCController", "Remove")
-		t.embed.Finalizer(w, r, decErr)
+		if decErr != nil {
 
-		return
+			t.Log.Handle(w, r, decErr, "json", "decode", "input", "error", "RPCController", "Remove")
+			t.embed.Finalizer(w, r, decErr)
+
+			return
+		}
+
+		routeID = input.routeID
 	}
 
-	jsonResBody, err := t.embed.Remove(input.Arg0, input.Arg1)
+	jsonResBody, err := t.embed.Remove(ctx, routeID)
 	output := struct {
 		Arg0 bool
 		Arg1 error
@@ -283,6 +323,7 @@ func (t *RPCController) Remove(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t.Log.Handle(w, r, nil, "end", "RPCController", "Remove")
+
 }
 
 // RPCControllerDescriptor describe a *RPCController
